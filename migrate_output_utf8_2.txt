@@ -1,0 +1,200 @@
+﻿
+  Dropping all tables  118.70ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  14.27ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  53.78ms DONE
+  0001_01_01_000001_create_cache_table  33.85ms DONE
+  0001_01_01_000002_create_jobs_table  43.28ms DONE
+  2026_02_25_121234_create_departments_table  17.93ms DONE
+  2026_02_25_121237_create_courses_table  32.32ms DONE
+  2026_02_25_121238_modify_courses_table_add_semester_config  31.80ms DONE
+  2026_02_25_121239_create_academic_sessions_table  7.50ms DONE
+  2026_02_25_121240_create_semesters_table  93.93ms DONE
+  2026_02_25_121245_create_classrooms_table  8.23ms DONE
+  2026_02_25_121257_create_teachers_table  63.94ms DONE
+  2026_02_25_121300_create_students_table  107.88ms DONE
+  2026_02_25_121312_create_subjects_table  35.06ms DONE
+  2026_02_25_121317_create_schedules_table  125.61ms DONE
+  2026_02_25_121321_create_teacher_availabilities_table  37.20ms DONE
+  2026_02_25_121348_create_assignments_table  99.34ms DONE
+  2026_02_25_121352_create_assignment_submissions_table  63.35ms DONE
+  2026_02_25_121440_create_notices_table  37.01ms DONE
+  2026_02_26_192449_fix_notices_table_columns  0.15ms DONE
+  2026_02_26_193517_create_events_table  8.33ms DONE
+  2027_02_27_000004_modify_students_table_add_semester_tracking  93.86ms DONE
+  2027_02_27_000005_create_semester_subjects_table  75.85ms DONE
+  2027_02_27_000006_create_teacher_subject_assignments_table  134.93ms DONE
+  2027_02_27_000007_create_fee_structures_table  99.97ms DONE
+  2027_02_27_000008_create_student_fees_table  113.27ms DONE
+  2027_02_27_000009_create_payments_table  108.42ms DONE
+  2027_02_27_000010_create_attendance_sessions_table  76.29ms DONE
+  2027_02_27_000011_modify_attendances_table_restructure  75.23ms DONE
+  2027_02_27_000012_modify_results_table_add_grading  73.22ms DONE
+  2027_02_27_000013_create_result_subjects_table  100.87ms DONE
+  2027_02_27_000014_create_leaves_table  48.35ms DONE
+  2027_02_27_000015_modify_notices_table_improve  20.01ms FAIL
+
+   Illuminate\Database\QueryException 
+
+  SQLSTATE[42S22]: Column not found: 1054 Unknown column 'description' in 'notices' (Connection: mysql, Host: 127.0.0.1, Port: 3306, Database: college_portal, SQL: alter table `notices` add `notice_for` enum('all', 'students', 'teachers', 'specific_course') not null default 'all' after `description`)
+
+  at vendor\laravel\framework\src\Illuminate\Database\Connection.php:838
+    834Γûò             $exceptionType = $this->isUniqueConstraintError($e)
+    835Γûò                 ? UniqueConstraintViolationException::class
+    836Γûò                 : QueryException::class;
+    837Γûò 
+  Γ₧£ 838Γûò             throw new $exceptionType(
+    839Γûò                 $this->getNameWithReadWriteType(),
+    840Γûò                 $query,
+    841Γûò                 $this->prepareBindings($bindings),
+    842Γûò                 $e,
+
+  1   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOException::("SQLSTATE[42S22]: Column not found: 1054 Unknown column 'description' in 'notices'")
+
+  2   vendor\laravel\framework\src\Illuminate\Database\Connection.php:584
+      PDOStatement::execute()
+
+  3   vendor\laravel\framework\src\Illuminate\Database\Connection.php:827
+      Illuminate\Database\Connection::{closure:Illuminate\Database\Connection::statement():573}("alter table `notices` add `notice_for` enum('all', 'students', 'teachers', 'specific_course') not null default 'all' after `description`", [])
+
+  4   vendor\laravel\framework\src\Illuminate\Database\Connection.php:794
+      Illuminate\Database\Connection::runQueryCallback("alter table `notices` add `notice_for` enum('all', 'students', 'teachers', 'specific_course') not null default 'all' after `description`", [], Object(Closure))
+
+  5   vendor\laravel\framework\src\Illuminate\Database\Connection.php:573
+      Illuminate\Database\Connection::run("alter table `notices` add `notice_for` enum('all', 'students', 'teachers', 'specific_course') not null default 'all' after `description`", [], Object(Closure))
+
+  6   vendor\laravel\framework\src\Illuminate\Database\Schema\Blueprint.php:121
+      Illuminate\Database\Connection::statement("alter table `notices` add `notice_for` enum('all', 'students', 'teachers', 'specific_course') not null default 'all' after `description`")
+
+  7   vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:686
+      Illuminate\Database\Schema\Blueprint::build()
+
+  8   vendor\laravel\framework\src\Illuminate\Database\Schema\Builder.php:494
+      Illuminate\Database\Schema\Builder::build(Object(Illuminate\Database\Schema\Blueprint))
+
+  9   vendor\laravel\framework\src\Illuminate\Support\Facades\Facade.php:363
+      Illuminate\Database\Schema\Builder::table("notices", Object(Closure))
+
+  10  database\migrations\2027_02_27_000015_modify_notices_table_improve.php:11
+      Illuminate\Support\Facades\Facade::__callStatic("table")
+
+  11  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:517
+      Illuminate\Database\Migrations\Migration@anonymous\C:\Users\patel\Herd\college-portal\database\migrations\2027_02_27_000015_modify_notices_table_improve.php:7$149::up()
+
+  12  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:442
+      Illuminate\Database\Migrations\Migrator::runMethod(Object(Illuminate\Database\MySqlConnection), Object(Illuminate\Database\Migrations\Migration@anonymous\C:\Users\patel\Herd\college-portal\database\migrations\2027_02_27_000015_modify_notices_table_improve.php:7$149), "up")
+
+  13  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:451
+      Illuminate\Database\Migrations\Migrator::{closure:Illuminate\Database\Migrations\Migrator::runMigration():438}()
+
+  14  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:253
+      Illuminate\Database\Migrations\Migrator::runMigration(Object(Illuminate\Database\Migrations\Migration@anonymous\C:\Users\patel\Herd\college-portal\database\migrations\2027_02_27_000015_modify_notices_table_improve.php:7$149), "up")
+
+  15  vendor\laravel\framework\src\Illuminate\Console\View\Components\Task.php:41
+      Illuminate\Database\Migrations\Migrator::{closure:Illuminate\Database\Migrations\Migrator::runUp():253}()
+
+  16  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:814
+      Illuminate\Console\View\Components\Task::render("2027_02_27_000015_modify_notices_table_improve", Object(Closure))
+
+  17  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:253
+      Illuminate\Database\Migrations\Migrator::write("Illuminate\Console\View\Components\Task", "2027_02_27_000015_modify_notices_table_improve", Object(Closure))
+
+  18  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:211
+      Illuminate\Database\Migrations\Migrator::runUp("C:\Users\patel\Herd\college-portal\database\migrations/2027_02_27_000015_modify_notices_table_improve.php")
+
+  19  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:138
+      Illuminate\Database\Migrations\Migrator::runPending([])
+
+  20  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:116
+      Illuminate\Database\Migrations\Migrator::run([])
+
+  21  vendor\laravel\framework\src\Illuminate\Database\Migrations\Migrator.php:671
+      Illuminate\Database\Console\Migrations\MigrateCommand::{closure:Illuminate\Database\Console\Migrations\MigrateCommand::runMigrations():109}()
+
+  22  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:109
+      Illuminate\Database\Migrations\Migrator::usingConnection(Object(Closure))
+
+  23  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\MigrateCommand.php:88
+      Illuminate\Database\Console\Migrations\MigrateCommand::runMigrations()
+
+  24  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:36
+      Illuminate\Database\Console\Migrations\MigrateCommand::handle()
+
+  25  vendor\laravel\framework\src\Illuminate\Container\Util.php:43
+      Illuminate\Container\BoundMethod::{closure:Illuminate\Container\BoundMethod::call():35}()
+
+  26  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:96
+      Illuminate\Container\Util::unwrapIfClosure(Object(Closure))
+
+  27  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:35
+      Illuminate\Container\BoundMethod::callBoundMethod(Object(Illuminate\Foundation\Application), Object(Closure))
+
+  28  vendor\laravel\framework\src\Illuminate\Container\Container.php:799
+      Illuminate\Container\BoundMethod::call(Object(Illuminate\Foundation\Application), [])
+
+  29  vendor\laravel\framework\src\Illuminate\Console\Command.php:211
+      Illuminate\Container\Container::call()
+
+  30  vendor\symfony\console\Command\Command.php:341
+      Illuminate\Console\Command::execute(Object(Symfony\Component\Console\Input\ArrayInput), Object(Illuminate\Console\OutputStyle))
+
+  31  vendor\laravel\framework\src\Illuminate\Console\Command.php:180
+      Symfony\Component\Console\Command\Command::run(Object(Symfony\Component\Console\Input\ArrayInput), Object(Illuminate\Console\OutputStyle))
+
+  32  vendor\laravel\framework\src\Illuminate\Console\Concerns\CallsCommands.php:68
+      Illuminate\Console\Command::run(Object(Symfony\Component\Console\Input\ArrayInput), Object(Illuminate\Console\OutputStyle))
+
+  33  vendor\laravel\framework\src\Illuminate\Console\Concerns\CallsCommands.php:29
+      Illuminate\Console\Command::runCommand("migrate", ["migrate"], Object(Illuminate\Console\OutputStyle))
+
+  34  vendor\laravel\framework\src\Illuminate\Database\Console\Migrations\FreshCommand.php:81
+      Illuminate\Console\Command::call("migrate", [])
+
+  35  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:36
+      Illuminate\Database\Console\Migrations\FreshCommand::handle()
+
+  36  vendor\laravel\framework\src\Illuminate\Container\Util.php:43
+      Illuminate\Container\BoundMethod::{closure:Illuminate\Container\BoundMethod::call():35}()
+
+  37  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:96
+      Illuminate\Container\Util::unwrapIfClosure(Object(Closure))
+
+  38  vendor\laravel\framework\src\Illuminate\Container\BoundMethod.php:35
+      Illuminate\Container\BoundMethod::callBoundMethod(Object(Illuminate\Foundation\Application), Object(Closure))
+
+  39  vendor\laravel\framework\src\Illuminate\Container\Container.php:799
+      Illuminate\Container\BoundMethod::call(Object(Illuminate\Foundation\Application), [])
+
+  40  vendor\laravel\framework\src\Illuminate\Console\Command.php:211
+      Illuminate\Container\Container::call()
+
+  41  vendor\symfony\console\Command\Command.php:341
+      Illuminate\Console\Command::execute(Object(Symfony\Component\Console\Input\ArgvInput), Object(Illuminate\Console\OutputStyle))
+
+  42  vendor\laravel\framework\src\Illuminate\Console\Command.php:180
+      Symfony\Component\Console\Command\Command::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Illuminate\Console\OutputStyle))
+
+  43  vendor\symfony\console\Application.php:1102
+      Illuminate\Console\Command::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  44  vendor\symfony\console\Application.php:356
+      Symfony\Component\Console\Application::doRunCommand(Object(Illuminate\Database\Console\Migrations\FreshCommand), Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  45  vendor\symfony\console\Application.php:195
+      Symfony\Component\Console\Application::doRun(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  46  vendor\laravel\framework\src\Illuminate\Foundation\Console\Kernel.php:198
+      Symfony\Component\Console\Application::run(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  47  vendor\laravel\framework\src\Illuminate\Foundation\Application.php:1235
+      Illuminate\Foundation\Console\Kernel::handle(Object(Symfony\Component\Console\Input\ArgvInput), Object(Symfony\Component\Console\Output\ConsoleOutput))
+
+  48  artisan:16
+      Illuminate\Foundation\Application::handleCommand(Object(Symfony\Component\Console\Input\ArgvInput))
+

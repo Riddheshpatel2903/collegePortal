@@ -1,0 +1,41 @@
+﻿
+  Dropping all tables  217.46ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  14.88ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  49.71ms DONE
+  0001_01_01_000001_create_cache_table  30.59ms DONE
+  0001_01_01_000002_create_jobs_table  37.53ms DONE
+  2026_02_25_121234_create_departments_table  14.74ms DONE
+  2026_02_25_121237_create_courses_table  31.92ms DONE
+  2026_02_25_121238_modify_courses_table_add_semester_config  28.61ms DONE
+  2026_02_25_121239_create_academic_sessions_table  8.13ms DONE
+  2026_02_25_121240_create_semesters_table  68.83ms DONE
+  2026_02_25_121245_create_classrooms_table  7.69ms DONE
+  2026_02_25_121257_create_teachers_table  58.94ms DONE
+  2026_02_25_121300_create_students_table  93.24ms DONE
+  2026_02_25_121312_create_subjects_table  35.11ms DONE
+  2026_02_25_121317_create_schedules_table  116.01ms DONE
+  2026_02_25_121321_create_teacher_availabilities_table  31.73ms DONE
+  2026_02_25_121348_create_assignments_table  168.68ms DONE
+  2026_02_25_121352_create_assignment_submissions_table  75.51ms DONE
+  2026_02_25_121440_create_notices_table  43.67ms DONE
+  2026_02_26_192449_fix_notices_table_columns  0.13ms DONE
+  2026_02_26_193517_create_events_table  8.30ms DONE
+  2027_02_27_000004_modify_students_table_add_semester_tracking  92.39ms DONE
+  2027_02_27_000005_create_semester_subjects_table  69.07ms DONE
+  2027_02_27_000006_create_teacher_subject_assignments_table  130.31ms DONE
+  2027_02_27_000007_create_fee_structures_table  32.96ms DONE
+  2027_02_27_000008_create_student_fees_table  98.06ms DONE
+  2027_02_27_000009_create_payments_table  96.48ms DONE
+  2027_02_27_000010_create_attendance_sessions_table  72.61ms DONE
+  2027_02_27_000011_modify_attendances_table_restructure  69.11ms DONE
+  2027_02_27_000012_modify_results_table_add_grading  66.22ms DONE
+  2027_02_27_000013_create_result_subjects_table  175.54ms DONE
+  2027_02_27_000014_create_leaves_table  59.58ms DONE
+  2027_02_27_000015_modify_notices_table_improve  83.03ms DONE
+

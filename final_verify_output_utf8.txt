@@ -1,0 +1,84 @@
+﻿
+  Dropping all tables  215.83ms DONE
+
+   INFO  Preparing database.  
+
+  Creating migration table  15.54ms DONE
+
+   INFO  Running migrations.  
+
+  0001_01_01_000000_create_users_table  62.61ms DONE
+  0001_01_01_000001_create_cache_table  36.18ms DONE
+  0001_01_01_000002_create_jobs_table  44.27ms DONE
+  2026_02_25_121234_create_departments_table  18.05ms DONE
+  2026_02_25_121237_create_courses_table  34.90ms DONE
+  2026_02_25_121238_modify_courses_table_add_semester_config  38.03ms DONE
+  2026_02_25_121239_create_academic_sessions_table  8.62ms DONE
+  2026_02_25_121240_create_semesters_table  78.12ms DONE
+  2026_02_25_121245_create_classrooms_table  7.74ms DONE
+  2026_02_25_121257_create_teachers_table  65.76ms DONE
+  2026_02_25_121300_create_students_table  105.96ms DONE
+  2026_02_25_121312_create_subjects_table  34.02ms DONE
+  2026_02_25_121317_create_schedules_table  123.13ms DONE
+  2026_02_25_121321_create_teacher_availabilities_table  36.33ms DONE
+  2026_02_25_121348_create_assignments_table  123.14ms DONE
+  2026_02_25_121352_create_assignment_submissions_table  101.51ms DONE
+  2026_02_25_121440_create_notices_table  47.00ms DONE
+  2026_02_26_192449_fix_notices_table_columns  0.17ms DONE
+  2026_02_26_193517_create_events_table  14.26ms DONE
+  2027_02_27_000004_modify_students_table_add_semester_tracking  198.31ms DONE
+  2027_02_27_000005_create_semester_subjects_table  76.25ms DONE
+  2027_02_27_000006_create_teacher_subject_assignments_table  125.79ms DONE
+  2027_02_27_000007_create_fee_structures_table  38.59ms DONE
+  2027_02_27_000008_create_student_fees_table  102.97ms DONE
+  2027_02_27_000009_create_payments_table  101.85ms DONE
+  2027_02_27_000010_create_attendance_sessions_table  75.71ms DONE
+  2027_02_27_000011_modify_attendances_table_restructure  78.72ms DONE
+  2027_02_27_000012_modify_results_table_add_grading  134.00ms DONE
+  2027_02_27_000013_create_result_subjects_table  122.54ms DONE
+  2027_02_27_000014_create_leaves_table  54.52ms DONE
+  2027_02_27_000015_modify_notices_table_improve  80.48ms DONE
+
+
+   INFO  Seeding database.  
+
+Cleaning up existing data...
+≡ƒÜÇ Starting Advanced College Seeding System...
+  Database\Seeders\DepartmentSeeder  RUNNING  
+  Database\Seeders\DepartmentSeeder  22 ms DONE  
+
+  Database\Seeders\AcademicSessionSeeder  RUNNING  
+  Database\Seeders\AcademicSessionSeeder  7 ms DONE  
+
+  Database\Seeders\CourseSeeder  RUNNING  
+  Database\Seeders\CourseSeeder  280 ms DONE  
+
+  Database\Seeders\FeeStructureSeeder  RUNNING  
+  Database\Seeders\FeeStructureSeeder  477 ms DONE  
+
+  Database\Seeders\TeacherSeeder  RUNNING  
+  Database\Seeders\TeacherSeeder  12,924 ms DONE  
+
+  Database\Seeders\StudentSeeder  RUNNING  
+  Database\Seeders\StudentSeeder  21,139 ms DONE  
+
+  Database\Seeders\SubjectSeeder  RUNNING  
+  Database\Seeders\SubjectSeeder  3,125 ms DONE  
+
+
+≡ƒôè Seeding Summary & Verification:
++---------------------+-------+
+| Table               | Count |
++---------------------+-------+
+| Users               | 161   |
+| Academic Sessions   | 2     |
+| Courses             | 9     |
+| Fee Structures      | 210   |
+| Teachers            | 60    |
+| Students            | 100   |
+| Subjects            | 63    |
+| Attendance Sessions | 0     |
+| Attendances         | 0     |
+| Results             | 0     |
++---------------------+-------+
+Γ£à Relational Integrity Check Passed!
