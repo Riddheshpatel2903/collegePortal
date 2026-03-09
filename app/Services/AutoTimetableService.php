@@ -44,7 +44,7 @@ class AutoTimetableService
         return range(1, $count);
     }
     private const WEEKLY_SLOT_TARGET = 30;
-    private const SLOT_RETRY_GUARD = 500;
+    private const SLOT_RETRY_GUARD = 2000;
     private const FULL_GENERATION_RETRIES = 5;
 
     public function __construct(
@@ -64,7 +64,7 @@ class AutoTimetableService
         $this->optimizeFixedLectureRoomsForSemester($course->id, $years, strtolower($semesterType));
         $semesterNumbers = $this->repository->semesterNumbersByType($course, $semesterType)->all();
 
-        $lectureRooms = $years->mapWithKeys(fn ($year) => [
+        $lectureRooms = $years->mapWithKeys(fn($year) => [
             (int) $year => $this->repository->exactLectureClassroomForCourseYear($course->id, (int) $year),
         ]);
 
@@ -81,11 +81,14 @@ class AutoTimetableService
 
     public function generate(array $payload): array
     {
+        ini_set('max_execution_time', '300');
+        ini_set('memory_limit', '512M');
+
         $course = $this->repository->findCourseOrFail((int) $payload['course_id']);
         $allYears = $this->repository->yearsForCourse($course)->values();
         $selectedYears = collect($payload['selected_years'] ?? $allYears->all())
-            ->map(fn ($year) => (int) $year)
-            ->filter(fn (int $year) => $allYears->contains($year))
+            ->map(fn($year) => (int) $year)
+            ->filter(fn(int $year) => $allYears->contains($year))
             ->unique()
             ->values();
 
@@ -103,19 +106,19 @@ class AutoTimetableService
             $semesterType = strtolower((string) $payload['semester_type']);
             $allYears = $this->repository->yearsForCourse($course)->values();
             $selectedYears = collect($payload['selected_years'] ?? $allYears->all())
-                ->map(fn ($year) => (int) $year)
-                ->filter(fn (int $year) => $allYears->contains($year))
+                ->map(fn($year) => (int) $year)
+                ->filter(fn(int $year) => $allYears->contains($year))
                 ->unique()
                 ->values();
 
             $selectedTeacherIds = collect($payload['selected_teacher_ids'] ?? [])
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->filter()
                 ->unique()
                 ->values();
 
             $selectedClassroomIds = collect($payload['selected_classroom_ids'] ?? [])
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->filter()
                 ->unique()
                 ->values();
@@ -131,7 +134,7 @@ class AutoTimetableService
                 (int) $course->department_id,
                 $selectedTeacherIds->isEmpty() ? null : $selectedTeacherIds->all()
             );
-            $activeTeacherIds = $activeTeachers->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $activeTeacherIds = $activeTeachers->pluck('id')->map(fn($id) => (int) $id)->all();
 
             $filteredSubjects = $subjects
                 ->filter(function (Subject $subject) use ($selectedYears) {
@@ -155,9 +158,9 @@ class AutoTimetableService
 
             $labRooms = $this->repository->labClassrooms($course->id);
             if ($selectedClassroomIds->isNotEmpty()) {
-                $labRooms = $labRooms->filter(fn ($room) => $selectedClassroomIds->contains((int) $room->id))->values();
+                $labRooms = $labRooms->filter(fn($room) => $selectedClassroomIds->contains((int) $room->id))->values();
             }
-            if ($filteredSubjects->contains(fn (Subject $subject) => $this->isLabSubject($subject)) && $labRooms->isEmpty()) {
+            if ($filteredSubjects->contains(fn(Subject $subject) => $this->isLabSubject($subject)) && $labRooms->isEmpty()) {
                 throw new RuntimeException('No selectable lab classrooms found for lab subjects.');
             }
 
@@ -174,19 +177,10 @@ class AutoTimetableService
 
             $teacherAvailabilityByTeacher = $this->repository
                 ->teacherAvailabilities($activeTeacherIds)
-                ->groupBy('teacher_id');
+                ->groupBy('teacher_id')
+                ->map(fn($availabilities) => $availabilities->groupBy('day_of_week'));
 
-            $generated = $this->retryEngine->run(self::FULL_GENERATION_RETRIES, function () use (
-                $selectedYears,
-                $semesterType,
-                $filteredSubjects,
-                $subjectTeacherCandidates,
-                $course,
-                $labRooms,
-                $lectureRoomsByYear,
-                $baselineState,
-                $teacherAvailabilityByTeacher
-            ) {
+            $generated = $this->retryEngine->run(self::FULL_GENERATION_RETRIES, function () use ($selectedYears, $semesterType, $filteredSubjects, $subjectTeacherCandidates, $course, $labRooms, $lectureRoomsByYear, $baselineState, $teacherAvailabilityByTeacher) {
                 return $this->attemptGeneration(
                     $selectedYears,
                     $semesterType,
@@ -196,7 +190,7 @@ class AutoTimetableService
                     $labRooms,
                     $lectureRoomsByYear,
                     $baselineState,
-                    $teacherAvailabilityByTeacher
+                    $teacherAvailabilityByTeacher->toArray()
                 );
             });
 
@@ -296,7 +290,7 @@ class AutoTimetableService
 
             $teacherId = (int) $payload['teacher_id'];
             $classroomId = (int) $payload['classroom_id'];
-            $ignoreIds = $blockRows->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $ignoreIds = $blockRows->pluck('id')->map(fn($id) => (int) $id)->all();
 
             if ($subjectIsLab) {
                 $classroom = Classroom::query()->findOrFail($classroomId);
@@ -323,7 +317,11 @@ class AutoTimetableService
                 max(1, (int) ($teacher->max_lectures_per_day ?? 6)),
                 $this->accessService->teacherMaxLecturesPerDay()
             );
-            $teacherAvailabilityByTeacher = $this->repository->teacherAvailabilities([$teacherId])->groupBy('teacher_id');
+            $teacherAvailabilityByTeacher = $this->repository->teacherAvailabilities([$teacherId])
+                ->groupBy('teacher_id')
+                ->map(fn($availabilities) => $availabilities->groupBy('day_of_week'))
+                ->toArray();
+
             $this->conflictValidator->assertNoConflictsForEdit(
                 (int) $row->course_id,
                 (int) $row->year_number,
@@ -359,7 +357,7 @@ class AutoTimetableService
         EloquentCollection $labRooms,
         array $lectureRoomsByYear,
         array $baselineState,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher
     ): array {
         $state = $baselineState;
         $rowsToInsert = [];
@@ -368,7 +366,7 @@ class AutoTimetableService
         foreach ($selectedYears as $year) {
             $semester = $this->repository->semesterForYearByType((int) $year, $semesterType);
             $classSubjects = $filteredSubjects
-                ->filter(fn (Subject $subject) => (int) ($subject->semester_number ?? $subject->semester_sequence ?? 0) === $semester)
+                ->filter(fn(Subject $subject) => (int) ($subject->semester_number ?? $subject->semester_sequence ?? 0) === $semester)
                 ->values();
 
             $this->assertWeeklyHourTarget($classSubjects, (int) $year, $semester);
@@ -379,30 +377,21 @@ class AutoTimetableService
                 $classSubjects,
                 $subjectTeacherCandidates,
                 $semesterType,
-                (int) $lectureRoomsByYear[(int) $year]->id
+                (int) $lectureRoomsByYear[(int) $year]->id,
+                $state
             );
 
             $labSubjects = $classSubjects
-                ->filter(fn (Subject $subject) => $this->isLabSubject($subject))
-                ->sortByDesc(fn (Subject $subject) => $this->labDuration($subject) * $this->hoursPerWeek($subject))
+                ->filter(fn(Subject $subject) => $this->isLabSubject($subject))
+                ->sortByDesc(fn(Subject $subject) => $this->labDuration($subject) * $this->hoursPerWeek($subject))
                 ->values();
+            $optionsCache = [];
             $lectureSubjects = $classSubjects
-                ->reject(fn (Subject $subject) => $this->isLabSubject($subject))
+                ->reject(fn(Subject $subject) => $this->isLabSubject($subject))
                 ->values();
 
             $lectureSubjects = $lectureSubjects
-                ->sortBy(function (Subject $subject) use ($subjectTeacherCandidates, $courseId, $year, $semesterType, $state, $lectureRoomsByYear, $teacherAvailabilityByTeacher) {
-                    $teacherId = (int) (($subjectTeacherCandidates[(int) $subject->id][0] ?? 0));
-                    return $this->estimateSingleSlotOptions(
-                        $courseId,
-                        (int) $year,
-                        $teacherId,
-                        (int) $lectureRoomsByYear[(int) $year]->id,
-                        $semesterType,
-                        $state,
-                        $teacherAvailabilityByTeacher
-                    );
-                })
+                ->sortByDesc(fn(Subject $subject) => $this->hoursPerWeek($subject))
                 ->values();
 
             foreach ($labSubjects as $subject) {
@@ -437,7 +426,7 @@ class AutoTimetableService
             }
 
             $lectureRemaining = $lectureSubjects
-                ->mapWithKeys(fn (Subject $subject) => [(int) $subject->id => $this->hoursPerWeek($subject)])
+                ->mapWithKeys(fn(Subject $subject) => [(int) $subject->id => $this->hoursPerWeek($subject)])
                 ->all();
 
             $guard = 0;
@@ -448,9 +437,10 @@ class AutoTimetableService
                     break;
                 }
 
+                $optionsCache = [];
                 $nextSubjects = $lectureSubjects
-                    ->filter(fn (Subject $subject) => ($lectureRemaining[(int) $subject->id] ?? 0) > 0)
-                    ->sortBy(function (Subject $subject) use ($subjectTeacherCandidates, $courseId, $year, $semesterType, $state, $lectureRoomsByYear, $teacherAvailabilityByTeacher, $lectureRemaining) {
+                    ->filter(fn(Subject $subject) => ($lectureRemaining[(int) $subject->id] ?? 0) > 0)
+                    ->sortBy(function (Subject $subject) use ($subjectTeacherCandidates, $courseId, $year, $semesterType, $state, $lectureRoomsByYear, $teacherAvailabilityByTeacher, $lectureRemaining, &$optionsCache) {
                         $teacherId = (int) (($subjectTeacherCandidates[(int) $subject->id][0] ?? 0));
                         $options = $this->estimateSingleSlotOptions(
                             $courseId,
@@ -459,7 +449,8 @@ class AutoTimetableService
                             (int) $lectureRoomsByYear[(int) $year]->id,
                             $semesterType,
                             $state,
-                            $teacherAvailabilityByTeacher
+                            $teacherAvailabilityByTeacher,
+                            $optionsCache
                         );
                         $remaining = (int) ($lectureRemaining[(int) $subject->id] ?? 0);
                         return sprintf('%05d-%05d', $options, -$remaining);
@@ -528,13 +519,13 @@ class AutoTimetableService
         EloquentCollection $candidateRooms,
         array &$state,
         array &$rowsToInsert,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher
     ): bool {
         if (empty($teacherCandidates)) {
             return false;
         }
 
-        $roomIds = $candidateRooms->pluck('id')->shuffle()->values();
+        $roomIds = $candidateRooms->pluck('id')->sort()->values();
         $candidates = collect();
 
         foreach ($this->days() as $day) {
@@ -545,7 +536,13 @@ class AutoTimetableService
                 ]);
             }
         }
-        $candidates = $candidates->shuffle()->values();
+        // Order candidates deterministically instead of shuffling: prefer earlier days and slots
+        $dayOrder = array_flip($this->days());
+        $candidates = $candidates->sortBy(function ($candidate) use ($dayOrder) {
+            $dayIndex = $dayOrder[$candidate['day']] ?? 999;
+            $slotStart = $candidate['slots'][0] ?? 999;
+            return sprintf('%03d-%03d', $dayIndex, $slotStart);
+        })->values();
 
         $guard = 0;
         foreach ($candidates as $candidate) {
@@ -556,23 +553,25 @@ class AutoTimetableService
 
             foreach ($roomIds as $roomId) {
                 $orderedTeachers = collect($teacherCandidates)
-                    ->map(fn ($id) => (int) $id)
+                    ->map(fn($id) => (int) $id)
                     ->unique()
-                    ->sortBy(fn (int $teacherId) => (int) ($state['teacher_day_load'][$teacherId][(string) $candidate['day']] ?? 0))
+                    ->sortBy(fn(int $teacherId) => (int) ($state['teacher_day_load'][$teacherId][(string) $candidate['day']] ?? 0))
                     ->values();
 
                 foreach ($orderedTeachers as $teacherId) {
-                    if (!$this->conflictValidator->canPlaceForGeneration(
-                        $courseId,
-                        $year,
-                        $teacherId,
-                        (int) $roomId,
-                        (string) $candidate['day'],
-                        $candidate['slots'],
-                        $semesterType,
-                        $state,
-                        $teacherAvailabilityByTeacher
-                    )) {
+                    if (
+                        !$this->conflictValidator->canPlaceForGeneration(
+                            $courseId,
+                            $year,
+                            $teacherId,
+                            (int) $roomId,
+                            (string) $candidate['day'],
+                            $candidate['slots'],
+                            $semesterType,
+                            $state,
+                            $teacherAvailabilityByTeacher
+                        )
+                    ) {
                         continue;
                     }
 
@@ -619,28 +618,36 @@ class AutoTimetableService
         int $roomId,
         string $semesterType,
         array $state,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher,
+        array &$cache = []
     ): int {
+        $cacheKey = "{$teacherId}-{$roomId}";
+        if (isset($cache[$cacheKey])) {
+            return $cache[$cacheKey];
+        }
+
         $count = 0;
         foreach ($this->days() as $day) {
             foreach ($this->slots() as $slot) {
-                if ($this->conflictValidator->canPlaceForGeneration(
-                    $courseId,
-                    $year,
-                    $teacherId,
-                    $roomId,
-                    $day,
-                    [$slot],
-                    $semesterType,
-                    $state,
-                    $teacherAvailabilityByTeacher
-                )) {
+                if (
+                    $this->conflictValidator->canPlaceForGeneration(
+                        $courseId,
+                        $year,
+                        $teacherId,
+                        $roomId,
+                        $day,
+                        [$slot],
+                        $semesterType,
+                        $state,
+                        $teacherAvailabilityByTeacher
+                    )
+                ) {
                     $count++;
                 }
             }
         }
 
-        return $count;
+        return $cache[$cacheKey] = $count;
     }
 
     private function occupy(
@@ -669,12 +676,12 @@ class AutoTimetableService
             'teacher_limit' => [],
         ];
 
-        $teacherIds = $rows->pluck('teacher_id')->map(fn ($id) => (int) $id)->unique()->values();
+        $teacherIds = $rows->pluck('teacher_id')->map(fn($id) => (int) $id)->unique()->values();
         $globalTeacherLimit = $this->accessService->teacherMaxLecturesPerDay();
         $limits = Teacher::query()
             ->whereIn('id', $teacherIds->all())
             ->pluck('max_lectures_per_day', 'id')
-            ->map(fn ($v) => min(max(1, (int) ($v ?? 6)), $globalTeacherLimit));
+            ->map(fn($v) => min(max(1, (int) ($v ?? 6)), $globalTeacherLimit));
 
         foreach ($rows as $row) {
             $teacherId = (int) $row->teacher_id;
@@ -717,7 +724,7 @@ class AutoTimetableService
             throw new RuntimeException("No subjects found for Year {$year}, Semester {$semester}.");
         }
 
-        $total = $classSubjects->sum(fn (Subject $subject) => $this->hoursPerWeek($subject));
+        $total = $classSubjects->sum(fn(Subject $subject) => $this->hoursPerWeek($subject));
         if ((int) $total !== self::WEEKLY_SLOT_TARGET) {
             throw new RuntimeException(
                 "Year {$year}, Semester {$semester} has {$total} total subject hours/week. Required: " . self::WEEKLY_SLOT_TARGET . '.'
@@ -784,7 +791,7 @@ class AutoTimetableService
         Collection $activeTeachers,
         string $semesterType
     ): Collection {
-        $activeTeacherIds = $activeTeachers->pluck('id')->map(fn ($id) => (int) $id)->values();
+        $activeTeacherIds = $activeTeachers->pluck('id')->map(fn($id) => (int) $id)->values();
         if ($activeTeacherIds->isEmpty()) {
             throw new RuntimeException('No active teachers selected for timetable generation.');
         }
@@ -799,7 +806,7 @@ class AutoTimetableService
 
         $candidatesBySubject = $assignmentRows
             ->groupBy('subject_id')
-            ->map(fn (Collection $rows) => $rows->pluck('teacher_id')->map(fn ($id) => (int) $id)->unique()->values());
+            ->map(fn(Collection $rows) => $rows->pluck('teacher_id')->map(fn($id) => (int) $id)->unique()->values());
 
         $teacherCapacity = [];
         $globalTeacherLimit = $this->accessService->teacherMaxLecturesPerDay();
@@ -837,13 +844,13 @@ class AutoTimetableService
             $candidates = $candidates->merge($activeTeacherIds)->unique()->values();
 
             $best = $candidates
-                ->sortByDesc(fn (int $teacherId) => (int) ($teacherCapacity[$teacherId] ?? 0))
+                ->sortByDesc(fn(int $teacherId) => (int) ($teacherCapacity[$teacherId] ?? 0))
                 ->first();
 
             if (!$best || (int) ($teacherCapacity[$best] ?? 0) < $required) {
                 $names = $activeTeachers
-                    ->filter(fn ($t) => $candidates->contains((int) $t->id))
-                    ->map(fn ($t) => ($t->user?->name ?? ("Teacher {$t->id}")) . ' (' . ((int) ($teacherCapacity[(int) $t->id] ?? 0)) . ' free)')
+                    ->filter(fn($t) => $candidates->contains((int) $t->id))
+                    ->map(fn($t) => ($t->user?->name ?? ("Teacher {$t->id}")) . ' (' . ((int) ($teacherCapacity[(int) $t->id] ?? 0)) . ' free)')
                     ->values()
                     ->all();
                 throw new RuntimeException(
@@ -866,34 +873,36 @@ class AutoTimetableService
         Collection $classSubjects,
         array $subjectTeacherCandidates,
         string $semesterType,
-        int $fixedLectureRoomId
+        int $fixedLectureRoomId,
+        array $state
     ): void {
-        $hasLabs = $classSubjects->contains(fn (Subject $subject) => $this->isLabSubject($subject));
+        $hasLabs = $classSubjects->contains(fn(Subject $subject) => $this->isLabSubject($subject));
         if ($hasLabs) {
             return;
         }
 
         $teacherIds = $classSubjects
-            ->flatMap(fn (Subject $subject) => collect($subjectTeacherCandidates[(int) $subject->id] ?? []))
-            ->map(fn ($id) => (int) $id)
+            ->flatMap(fn(Subject $subject) => collect($subjectTeacherCandidates[(int) $subject->id] ?? []))
+            ->map(fn($id) => (int) $id)
             ->filter()
             ->unique()
             ->values();
 
+        $classKey = $this->classKey($courseId, $year);
         // iterate over working days/slots rather than hardcoded constants
         foreach ($this->days() as $day) {
             foreach ($this->slots() as $slot) {
-                if ($this->repository->hasClassConflict($courseId, $year, $day, [$slot], $semesterType)) {
+                if (($state['class'][$classKey][$day][$slot] ?? false) === true) {
                     continue;
                 }
-                if ($this->repository->hasRoomConflict($fixedLectureRoomId, $day, [$slot], $semesterType)) {
+                if (($state['room'][$fixedLectureRoomId][$day][$slot] ?? false) === true) {
                     throw new RuntimeException(
                         "Year {$year}, Semester {$semester} cannot be fully scheduled: fixed lecture room is occupied on " . ucfirst($day) . " slot {$slot}."
                     );
                 }
 
-                $teacherFree = $teacherIds->contains(function (int $teacherId) use ($day, $slot, $semesterType) {
-                    return !$this->repository->hasTeacherConflict($teacherId, $day, [$slot], $semesterType);
+                $teacherFree = $teacherIds->contains(function (int $teacherId) use ($day, $slot, $state) {
+                    return !($state['teacher'][$teacherId][$day][$slot] ?? false);
                 });
 
                 if (!$teacherFree) {
@@ -974,7 +983,7 @@ class AutoTimetableService
             return [];
         }
 
-        $subjectIds = $subjects->pluck('id')->map(fn ($id) => (int) $id)->all();
+        $subjectIds = $subjects->pluck('id')->map(fn($id) => (int) $id)->all();
         $assignmentRows = TeacherSubjectAssignment::query()
             ->whereIn('subject_id', $subjectIds)
             ->where('is_active', true)
@@ -990,7 +999,7 @@ class AutoTimetableService
             $assigned = $assignmentRows
                 ->where('subject_id', $subjectId)
                 ->pluck('teacher_id')
-                ->map(fn ($id) => (int) $id)
+                ->map(fn($id) => (int) $id)
                 ->values();
 
             $candidates = collect();

@@ -13,13 +13,14 @@ class ResultService
         protected PromotionService $promotionService
     ) {
     }
+
     /**
      * Calculate SGPA for a semester
      */
     public function calculateSGPA(Result $result)
     {
         $resultSubjects = $result->resultSubjects;
-        
+
         if ($resultSubjects->isEmpty()) {
             return 0;
         }
@@ -64,9 +65,9 @@ class ResultService
     /**
      * Submit result for a student
      */
-    public function submitResult(Student $student, int $semesterNumber, array $subjectMarks)
+    public function submitResult(Student $student, int $semesterNumber, array $subjectMarks, bool $publish = false)
     {
-        return DB::transaction(function () use ($student, $semesterNumber, $subjectMarks) {
+        return DB::transaction(function () use ($student, $semesterNumber, $subjectMarks, $publish) {
             // Create or get result
             $result = Result::firstOrCreate(
                 [
@@ -120,8 +121,8 @@ class ResultService
                 'sgpa' => $sgpa,
                 'backlog_subjects' => $backlogCount,
                 'total_credits_earned' => $totalCredits,
-                'result_status' => $backlogCount > 0 ? 'fail' : 'pass',
-                'result_declared_date' => now()
+                'result_status' => $publish ? ($backlogCount > 0 ? 'fail' : 'pass') : 'pending',
+                'result_declared_date' => $publish ? now() : null
             ]);
 
             // Calculate and update CGPA
@@ -133,16 +134,18 @@ class ResultService
                 'academic_status' => $backlogCount > 0 ? 'backlog' : 'active',
             ]);
 
-            // Auto promote if passed
-            if ($backlogCount === 0) {
-                $isYearEnd = ((int) $semesterNumber % max(1, (int) $student->course?->semesters_per_year)) === 0;
-                if ($isYearEnd) {
-                    $this->promotionService->promoteAtYearEnd($student, true);
-                }
-            } else {
-                $isYearEnd = ((int) $semesterNumber % max(1, (int) $student->course?->semesters_per_year)) === 0;
-                if ($isYearEnd) {
-                    $this->promotionService->promoteAtYearEnd($student, false);
+            // Auto promote if passed and published
+            if ($publish) {
+                if ($backlogCount === 0) {
+                    $isYearEnd = ((int) $semesterNumber % max(1, (int) $student->course?->semesters_per_year)) === 0;
+                    if ($isYearEnd) {
+                        $this->promotionService->promoteAtYearEnd($student, true);
+                    }
+                } else {
+                    $isYearEnd = ((int) $semesterNumber % max(1, (int) $student->course?->semesters_per_year)) === 0;
+                    if ($isYearEnd) {
+                        $this->promotionService->promoteAtYearEnd($student, false);
+                    }
                 }
             }
 

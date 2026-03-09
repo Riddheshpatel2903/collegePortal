@@ -27,6 +27,27 @@ class AcademicPhaseController extends Controller
             AcademicPhase::query()
                 ->where('phase_name', $validated['phase_name'])
                 ->update(['is_active' => true]);
+
+            // Sync Semesters based on phase
+            $currentSession = \App\Models\AcademicSession::where('is_current', true)->first();
+            if ($currentSession) {
+                $isOdd = $validated['phase_name'] === 'Odd';
+
+                // Update based on parity
+                \App\Models\Semester::where('academic_session_id', $currentSession->id)
+                    ->whereRaw('MOD(semester_number, 2) = ?', [$isOdd ? 1 : 0])
+                    ->update([
+                        'status' => 'active',
+                        'is_current' => true
+                    ]);
+
+                \App\Models\Semester::where('academic_session_id', $currentSession->id)
+                    ->whereRaw('MOD(semester_number, 2) = ?', [$isOdd ? 0 : 1])
+                    ->update([
+                        'status' => $isOdd ? 'upcoming' : 'completed',
+                        'is_current' => false
+                    ]);
+            }
         });
 
         return back()->with('success', "Academic phase switched to {$validated['phase_name']}.");

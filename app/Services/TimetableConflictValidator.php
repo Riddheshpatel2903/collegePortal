@@ -8,6 +8,8 @@ use Illuminate\Validation\ValidationException;
 
 class TimetableConflictValidator
 {
+    private static array $slotRangeCache = [];
+
     public function __construct(private TimetableRepository $repository)
     {
     }
@@ -21,7 +23,7 @@ class TimetableConflictValidator
         array $slots,
         string $semesterType,
         array $state,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher
     ): bool {
         $classKey = $this->classKey($courseId, $year);
 
@@ -47,16 +49,6 @@ class TimetableConflictValidator
             return false;
         }
 
-        if ($this->repository->hasTeacherConflict($teacherId, $day, $slots, $semesterType)) {
-            return false;
-        }
-        if ($this->repository->hasClassConflict($courseId, $year, $day, $slots, $semesterType)) {
-            return false;
-        }
-        if ($this->repository->hasRoomConflict($roomId, $day, $slots, $semesterType)) {
-            return false;
-        }
-
         return true;
     }
 
@@ -70,7 +62,7 @@ class TimetableConflictValidator
         string $semesterType,
         array $ignoreIds,
         int $teacherMaxPerDay,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher
     ): void {
         if ($this->repository->hasTeacherConflict($teacherId, $day, $slots, $semesterType, $ignoreIds)) {
             throw ValidationException::withMessages(['teacher_id' => 'Teacher is already assigned in the selected slot.']);
@@ -96,19 +88,24 @@ class TimetableConflictValidator
         int $teacherId,
         string $day,
         array $slots,
-        Collection $teacherAvailabilityByTeacher
+        array $teacherAvailabilityByTeacher
     ): bool {
-        $availability = $teacherAvailabilityByTeacher->get($teacherId, collect())
-            ->where('day_of_week', $day)
-            ->values();
+        // Handle pre-processed structure: [teacher_id][day] => Collection|array
+        $availability = $teacherAvailabilityByTeacher[$teacherId][$day] ?? collect();
 
-        if ($availability->isEmpty()) {
+        if ($availability instanceof Collection) {
+            if ($availability->isEmpty())
+                return true;
+        } elseif (empty($availability)) {
             return true;
         }
 
         foreach ($slots as $slotNumber) {
             [$slotStart, $slotEnd] = $this->slotRange((int) $slotNumber);
+
+            // availability here is expected to be a Collection of availability records for the specific teacher AND day.
             $allowed = $availability->contains(function ($row) use ($slotStart, $slotEnd) {
+                // Remove seconds if present for comparison
                 $start = substr((string) $row->start_time, 0, 5);
                 $end = substr((string) $row->end_time, 0, 5);
                 return $start <= $slotStart && $end >= $slotEnd;
@@ -124,10 +121,15 @@ class TimetableConflictValidator
 
     private function slotRange(int $slotNumber): array
     {
+        if (isset(self::$slotRangeCache[$slotNumber])) {
+            return self::$slotRangeCache[$slotNumber];
+        }
+
         $blocks = config('timetable.slot_blocks', []);
         $idx = max(0, min(count($blocks) - 1, $slotNumber - 1));
         $block = $blocks[$idx] ?? ['09:00', '10:00'];
-        return [$block[0], $block[1]];
+
+        return self::$slotRangeCache[$slotNumber] = [$block[0], $block[1]];
     }
 
     private function classKey(int $courseId, int $year): string

@@ -57,12 +57,22 @@ class ResultController extends Controller
         $teacher = auth()->user()->teacher;
         abort_if(!$teacher, 403, 'Teacher profile not found.');
         $semesterId = (int) $request->semester_id;
+        $academicYear = (string) $request->academic_year;
 
         $assignments = TeacherSubjectAssignment::with('subject.course')
             ->where('teacher_id', $teacher->id)
             ->whereHas('subject', fn($q) => $q->where('semester_sequence', $semesterId))
             ->where('is_active', true)
             ->get();
+
+        if ($assignments->isEmpty()) {
+            return response()->json([
+                'subjects' => [],
+                'students' => [],
+                'marks' => [],
+                'message' => 'No assigned subjects found for this semester.'
+            ]);
+        }
 
         $subjects = $assignments->map(fn($a) => [
             'id' => $a->subject_id,
@@ -151,12 +161,17 @@ class ResultController extends Controller
     public function publish($id)
     {
         $result = Result::findOrFail($id);
+
+        // Final recalculation of backlog subjects before publishing
+        $backlogs = $result->resultSubjects()->where('subject_status', 'fail')->count();
+
         $result->update([
-            'result_status' => $result->backlog_subjects > 0 ? 'fail' : 'pass',
+            'result_status' => $backlogs > 0 ? 'fail' : 'pass',
+            'backlog_subjects' => $backlogs,
             'result_declared_date' => now(),
         ]);
 
-        return response()->json(['success' => true, 'published_at' => $result->result_declared_date]);
+        return response()->json(['success' => true, 'published_at' => $result->result_declared_date->format('Y-m-d H:i:s')]);
     }
 
     public function unlock($id)

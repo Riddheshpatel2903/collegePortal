@@ -70,7 +70,7 @@ class ResultSubject extends Model
 
         static::saving(function ($resultSubject) {
             $percentage = $resultSubject->percentage;
-            
+
             if ($percentage >= 90) {
                 $resultSubject->grade = 'A+';
                 $resultSubject->grade_point = 10;
@@ -94,7 +94,11 @@ class ResultSubject extends Model
                 $resultSubject->grade_point = 0;
                 $resultSubject->is_backlog = true;
                 $resultSubject->subject_status = 'fail';
+                return;
             }
+
+            $resultSubject->is_backlog = false;
+            $resultSubject->subject_status = 'pass';
         });
     }
 }

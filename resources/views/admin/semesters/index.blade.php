@@ -22,7 +22,6 @@
                     <th>Name</th>
                     <th>Course</th>
                     <th>Session</th>
-                    <th>Semester</th>
                     <th>Dates</th>
                     <th>Status</th>
                     <th class="text-center">Actions</th>
@@ -36,12 +35,6 @@
                         <td><span class="text-sm text-slate-500">{{ $sem->course->name ?? 'N/A' }}</span></td>
                         <td><span class="text-sm text-slate-500">{{ $sem->academicSession->name ?? 'N/A' }}</span></td>
                         <td>
-                            <span class="text-sm text-slate-500">#{{ $sem->semester_number }}</span>
-                            @if($sem->is_current)
-                                <span class="ml-2 inline-flex items-center px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-bold uppercase tracking-widest">Current</span>
-                            @endif
-                        </td>
-                        <td>
                             <span class="text-xs text-slate-500">
                                 {{ optional($sem->start_date)->format('d M Y') ?? 'N/A' }}
                                 -
@@ -50,9 +43,9 @@
                         </td>
                         <td>
                             <span class="text-xs font-semibold uppercase tracking-widest px-2 py-1 rounded-full
-                                {{ $sem->status === 'active' ? 'bg-emerald-50 text-emerald-700' : '' }}
-                                {{ $sem->status === 'completed' ? 'bg-slate-100 text-slate-600' : '' }}
-                                {{ $sem->status === 'upcoming' ? 'bg-amber-50 text-amber-700' : '' }}">
+                                                {{ $sem->status === 'active' ? 'bg-emerald-50 text-emerald-700' : '' }}
+                                                {{ $sem->status === 'completed' ? 'bg-slate-100 text-slate-600' : '' }}
+                                                {{ $sem->status === 'upcoming' ? 'bg-amber-50 text-amber-700' : '' }}">
                                 {{ ucfirst($sem->status ?? 'upcoming') }}
                             </span>
                         </td>

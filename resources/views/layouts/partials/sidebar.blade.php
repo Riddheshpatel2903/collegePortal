@@ -67,6 +67,12 @@
                 <i class="bi bi-journal-bookmark-fill text-base"></i> Courses
             </a>
             @endcanPage
+            @canPage('admin.classrooms.index')
+            <a href="{{ route('admin.classrooms.index') }}"
+                class="flex items-center gap-3 px-4 py-3 text-[13px] font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs('admin.classrooms.*') ? 'nav-active' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                <i class="bi bi-building text-base"></i> Classrooms
+            </a>
+            @endcanPage
             @canPage('admin.semesters.index')
             <a href="{{ route('admin.semesters.index') }}"
                 class="flex items-center gap-3 px-4 py-3 text-[13px] font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs('admin.semesters.*') ? 'nav-active' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
@@ -290,11 +296,11 @@
             </a>
             @endcanPage
             @canPage('student.library.dashboard')
-            <a href="{{ route('student.library.dashboard') }}"
-                class="flex items-center gap-3 px-4 py-3 text-[13px] font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs('student.library.*') ? 'nav-active' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
-                <i class="bi bi-book-half text-base"></i> Library
-            </a>
-            @endcanPage
+                <a href="{{ route('student.library.dashboard') }}"
+                    class="flex items-center gap-3 px-4 py-3 text-[13px] font-semibold rounded-xl transition-all duration-200 {{ request()->routeIs('student.library.*') ? 'nav-active' : 'text-slate-400 hover:bg-white/5 hover:text-white' }}">
+                    <i class="bi bi-book-half text-base"></i> Library
+                </a>
+                @endcanPage
 
             @elseif($role == 'librarian')
             @canPage('librarian.dashboard')

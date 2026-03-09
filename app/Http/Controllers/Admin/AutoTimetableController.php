@@ -40,6 +40,10 @@ class AutoTimetableController extends Controller
 
     public function generate(GenerateAutoTimetableRequest $request)
     {
+        // Increase execution time for long-running timetable generation
+        ini_set('max_execution_time', '600'); // 10 minutes
+        ini_set('memory_limit', '1024M');
+
         try {
             $result = $this->service->generate($request->validated());
         } catch (\Throwable $exception) {

@@ -34,9 +34,9 @@ class ResultController extends Controller
     public function getStudents(Request $request)
     {
         $semesterId = $request->semester_id;
-        
+
         $semester = Semester::with('semesterSubjects.subject')->findOrFail($semesterId);
-        
+
         $students = Student::where('current_semester_id', $semesterId)
             ->where('student_status', 'active')
             ->orderBy('roll_number')
@@ -62,7 +62,7 @@ class ResultController extends Controller
         $student = Student::findOrFail($validated['student_id']);
         $semester = Semester::findOrFail($validated['semester_id']);
 
-        $result = $this->resultService->submitResult($student, $semester, $validated['marks']);
+        $result = $this->resultService->submitResult($student, $semester->semester_number, $validated['marks'], true);
 
         return redirect()->route('results.show', $result)
             ->with('success', 'Result submitted successfully. CGPA calculated and student promotion processed.');

@@ -37,6 +37,9 @@ class TimetableGeneratorService
 
     public function generate(array $payload): array
     {
+        ini_set('max_execution_time', '600'); // 10 minutes
+        ini_set('memory_limit', '1024M');
+
         $course = Course::findOrFail((int) $payload['course_id']);
         $academicYear = (int) $payload['academic_year'];
         $clearExisting = (bool) ($payload['clear_existing'] ?? false);
@@ -143,7 +146,7 @@ class TimetableGeneratorService
                 $guard = 0;
                 while ($remaining > 0) {
                     $guard++;
-                    if ($guard > 500) {
+                    if ($guard > 2000) {
                         $failures[] = "Subject {$subject->name}: scheduling loop guard triggered.";
                         break;
                     }

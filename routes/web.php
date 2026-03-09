@@ -72,6 +72,9 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
         Route::resource('departments', \App\Http\Controllers\Admin\DepartmentController::class);
         Route::resource('courses', \App\Http\Controllers\Admin\CourseController::class);
+        Route::resource('classrooms', \App\Http\Controllers\Admin\ClassroomController::class);
+        Route::post('classrooms/assign', [\App\Http\Controllers\Admin\ClassroomController::class, 'assign'])->name('classrooms.assign');
+        Route::post('classrooms/{classroom}/unassign', [\App\Http\Controllers\Admin\ClassroomController::class, 'unassign'])->name('classrooms.unassign');
         Route::resource('semesters', \App\Http\Controllers\Admin\SemesterController::class)
             ->only(['index', 'create', 'store', 'destroy']);
         Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
