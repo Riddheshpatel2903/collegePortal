@@ -18,7 +18,7 @@
         <div class="relative z-10">
             <h2 class="text-2xl font-extrabold text-white mb-1">Welcome back, {{ explode(' ', $user->name)[0] }}</h2>
             <p class="text-violet-200 text-sm font-medium">
-                {{ $teacher->department->name ?? 'Department' }} Faculty <span class="mx-2">â€¢</span> {{ $todayClasses }} Classes Today
+                {{ $teacher->department->name ?? 'Department' }} Faculty <span class="mx-2"> </span> {{ $todayClasses }} Classes Today
             </p>
         </div>
         <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
@@ -93,7 +93,7 @@
                         <h4 class="text-sm font-semibold text-slate-700 group-hover:text-violet-600 transition-colors truncate">
                             {{ $subject->name }}
                         </h4>
-                        <p class="text-xs text-slate-400 mt-1">{{ $subject->course->name ?? 'N/A' }} <span class="mx-1">â€¢</span> Sem {{ $subject->semester_sequence }}</p>
+                        <p class="text-xs text-slate-400 mt-1">{{ $subject->course->name ?? 'N/A' }} <span class="mx-1"> </span> Sem {{ $subject->semester_sequence }}</p>
                     </div>
                 </div>
                 @empty

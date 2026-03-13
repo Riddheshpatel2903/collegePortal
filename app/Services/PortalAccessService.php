@@ -19,6 +19,11 @@ class PortalAccessService
 {
     private const TIMETABLE_WEEKLY_TARGET = 30;
 
+    public function __construct(
+        private \App\Repositories\TimetableRepository $timetableRepository
+    ) {
+    }
+
     public function syncDefaults(): void
     {
         if (!$this->isReady()) {
@@ -242,6 +247,17 @@ class PortalAccessService
         return max(1, min(12, (int) ($raw ?? 6)));
     }
 
+    public function slotDuration(): int
+    {
+        $raw = $this->setting('default_slot_duration', '60');
+        return max(15, min(120, (int) $raw));
+    }
+
+    public function timetableStartTime(): string
+    {
+        return $this->setting('timetable_start_time', '09:00');
+    }
+
     /**
      * Return the configured working days for the timetable. Stored as a JSON
      * array in system_settings under "default_working_days". Falls back to
@@ -285,9 +301,25 @@ class PortalAccessService
      * as an integer string in system_settings under "default_slots_per_day".
      * Falling back to the number of configured slot blocks.
      */
-    public function slotsPerDay(): int
+    public function slotsPerDay(?int $courseId = null, ?string $semesterType = null): int
     {
         $default = count(config('timetable.slot_blocks', []));
+        if ($courseId && $semesterType) {
+            $course = \App\Models\Course::find($courseId);
+            if ($course) {
+                $semesters = $this->timetableRepository->semesterNumbersByType($course, $semesterType);
+                $subjects = $this->timetableRepository->courseSubjectsForSemesters($courseId, $semesters->all());
+                
+                $analyzer = new \App\Services\CurriculumAnalyzer();
+                $analysis = $analyzer->analyze($subjects);
+                
+                $builder = new \App\Services\ScheduleStructureBuilder($this);
+                $structure = $builder->build($analysis);
+                
+                return $structure['slots_per_day'];
+            }
+        }
+
         if (!$this->isReady()) {
             return $default;
         }
@@ -312,11 +344,22 @@ class PortalAccessService
      * Convenience helper that returns the array of time‑slot strings taking the
      * configured slots‑per‑day into account.
      */
-    public function timeSlots(): \Illuminate\Support\Collection
+    public function timeSlots(?int $courseId = null, ?string $semesterType = null): \Illuminate\Support\Collection
     {
-        $blocks = collect(config('timetable.slot_blocks', []));
-        return $blocks->take($this->slotsPerDay())
-            ->map(fn($slot) => "{$slot[0]}-{$slot[1]}");
+        $slotsCount = $this->slotsPerDay($courseId, $semesterType);
+        $duration = $this->slotDuration();
+        $startTime = $this->timetableStartTime();
+
+        $slots = collect();
+        $current = \Carbon\Carbon::createFromFormat('H:i', $startTime);
+
+        for ($i = 0; $i < $slotsCount; $i++) {
+            $end = $current->copy()->addMinutes($duration);
+            $slots->push($current->format('H:i') . '-' . $end->format('H:i'));
+            $current = $end;
+        }
+
+        return $slots;
     }
 
     public function pagesWithPermissions()

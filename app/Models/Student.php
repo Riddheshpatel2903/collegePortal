@@ -139,9 +139,9 @@ class Student extends Model
             $q->where('id', is_numeric($search) ? (int) $search : 0)
                 ->orWhere('roll_number', 'like', "%{$search}%")
                 ->orWhere('gtu_enrollment_no', 'like', "%{$search}%")
-                ->orWhere('name', 'like', "%{$search}%")
                 ->orWhereHas('user', function ($uq) use ($search) {
-                    $uq->where('name', 'like', "%{$search}%");
+                    $uq->where('name', 'like', "%{$search}%")
+                        ->orWhere('email', 'like', "%{$search}%");
                 });
         });
     }
@@ -165,16 +165,16 @@ class Student extends Model
     public function getAttendancePercentage($semesterSubjectId = null)
     {
         $query = $this->attendances();
-        
+
         if ($semesterSubjectId) {
-            $query->whereHas('attendanceSession', function($q) use ($semesterSubjectId) {
+            $query->whereHas('attendanceSession', function ($q) use ($semesterSubjectId) {
                 $q->where('semester_subject_id', $semesterSubjectId);
             });
         }
-        
+
         $totalClasses = $query->count();
         $presentClasses = $query->where('status', 'present')->count();
-        
+
         return $totalClasses > 0 ? round(($presentClasses / $totalClasses) * 100, 2) : 0;
     }
 

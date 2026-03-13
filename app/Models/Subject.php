@@ -11,10 +11,14 @@ class Subject extends Model
 
     protected $fillable = [
         'name',
+        'code',
         'course_id',
         'semester_number',
         'semester_sequence',
         'type',
+        'lecture_hours',
+        'tutorial_hours',
+        'practical_hours',
         'hours_per_week',
         'teacher_id',
         'lab_duration',
@@ -22,6 +26,9 @@ class Subject extends Model
         'weekly_hours',
         'is_lab',
         'lab_block_hours',
+        'internal_marks',
+        'external_marks',
+        'total_marks',
     ];
 
     protected $casts = [
@@ -59,5 +66,31 @@ class Subject extends Model
     public function resultSubjects()
     {
         return $this->hasMany(ResultSubject::class);
+    }
+
+    /**
+     * Calculate total slots needed per week for this subject.
+     * Lectures (L) + Tutorials (T) = Lecture slots
+     * Practicals (P) = Lab slots (often 1 practical session = 2 or more slots)
+     */
+    public function totalWeeklySlots(): int
+    {
+        // Fallback to legacy weekly_hours if LTP not set
+        $lectureSum = ($this->lecture_hours ?: 0) + ($this->tutorial_hours ?: 0);
+        if ($lectureSum === 0 && $this->weekly_hours > 0 && !$this->is_lab) {
+            $lectureSum = $this->weekly_hours;
+        }
+
+        $labSlots = 0;
+        if ($this->practical_hours > 0) {
+            // Usually GTU practical hours are the total hours, 
+            // but we need to know how many slots that translates to.
+            // If practical_hours = 4 and lab_duration = 2, it means 2 sessions.
+            $labSlots = $this->practical_hours; 
+        } elseif ($this->is_lab && $this->weekly_hours > 0) {
+            $labSlots = $this->weekly_hours;
+        }
+
+        return $lectureSum + $labSlots;
     }
 }

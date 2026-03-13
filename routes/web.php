@@ -68,6 +68,7 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         // Student Management with AJAX
         Route::get('students/fetch', [\App\Http\Controllers\Admin\StudentController::class, 'fetchStudents'])->name('students.fetch');
         Route::get('students/semesters', [\App\Http\Controllers\Admin\StudentController::class, 'getSemestersByDepartment'])->name('students.semesters-by-dept');
+        Route::patch('students/{student}/toggle-status', [\App\Http\Controllers\Admin\StudentController::class, 'toggleStatus'])->name('students.toggle-status');
         Route::resource('students', \App\Http\Controllers\Admin\StudentController::class);
         Route::resource('teachers', \App\Http\Controllers\Admin\TeacherController::class);
         Route::resource('departments', \App\Http\Controllers\Admin\DepartmentController::class);
@@ -77,6 +78,8 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         Route::post('classrooms/{classroom}/unassign', [\App\Http\Controllers\Admin\ClassroomController::class, 'unassign'])->name('classrooms.unassign');
         Route::resource('semesters', \App\Http\Controllers\Admin\SemesterController::class)
             ->only(['index', 'create', 'store', 'destroy']);
+        Route::post('subjects/import', [\App\Http\Controllers\Admin\SubjectController::class, 'import'])->name('subjects.import');
+        Route::delete('subjects/delete-all', [\App\Http\Controllers\Admin\SubjectController::class, 'deleteAll'])->name('subjects.delete-all');
         Route::resource('subjects', \App\Http\Controllers\Admin\SubjectController::class);
         Route::middleware('module:timetable')->group(function () {
             Route::get('timetable-auto', [\App\Http\Controllers\Admin\AutoTimetableController::class, 'index'])->name('timetable-auto.index');
@@ -138,6 +141,10 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         Route::put('settings/general', [\App\Http\Controllers\Admin\PortalSettingsController::class, 'updateGeneralSettings'])
             ->name('settings.general.update')
             ->middleware('permission:settings.manage');
+
+        // Holidays
+        Route::post('holidays/import', [\App\Http\Controllers\Admin\HolidayController::class, 'import'])->name('holidays.import');
+        Route::resource('holidays', \App\Http\Controllers\Admin\HolidayController::class);
         // Route::get('audit-logs', [\App\Http\Controllers\Admin\AuditLogController::class, 'index'])
         //    ->name('audit-logs.index')
         //    ->middleware('permission:audit_logs.view');

@@ -117,6 +117,8 @@
                         </div>
                     </div>
 
+
+
                     @error('generator')
                         <p class="text-sm text-rose-600">{{ $message }}</p>
                     @enderror
@@ -153,7 +155,12 @@
                             <tbody>
                                 @foreach($gridData['slots'] as $slot)
                                     <tr>
-                                        <td class="font-semibold">Slot {{ $slot }}</td>
+                                        <td class="font-semibold">
+                                            <div class="text-sm">Slot {{ $slot }}</div>
+                                            <div class="text-[10px] text-slate-500 font-normal">
+                                                {{ $gridData['time_slots']->get($slot - 1) }}
+                                            </div>
+                                        </td>
                                         @foreach($gridData['days'] as $day)
                                             @php $entry = $gridData['grid'][(int) $year][$day][$slot] ?? null; @endphp
                                             <td class="align-top min-w-[240px] break-words">
@@ -223,4 +230,6 @@
             @endforeach
         @endif
     </div>
+    </div>
+
 @endsection

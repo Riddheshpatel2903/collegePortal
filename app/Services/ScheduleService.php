@@ -8,6 +8,10 @@ use Illuminate\Validation\ValidationException;
 
 class ScheduleService
 {
+    public function __construct(private PortalAccessService $accessService)
+    {
+    }
+
     public function create(array $payload): Schedule
     {
         $this->assertNoConflicts($payload);
@@ -87,15 +91,28 @@ class ScheduleService
     {
         $start = substr((string) $payload['start_time'], 0, 5);
         $end = substr((string) $payload['end_time'], 0, 5);
-        $allowedBlocks = config('timetable.slot_blocks', []);
+        
+        $courseId = null;
+        $semesterType = null;
 
-        $isAllowed = collect($allowedBlocks)->contains(function ($block) use ($start, $end) {
-            return isset($block[0], $block[1]) && $block[0] === $start && $block[1] === $end;
+        if (isset($payload['subject_id'])) {
+            $subject = \App\Models\Subject::find($payload['subject_id']);
+            if ($subject) {
+                $courseId = $subject->course_id;
+                $semesterType = ($subject->semester_number % 2 === 0) ? 'even' : 'odd';
+            }
+        }
+
+        $timeSlots = $this->accessService->timeSlots($courseId, $semesterType);
+
+        $isAllowed = $timeSlots->contains(function ($slot) use ($start, $end) {
+            [$s, $e] = explode('-', $slot);
+            return $s === $start && $e === $end;
         });
 
         if (!$isAllowed) {
             throw ValidationException::withMessages([
-                'start_time' => 'Slot must match one fixed 1-hour timetable block.',
+                'start_time' => 'Slot must match one configured timetable block.',
             ]);
         }
     }

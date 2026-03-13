@@ -12,8 +12,9 @@ use Illuminate\Http\Request;
 
 class AutoTimetableController extends Controller
 {
-    public function __construct(private AutoTimetableService $service)
-    {
+    public function __construct(
+        private AutoTimetableService $service
+    ) {
     }
 
     public function index(Request $request)
@@ -68,5 +69,6 @@ class AutoTimetableController extends Controller
 
         return back()->with('success', 'Timetable slot updated successfully.');
     }
+
 }
 

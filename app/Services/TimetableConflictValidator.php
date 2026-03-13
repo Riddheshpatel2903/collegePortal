@@ -10,8 +10,10 @@ class TimetableConflictValidator
 {
     private static array $slotRangeCache = [];
 
-    public function __construct(private TimetableRepository $repository)
-    {
+    public function __construct(
+        private TimetableRepository $repository,
+        private PortalAccessService $accessService
+    ) {
     }
 
     public function canPlaceForGeneration(
@@ -27,13 +29,26 @@ class TimetableConflictValidator
     ): bool {
         $classKey = $this->classKey($courseId, $year);
 
+        // Fetch subject to check section
+        $subject = \App\Models\Subject::find($state['subject_id'] ?? 0);
+        $subjectSection = $subject ? $this->extractSection($subject->name) : null;
+
         foreach ($slots as $slot) {
             if (($state['teacher'][$teacherId][$day][$slot] ?? false) === true) {
                 return false;
             }
-            if (($state['class'][$classKey][$day][$slot] ?? false) === true) {
-                return false;
+            
+            $classData = $state['class'][$classKey][$day][$slot] ?? [];
+            if ($subjectSection === null) {
+                // COMMON subject
+                if (!empty($classData)) return false;
+            } else {
+                // Section-specific subject
+                if (($classData[$subjectSection] ?? false) || ($classData['COMMON'] ?? false)) {
+                    return false;
+                }
             }
+
             if (($state['room'][$roomId][$day][$slot] ?? false) === true) {
                 return false;
             }
@@ -125,11 +140,25 @@ class TimetableConflictValidator
             return self::$slotRangeCache[$slotNumber];
         }
 
-        $blocks = config('timetable.slot_blocks', []);
-        $idx = max(0, min(count($blocks) - 1, $slotNumber - 1));
-        $block = $blocks[$idx] ?? ['09:00', '10:00'];
+        $timeSlots = $this->accessService->timeSlots();
+        $idx = $slotNumber - 1;
+        $slotString = $timeSlots->get($idx);
 
-        return self::$slotRangeCache[$slotNumber] = [$block[0], $block[1]];
+        if (!$slotString) {
+            return self::$slotRangeCache[$slotNumber] = ['09:00', '10:00'];
+        }
+
+        [$start, $end] = explode('-', $slotString);
+
+        return self::$slotRangeCache[$slotNumber] = [$start, $end];
+    }
+
+    private function extractSection(string $name): ?string
+    {
+        if (preg_match('/[ \-]([A-Z])(?:\s|$)/i', $name, $matches)) {
+            return strtoupper($matches[1]);
+        }
+        return null;
     }
 
     private function classKey(int $courseId, int $year): string

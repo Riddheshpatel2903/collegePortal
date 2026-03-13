@@ -297,26 +297,39 @@
 
                         if (isSunday) {
                             cell.classList.add('sunday');
-                            cell.innerHTML = `<div class="sday-num">${d}</div><span class="holiday-tag">Holiday</span>`;
+                            cell.innerHTML = `<div class="sday-num">${d}</div><span class="holiday-tag">Sunday</span>`;
                         } else {
                             let html = `<div class="sday-num">${d}</div>`;
                             const entries = calendarData[dateStr];
                             if (entries && entries.length) {
-                                html += '<div class="dots">';
-                                entries.forEach(e => {
-                                    const cls = e.status === 'present' ? 'dot-present' : 'dot-absent';
-                                    html += `<div class="dot ${cls}"></div>`;
-                                    if (e.status === 'present') monthPresent++;
-                                    else monthAbsent++;
-                                });
-                                html += '</div>';
+                                let hasHoliday = false;
+                                let attendanceDots = '';
+                                let tooltipHtml = '';
 
-                                html += '<div class="tooltip-box">';
                                 entries.forEach(e => {
-                                    const icon = e.status === 'present' ? 'bi-check-circle-fill text-emerald-400' : 'bi-x-circle-fill text-rose-400';
-                                    html += `<div style="font-size:10px;font-weight:700;color:white;display:flex;align-items:center;gap:8px;padding:3px 0;text-transform:uppercase;letter-spacing:0.05em;"><i class="bi ${icon}"></i> ${e.subject}</div>`;
+                                    if (e.type === 'holiday') {
+                                        hasHoliday = true;
+                                        html += `<span class="holiday-tag">${e.name}</span>`;
+                                        tooltipHtml += `<div style="font-size:10px;font-weight:700;color:#f87171;display:flex;align-items:center;gap:8px;padding:3px 0;text-transform:uppercase;letter-spacing:0.05em;"><i class="bi bi-star-fill"></i> ${e.name}</div>`;
+                                    } else {
+                                        const cls = e.status === 'present' ? 'dot-present' : 'dot-absent';
+                                        attendanceDots += `<div class="dot ${cls}"></div>`;
+                                        
+                                        const icon = e.status === 'present' ? 'bi-check-circle-fill text-emerald-400' : 'bi-x-circle-fill text-rose-400';
+                                        tooltipHtml += `<div style="font-size:10px;font-weight:700;color:white;display:flex;align-items:center;gap:8px;padding:3px 0;text-transform:uppercase;letter-spacing:0.05em;"><i class="bi ${icon}"></i> ${e.subject}</div>`;
+                                        
+                                        if (e.status === 'present') monthPresent++;
+                                        else monthAbsent++;
+                                    }
                                 });
-                                html += '</div>';
+
+                                if (attendanceDots) {
+                                    html += `<div class="dots">${attendanceDots}</div>`;
+                                }
+
+                                if (tooltipHtml) {
+                                    html += `<div class="tooltip-box">${tooltipHtml}</div>`;
+                                }
                             }
                             cell.innerHTML = html;
                         }

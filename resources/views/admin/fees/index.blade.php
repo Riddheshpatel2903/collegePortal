@@ -179,7 +179,7 @@
             document.querySelectorAll('tbody tr').forEach(row => {
                 if (row.style.display === 'none') return;
                 const cells = row.querySelectorAll('td');
-                if (cells.length < 7) return;
+                if (cells.length < 6) return;
                 rows.push([
                     cells[0].querySelector('.text-sm.font-bold')?.textContent.trim() || '',
                     cells[0].querySelector('.text-[10px]')?.textContent.trim() || '',

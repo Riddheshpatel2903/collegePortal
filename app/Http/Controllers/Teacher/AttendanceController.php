@@ -85,14 +85,29 @@ class AttendanceController extends Controller
             ])
             ->get()
             ->map(fn ($s) => [
+                'type' => 'session',
                 'id' => $s->id,
                 'date' => $s->date?->format('Y-m-d'),
                 'total' => $s->attendances_count,
                 'present' => $s->present_count,
                 'absent' => $s->attendances_count - $s->present_count,
-            ]);
+            ])
+            ->toArray();
 
-        return response()->json($sessions);
+        $holidays = \App\Models\Holiday::whereMonth('date', $request->month)
+            ->whereYear('date', $request->year)
+            ->get()
+            ->map(fn ($h) => [
+                'type' => 'holiday',
+                'name' => $h->name,
+                'date' => \Carbon\Carbon::parse($h->date)->format('Y-m-d'),
+                'is_recurring' => $h->is_recurring,
+            ])
+            ->toArray();
+
+        $merged = array_merge($sessions, $holidays);
+
+        return response()->json($merged);
     }
 
     public function show($id)

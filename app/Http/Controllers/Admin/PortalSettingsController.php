@@ -27,7 +27,6 @@ class PortalSettingsController extends Controller
             // settings for timetable/days/slots form
             'availableDays' => config('timetable.days', []),
             'workingDays' => $this->accessService->workingDays(),
-            'slotsPerDay' => $this->accessService->slotsPerDay(),
             'maxSlots' => count(config('timetable.slot_blocks', [])),
             'auditLogs' => \App\Models\AuditLog::with('user')->latest()->paginate(20),
         ]);
@@ -70,20 +69,17 @@ class PortalSettingsController extends Controller
         $this->accessService->updateModuleSettings($payload);
         return back()->with('success', 'Module settings updated.');
     }
-
     public function updateSmartSettings(Request $request)
     {
         $validated = $request->validate([
             'teacher_max_lectures_per_day' => ['required', 'integer', 'min:1', 'max:12'],
             'working_days' => ['nullable', 'array'],
             'working_days.*' => ['string', 'in:' . implode(',', config('timetable.days', []))],
-            'slots_per_day' => ['required', 'integer', 'min:1', 'max:' . count(config('timetable.slot_blocks', []))],
         ]);
 
         $this->accessService->updateSettings([
             'teacher_max_lectures_per_day' => (string) $validated['teacher_max_lectures_per_day'],
-            'default_slots_per_day' => (string) $validated['slots_per_day'],
-            'default_working_days' => json_encode($validated['working_days'] ?? [])
+            'default_working_days' => json_encode($validated['working_days'] ?? []),
         ]);
 
         return back()->with('success', 'System preferences updated successfully.');

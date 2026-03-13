@@ -49,7 +49,7 @@ class StudentController extends Controller
             })
             ->max('duration_years') ?? 4;
 
-        $years = collect(range(1, (int) $maxDuration))->map(fn ($year) => [
+        $years = collect(range(1, (int) $maxDuration))->map(fn($year) => [
             'id' => $year,
             'name' => "Year {$year}",
         ])->values();
@@ -126,42 +126,57 @@ class StudentController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'roll_number' => 'required|unique:students,roll_number',
-            'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no',
-            'course_id' => 'required|exists:courses,id',
-            'current_year' => 'nullable|integer|min:1|max:10',
-            'admission_year' => 'nullable|integer|min:2000|max:2100',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:1000',
-        ]);
-        $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? 1));
-
-        DB::transaction(function () use ($validated) {
-            $user = User::create([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
-                'password' => Hash::make($validated['password']),
-                'role' => 'student',
-                'status' => 'active',
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email',
+                'password' => 'required|min:6',
+                'roll_number' => 'required|unique:students,roll_number',
+                'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no',
+                'course_id' => 'required|exists:courses,id',
+                'current_year' => 'nullable|integer|min:1|max:10',
+                'admission_year' => 'nullable|integer|min:2000|max:2100',
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:1000',
             ]);
+            $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? 1));
 
-            Student::create([
-                'user_id' => $user->id,
-                'roll_number' => $validated['roll_number'],
-                'gtu_enrollment_no' => strtoupper(trim($validated['gtu_enrollment_no'])),
-                'course_id' => $validated['course_id'],
-                'current_year' => $validated['current_year'] ?? 1,
-                'admission_year' => $validated['admission_year'] ?? now()->year,
-                'phone' => $validated['phone'] ?? null,
-                'address' => $validated['address'] ?? null,
-                'student_status' => 'active',
-                'academic_status' => 'active',
+            DB::transaction(function () use ($validated) {
+                $user = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'role' => 'student',
+                    'status' => 'active',
+                ]);
+
+                Student::create([
+                    'user_id' => $user->id,
+                    'roll_number' => $validated['roll_number'],
+                    'gtu_enrollment_no' => strtoupper(trim($validated['gtu_enrollment_no'])),
+                    'course_id' => $validated['course_id'],
+                    'current_year' => $validated['current_year'] ?? 1,
+                    'admission_year' => $validated['admission_year'] ?? now()->year,
+                    'phone' => $validated['phone'] ?? null,
+                    'address' => $validated['address'] ?? null,
+                    'student_status' => 'active',
+                    'academic_status' => 'active',
+                ]);
+            });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => $e->errors()], 422);
+            }
+            throw $e;
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Student enrolled successfully.',
+                'redirect' => route('admin.students.index'),
             ]);
-        });
+        }
 
         return redirect()->route('admin.students.index')
             ->with('success', 'Student created successfully.');
@@ -176,38 +191,50 @@ class StudentController extends Controller
 
     public function update(Request $request, Student $student)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users,email,' . $student->user_id,
-            'roll_number' => 'required|unique:students,roll_number,' . $student->id,
-            'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,' . $student->id,
-            'course_id' => 'required|exists:courses,id',
-            'current_year' => 'nullable|integer|min:1|max:10',
-            'admission_year' => 'nullable|integer|min:2000|max:2100',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string|max:1000',
-        ]);
-        $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? $student->current_year ?? 1));
-
-        DB::transaction(function () use ($validated, $request, $student) {
-            // Update user table
-            $student->user->update([
-                'name' => $validated['name'],
-                'email' => $validated['email'],
+        try {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|unique:users,email,' . $student->user_id,
+                'roll_number' => 'required|unique:students,roll_number,' . $student->id,
+                'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,' . $student->id,
+                'course_id' => 'required|exists:courses,id',
+                'current_year' => 'nullable|integer|min:1|max:10',
+                'admission_year' => 'nullable|integer|min:2000|max:2100',
+                'phone' => 'nullable|string|max:20',
+                'address' => 'nullable|string|max:1000',
             ]);
+            $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? $student->current_year ?? 1));
 
-            // Update student table
-            $student->update([
-                'roll_number' => $validated['roll_number'],
-                'gtu_enrollment_no' => strtoupper(trim($validated['gtu_enrollment_no'])),
-                'course_id' => $validated['course_id'],
-                'current_year' => $validated['current_year'] ?? $student->current_year,
-                'admission_year' => $validated['admission_year'] ?? $student->admission_year,
-                'phone' => $validated['phone'] ?? null,
-                'address' => $validated['address'] ?? null,
-                'is_active' => $request->has('is_active') ? true : false,
+            DB::transaction(function () use ($validated, $request, $student) {
+                $student->user->update([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                ]);
+
+                $student->update([
+                    'roll_number' => $validated['roll_number'],
+                    'gtu_enrollment_no' => strtoupper(trim($validated['gtu_enrollment_no'])),
+                    'course_id' => $validated['course_id'],
+                    'current_year' => $validated['current_year'] ?? $student->current_year,
+                    'admission_year' => $validated['admission_year'] ?? $student->admission_year,
+                    'phone' => $validated['phone'] ?? null,
+                    'address' => $validated['address'] ?? null,
+                    'is_active' => $request->has('is_active') ? true : false,
+                ]);
+            });
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json(['errors' => $e->errors()], 422);
+            }
+            throw $e;
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Student updated successfully.',
             ]);
-        });
+        }
 
         return redirect()->route('admin.students.index')
             ->with('success', 'Student updated successfully.');
@@ -223,12 +250,36 @@ class StudentController extends Controller
         }
     }
 
-    public function destroy(Student $student)
+    public function toggleStatus(Request $request, Student $student)
+    {
+        $student->update(['is_active' => !$student->is_active]);
+
+        $status = $student->is_active ? 'activated' : 'deactivated';
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'is_active' => $student->is_active,
+                'message' => "Student has been {$status} successfully.",
+            ]);
+        }
+
+        return redirect()->back()->with('success', "Student has been {$status} successfully.");
+    }
+
+    public function destroy(Request $request, Student $student)
     {
         $user = $student->user;
         $student->delete();
         if ($user) {
             $user->delete();
+        }
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Student deleted successfully.',
+            ]);
         }
 
         return redirect()->route('admin.students.index')

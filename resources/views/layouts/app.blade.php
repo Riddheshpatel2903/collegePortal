@@ -60,6 +60,14 @@
                         </div>
                     @endif
 
+                    @if (session('error'))
+                        <div
+                            class="mb-6 px-5 py-4 bg-rose-50 border border-rose-100 text-rose-700 rounded-xl flex items-center gap-3">
+                            <i class="bi bi-exclamation-circle-fill text-lg text-rose-500"></i>
+                            <span class="text-sm font-semibold">{{ session('error') }}</span>
+                        </div>
+                    @endif
+
                     @yield('content')
                     @isset($slot)
                         {{ $slot }}
@@ -69,28 +77,23 @@
         </div>
     </div>
     <script>
-        (function() {
+        (function () {
             const banner = document.getElementById('globalJsErrorBanner');
 
-            window.addEventListener('error', function(event) {
+            window.addEventListener('error', function (event) {
                 if (banner) {
                     banner.classList.remove('hidden');
                 }
                 console.error('[Portal][WindowError]', event.error || event.message || event);
             });
 
-            window.addEventListener('unhandledrejection', function(event) {
+            window.addEventListener('unhandledrejection', function (event) {
                 if (banner) {
                     banner.classList.remove('hidden');
                 }
                 console.error('[Portal][WindowPromiseRejection]', event.reason || event);
             });
         })();
-        toggleAll(actions, value) {
-            actions.forEach(action => {
-                this.permissions[action] = value
-            })
-        }
     </script>
     @stack('scripts')
 </body>

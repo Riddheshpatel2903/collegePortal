@@ -888,16 +888,14 @@
                                 @enderror
                             </div>
 
-                            <div>
-                                <label class="block text-sm font-bold text-slate-800 mb-1">Default Slots Per Day</label>
-                                <p class="text-xs text-slate-500 mb-3">Total time slots available for scheduling per
-                                    working day.</p>
-                                <input type="number" min="1" max="{{ $maxSlots }}"
-                                    class="w-full rounded-xl border-slate-200 bg-slate-50/50 focus:border-violet-500 focus:ring-violet-500 transition-colors shadow-sm"
-                                    name="slots_per_day" value="{{ $slotsPerDay }}">
-                                @error('slots_per_day')
-                                    <p class="text-xs text-rose-600 mt-1">{{ $message }}</p>
-                                @enderror
+                            <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                                <p class="text-sm text-amber-800 font-medium flex items-center gap-2">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                    </svg>
+                                    Automatic Structure Enabled
+                                </p>
+                                <p class="text-xs text-amber-700 mt-1">Timetable slots and durations are now automatically calculated based on the curriculum (L-T-P) load to guarantee a perfect fit.</p>
                             </div>
                         </div>
 

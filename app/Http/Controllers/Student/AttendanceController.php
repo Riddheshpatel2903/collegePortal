@@ -52,8 +52,19 @@ class AttendanceController extends Controller
                 continue;
             }
             $calendarData[$date][] = [
+                'type' => 'attendance',
                 'subject' => $record->attendanceSession?->subject?->name ?? 'N/A',
                 'status' => $record->status,
+            ];
+        }
+
+        $holidays = \App\Models\Holiday::all();
+        foreach ($holidays as $holiday) {
+            $date = \Carbon\Carbon::parse($holiday->date)->format('Y-m-d');
+            $calendarData[$date][] = [
+                'type' => 'holiday',
+                'name' => $holiday->name,
+                'description' => $holiday->description,
             ];
         }
 

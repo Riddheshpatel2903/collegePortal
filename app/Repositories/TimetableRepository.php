@@ -313,7 +313,8 @@ class TimetableRepository
     public function otherTimetableBySemesterType(string $semesterType, ?int $excludeCourseId = null): EloquentCollection
     {
         return Timetable::query()
-            ->when($excludeCourseId, fn ($q) => $q->where('course_id', '!=', $excludeCourseId))
+            ->with('subject:id,name')
+            ->when($excludeCourseId, fn ($q) => $q->where('timetable.course_id', '!=', $excludeCourseId))
             ->whereRaw('MOD(semester_number, 2) = ?', [$this->semesterParity($semesterType)])
             ->get();
     }
@@ -446,7 +447,7 @@ class TimetableRepository
             ->get();
     }
 
-    private function semesterParity(string $semesterType): int
+    public function semesterParity(string $semesterType): int
     {
         return strtolower($semesterType) === 'even' ? 0 : 1;
     }
