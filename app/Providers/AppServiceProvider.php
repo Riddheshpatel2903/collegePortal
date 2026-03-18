@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -45,27 +46,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('portalAccess', app(PortalAccessService::class));
         });
 
-        // simple global PHP helper functions
-        if (!function_exists('App\Providers\portal_feature_enabled')) {
-            function portal_feature_enabled(string $key, bool $default = true): bool
-            {
-                return app(PortalAccessService::class)->featureEnabled($key, $default);
-            }
-        }
 
-        if (!function_exists('App\Providers\portal_module_enabled')) {
-            function portal_module_enabled(string $key, bool $default = true): bool
-            {
-                return app(PortalAccessService::class)->moduleEnabled($key, $default);
-            }
-        }
-
-        if (!function_exists('App\Providers\portal_can_view')) {
-            function portal_can_view(string $routeName): bool
-            {
-                return app(PortalAccessService::class)->canViewPage($routeName, auth()->user());
-            }
-        }
 
         if (
             Schema::hasTable('roles')
@@ -75,7 +56,14 @@ class AppServiceProvider extends ServiceProvider
             && Schema::hasTable('module_settings')
             && Schema::hasTable('system_settings')
         ) {
-            app(PortalAccessService::class)->syncDefaults();
+            try {
+                // Some MySQL/InnoDB states can report the table exists, but still fail
+                // with "doesn't exist in engine" when queried. Avoid breaking artisan commands.
+                DB::table('roles')->limit(1)->get();
+                app(PortalAccessService::class)->syncDefaults();
+            } catch (\Throwable $e) {
+                // Intentionally swallow: migrations/seeders should still be able to run.
+            }
         }
     }
 }

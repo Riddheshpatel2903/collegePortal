@@ -15,7 +15,7 @@ use App\Models\Teacher;
 use App\Models\TeacherAvailability;
 use App\Models\TeacherSubjectAssignment;
 use App\Services\ScheduleService;
-use App\Services\TimetableGeneratorService;
+use App\Services\Timetable\TimetableGeneratorService;
 use App\Services\TeacherAssignmentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;

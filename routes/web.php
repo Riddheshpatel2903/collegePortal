@@ -95,6 +95,7 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         });
         Route::resource('events', \App\Http\Controllers\Admin\EventController::class);
         Route::middleware('module:fees')->group(function () {
+            Route::get('fees/data', [\App\Http\Controllers\Admin\FeeController::class, 'data'])->name('fees.data');
             Route::resource('fees', \App\Http\Controllers\Admin\FeeController::class);
         });
         Route::middleware('module:leave')->group(function () {
@@ -289,6 +290,7 @@ Route::middleware(['auth', 'page.access'])->group(function () {
 
         Route::middleware('module:fees')->group(function () {
             Route::resource('fees', \App\Http\Controllers\Accountant\FeeController::class)->only(['index', 'update']);
+            Route::post('/fees/{student}/assign', [\App\Http\Controllers\Accountant\FeeController::class, 'assign'])->name('fees.assign');
             Route::get('/fees-history', [\App\Http\Controllers\Accountant\FeeController::class, 'history'])->name('fees.history');
         });
     });

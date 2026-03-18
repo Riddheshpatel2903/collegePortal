@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Timetable;
 
 use App\Models\Classroom;
 use App\Models\Course;

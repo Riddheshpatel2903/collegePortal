@@ -191,7 +191,7 @@ class SubjectController extends Controller
         return redirect()->route('admin.subjects.index')->with('success', 'Subject deleted successfully.');
     }
 
-    public function import(Request $request, \App\Services\CurriculumParser $parser)
+    public function import(Request $request, \App\Services\Timetable\CurriculumParser $parser)
     {
         $request->validate([
             'course_id' => 'required|exists:courses,id',

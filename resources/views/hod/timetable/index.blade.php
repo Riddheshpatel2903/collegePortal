@@ -132,7 +132,7 @@
                 :showRoom="true"
                 :showSemester="true"
                 :colorBySubject="true"
-                slotEditRoute="{{ portal_feature_enabled('edit_button_enabled') ? 'hod.timetable.edit' : null }}"
+                slotEditRoute="{{ $portalAccess->featureEnabled('edit_button_enabled', true) ? 'hod.timetable.edit' : null }}"
                 emptyText="No timetable generated for this class."
             />
         </div>

@@ -7,7 +7,7 @@ use App\Http\Requests\Admin\GenerateAutoTimetableRequest;
 use App\Http\Requests\Admin\UpdateTimetableEntryRequest;
 use App\Models\Course;
 use App\Models\Timetable;
-use App\Services\AutoTimetableService;
+use App\Services\Timetable\AutoTimetableService;
 use Illuminate\Http\Request;
 
 class AutoTimetableController extends Controller

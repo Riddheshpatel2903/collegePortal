@@ -75,7 +75,7 @@ class FeeService
                 'payment_mode' => $paymentData['payment_mode'],
                 'transaction_id' => $paymentData['transaction_id'] ?? null,
                 'remarks' => $paymentData['remarks'] ?? null,
-                'collected_by' => $paymentData['collected_by'] ?? auth()->id()
+                'collected_by' => $paymentData['collected_by'] ?? \Illuminate\Support\Facades\Auth::id()
             ]);
 
             // Update student fee

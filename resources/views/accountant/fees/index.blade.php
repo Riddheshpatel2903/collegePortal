@@ -70,22 +70,33 @@
         </x-card>
 
         {{-- Fee Table --}}
-        <x-table :headers="['Student', 'Course & Sem', 'Total', 'Paid', 'Pending', 'Status', 'Nexus']">
+        <x-table :headers="['Student', 'Course & Sem', 'Total', 'Paid', 'Pending', 'Status', 'Action']">
             @forelse($fees as $fee)
-                <tr data-status="{{ $fee->status }}" class="group/row">
+                @php
+                    $student = $fee->student;
+                    $status = $fee->status;
+                    $badgeType = match($status) {
+                        'paid' => 'success',
+                        'partial' => 'warning',
+                        'pending' => 'danger',
+                        'overdue' => 'danger',
+                        default => 'default',
+                    };
+                @endphp
+                <tr data-status="{{ $status }}" class="group/row">
                     <td>
                         <div class="flex items-center gap-3">
-                            <img src="https://ui-avatars.com/api/?name={{ urlencode($fee->student->user->name ?? 'F') }}&background=ede9fe&color=7c3aed&size=32"
+                            <img src="https://ui-avatars.com/api/?name={{ urlencode($student->user->name ?? 'F') }}&background=ede9fe&color=7c3aed&size=32"
                                 class="h-9 w-9 rounded-xl ring-2 ring-violet-50" alt="">
                             <div>
-                                <div class="text-sm font-bold text-slate-800">{{ $fee->student->user->name ?? 'N/A' }}</div>
-                                <div class="text-[10px] text-slate-400 font-bold tracking-tight">{{ $fee->student->roll_number ?? '' }}</div>
+                                <div class="text-sm font-bold text-slate-800">{{ $student->user->name ?? 'N/A' }}</div>
+                                <div class="text-[10px] text-slate-400 font-bold tracking-tight">{{ $student->roll_number ?? '—' }}</div>
                             </div>
                         </div>
                     </td>
                     <td>
-                        <div class="text-xs font-bold text-slate-700 leading-none mb-1">{{ $fee->student->course->name ?? '—' }}</div>
-                        <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest">{{ $fee->student->semester->name ?? '—' }}</div>
+                        <div class="text-xs font-bold text-slate-700 leading-none mb-1">{{ $student->course->name ?? '—' }}</div>
+                        <div class="text-[9px] text-slate-400 font-black uppercase tracking-widest">{{ $student->semester->name ?? '—' }}</div>
                     </td>
                     <td>
                         <span class="text-sm font-black text-slate-700">₹{{ number_format($fee->total_amount) }}</span>
@@ -94,28 +105,14 @@
                         <span class="text-sm font-black text-emerald-600">₹{{ number_format($fee->paid_amount) }}</span>
                     </td>
                     <td>
-                        <span class="text-sm font-black {{ $fee->pending_amount > 0 ? 'text-rose-500' : 'text-slate-400' }}">
-                            ₹{{ number_format($fee->pending_amount) }}
-                        </span>
+                        <span class="text-sm font-black {{ $fee->pending_amount > 0 ? 'text-rose-500' : 'text-slate-400' }}">₹{{ number_format($fee->pending_amount) }}</span>
                     </td>
                     <td class="text-center">
-                        @php
-                            $badgeType = match($fee->status) {
-                                'paid' => 'success',
-                                'partial' => 'warning',
-                                'pending', 'overdue' => 'danger',
-                                default => 'default',
-                            };
-                        @endphp
-                        <x-badge :type="$badgeType">
-                            {{ ucfirst($fee->status) }}
-                        </x-badge>
+                        <x-badge :type="$badgeType">{{ ucfirst($status) }}</x-badge>
                     </td>
                     <td class="text-center">
-                        <x-button size="sm" variant="outline" 
-                            onclick="openEditModal({{ $fee->id }}, '{{ addslashes($fee->student->user->name ?? 'N/A') }}', {{ $fee->total_amount }}, {{ $fee->paid_amount }})"
-                            icon="bi-pencil-square">
-                            Edit
+                        <x-button type="button" class="js-fee-action" data-fee-id="{{ $fee->id }}" data-name="{{ addslashes($student->user->name ?? 'N/A') }}" data-total="{{ $fee->total_amount }}" data-paid="{{ $fee->paid_amount }}" variant="secondary" size="sm" icon="bi-cash-stack">
+                            Pay
                         </x-button>
                     </td>
                 </tr>
@@ -128,6 +125,10 @@
                 </tr>
             @endforelse
         </x-table>
+
+        <div class="mt-5">
+            {{ $fees->links() }}
+        </div>
     </div>
 
     {{-- Edit Modal --}}
@@ -173,19 +174,29 @@
                 <form id="editForm" method="POST" class="space-y-6">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="payment_amount" id="hiddenPaymentAmount">
                     <input type="hidden" name="paid_amount" id="hiddenPaidAmount">
+
                     <div class="space-y-3">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Installment Amount</label>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Payment Amount</label>
                         <div class="relative group">
                             <span class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 font-black text-lg group-focus-within:text-emerald-600 transition-colors">₹</span>
-                            <input type="number" id="modalPaymentInput" placeholder="0.00"
+                            <input type="number" name="payment_amount" id="modalPaymentInput" placeholder="0.00"
                                 class="w-full pl-10 pr-6 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-lg font-black text-slate-700 focus:bg-white focus:ring-[6px] focus:ring-emerald-500/5 focus:border-emerald-200 transition-all outline-none"
-                                min="0" step="1" required>
+                                min="0.1" step="0.1" required>
                         </div>
                         <div class="flex justify-between items-center px-1">
                             <span class="text-[10px] text-slate-400 font-bold">Projected Balance</span>
                             <span id="modalRemaining" class="text-xs font-black text-rose-500">₹0</span>
                         </div>
+                    </div>
+                    <div class="space-y-3">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Payment Mode</label>
+                        <select name="payment_mode" id="modalPaymentMode" class="input-premium w-full">
+                            <option value="cash">Cash</option>
+                            <option value="card">Card</option>
+                            <option value="online">Online</option>
+                        </select>
                     </div>
                     <div class="space-y-3">
                         <label class="block text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Receipt Number (Optional)</label>
@@ -222,7 +233,9 @@
 
     <script>
         // ── Search ──
-        document.getElementById('feeSearch').addEventListener('input', applyFilters);
+        if (document.getElementById('feeSearch')) {
+            document.getElementById('feeSearch').addEventListener('input', applyFilters);
+        }
 
         // ── Status Filter ──
         let activeStatus = 'all';
@@ -257,24 +270,81 @@
         let currentPaid = 0;
         let currentDue = 0;
 
-        function openEditModal(id, name, total, paid) {
+        window.openEditModal = function(id, name, total, paid) {
             currentTotal = total;
             currentPaid = paid;
             currentDue = total - paid;
 
-            document.getElementById('modalStudentName').textContent = name;
-            document.getElementById('modalTotal').textContent = '₹' + total.toLocaleString('en-IN');
-            document.getElementById('modalPaid').textContent = '₹' + paid.toLocaleString('en-IN');
-            document.getElementById('modalDue').textContent = '₹' + currentDue.toLocaleString('en-IN');
-            document.getElementById('modalProgressBar').style.width = (paid / total * 100) + '%';
-            document.getElementById('modalRemaining').textContent = '₹' + currentDue.toLocaleString('en-IN');
-            document.getElementById('modalPaymentInput').value = '';
-            document.getElementById('modalPaymentInput').max = currentDue;
-            document.getElementById('hiddenPaidAmount').value = paid;
-            document.getElementById('editForm').action = '/accountant/fees/' + id;
-            
-            const modal = document.getElementById('editModal');
-            const content = document.getElementById('modalContent');
+            const modalStudentName = document.getElementById('modalStudentName');
+            const modal = document.getElementById('editModal')
+                || (modalStudentName && modalStudentName.closest('#editModal'))
+                || document.querySelector('#editModal')
+                || document.querySelector('.fixed.inset-0.z-50');
+
+            const content = document.getElementById('modalContent')
+                || (modal && modal.querySelector('#modalContent'))
+                || (modal && modal.querySelector('.absolute.right-0'));
+
+            const modalTotal = document.getElementById('modalTotal');
+            const modalPaid = document.getElementById('modalPaid');
+            const modalDue = document.getElementById('modalDue');
+            const modalProgressBar = document.getElementById('modalProgressBar');
+            const modalRemaining = document.getElementById('modalRemaining');
+            const modalPaymentInput = document.getElementById('modalPaymentInput');
+            const hiddenPaidAmount = document.getElementById('hiddenPaidAmount');
+            const editForm = document.getElementById('editForm');
+
+            if (!modal || !content || !modalStudentName || !modalTotal || !modalPaid || !modalDue || !modalProgressBar || !modalRemaining || !modalPaymentInput || !hiddenPaidAmount || !editForm) {
+                console.error('Fee modal DOM element missing, attempting to fallback', {
+                    modal,
+                    content,
+                    modalStudentName,
+                    modalTotal,
+                    modalPaid,
+                    modalDue,
+                    modalProgressBar,
+                    modalRemaining,
+                    modalPaymentInput,
+                    hiddenPaidAmount,
+                    editForm,
+                });
+
+                if (modalStudentName && !modal) {
+                    const fallbackModal = document.createElement('div');
+                    fallbackModal.id = 'editModal';
+                    fallbackModal.className = 'fixed inset-0 z-50 hidden';
+                    fallbackModal.innerHTML = `
+                        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300" onclick="window.closeEditModal()"></div>
+                        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col transform transition-transform duration-500 translate-x-full" id="modalContent"></div>
+                    `;
+                    document.body.appendChild(fallbackModal);
+                    const view = document.getElementById('editModal');
+                    const contentView = document.getElementById('modalContent');
+                    if (view && contentView) {
+                        console.warn('Fallback fee modal created');
+                        // we won't restore full structure, but at least avoid crash.
+                    }
+                }
+
+                return;
+            }
+
+            modalStudentName.textContent = name;
+            modalTotal.textContent = '₹' + Number(total).toLocaleString('en-IN');
+            modalPaid.textContent = '₹' + Number(paid).toLocaleString('en-IN');
+            modalDue.textContent = '₹' + Number(currentDue).toLocaleString('en-IN');
+
+            const progressPercent = total > 0 ? Math.min(100, (paid / total) * 100) : 0;
+            modalProgressBar.style.width = progressPercent + '%';
+
+            modalRemaining.textContent = '₹' + Number(currentDue).toLocaleString('en-IN');
+            modalPaymentInput.value = '';
+            modalPaymentInput.max = Math.max(0, currentDue);
+            document.getElementById('modalPaymentMode').value = 'cash';
+            hiddenPaidAmount.value = paid;
+            document.getElementById('hiddenPaymentAmount').value = '';
+            editForm.action = '/accountant/fees/' + id;
+
             modal.classList.remove('hidden');
             setTimeout(() => {
                 content.classList.remove('translate-x-full');
@@ -282,8 +352,9 @@
             document.body.style.overflow = 'hidden';
         }
 
-        function closeEditModal() {
+        window.closeEditModal = function() {
             const content = document.getElementById('modalContent');
+            if (!content) return;
             content.classList.add('translate-x-full');
             setTimeout(() => {
                 document.getElementById('editModal').classList.add('hidden');
@@ -296,13 +367,34 @@
             const newTotalPaid = currentPaid + payment;
             const newRemaining = Math.max(0, currentTotal - newTotalPaid);
 
+            document.getElementById('hiddenPaymentAmount').value = payment;
             document.getElementById('hiddenPaidAmount').value = Math.min(newTotalPaid, currentTotal);
             document.getElementById('modalRemaining').textContent = '₹' + newRemaining.toLocaleString('en-IN');
             document.getElementById('modalProgressBar').style.width = Math.min(100, (newTotalPaid / currentTotal * 100)) + '%';
         });
 
         // Close on Escape
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') closeEditModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape') window.closeEditModal(); });
+
+        // ── Click delegation fallback for Pay/Edit
+        document.addEventListener('click', function(event) {
+            const button = event.target.closest('.js-fee-action');
+            if (!button) return;
+
+            event.preventDefault();
+
+            const feeId = button.getAttribute('data-fee-id');
+            const studentName = button.getAttribute('data-name') || 'N/A';
+            const total = Number(button.getAttribute('data-total') || 0);
+            const paid = Number(button.getAttribute('data-paid') || 0);
+
+            if (typeof window.openEditModal !== 'function') {
+                console.error('openEditModal not defined');
+                return;
+            }
+
+            window.openEditModal(feeId, studentName, total, paid);
+        });
 
         // ── CSV Export ──
         function exportCSV() {

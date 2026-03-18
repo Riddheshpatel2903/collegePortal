@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Timetable;
 
 use RuntimeException;
 
@@ -29,4 +29,3 @@ class TimetableRetryEngine
         throw new RuntimeException('Timetable generation failed after retry attempts.');
     }
 }
-

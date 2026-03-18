@@ -21,7 +21,7 @@ use App\Models\Teacher;
 use App\Models\TeacherSubjectAssignment;
 use App\Models\Timetable;
 use App\Models\User;
-use App\Services\AutoTimetableService;
+use App\Services\Timetable\AutoTimetableService;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;

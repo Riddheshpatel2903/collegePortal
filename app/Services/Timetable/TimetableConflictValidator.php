@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Timetable;
 
 use App\Repositories\TimetableRepository;
+use App\Services\PortalAccessService;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 

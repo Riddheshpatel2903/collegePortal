@@ -40,6 +40,7 @@ class SubjectSeeder extends Seeder
                                 'name' => "{$code} - {$subjectName}",
                             ],
                             [
+                                'semester_number' => $semesterNo,
                                 'credits' => random_int(3, 4),
                                 'weekly_hours' => random_int(3, 5),
                                 'is_lab' => false,

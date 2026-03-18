@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Timetable;
 
 use Illuminate\Http\UploadedFile;
 use Smalot\PdfParser\Parser;
@@ -14,7 +14,7 @@ class CurriculumParser
     {
         $semesters = [];
         if (($handle = fopen($file->getRealPath(), 'r')) !== false) {
-            $header = fgetcsv($handle); 
+            $header = fgetcsv($handle);
             // Header mapping (heuristic)
             $map = $this->mapCsvHeaders($header);
 
@@ -66,17 +66,9 @@ class CurriculumParser
         $subjects = [];
 
         // Normalize text: Replace multiple spaces/tabs with single space
-        // Some PDF extractors might put a lot of junk between columns
         $text = preg_replace('/[ \t]+/', ' ', $text);
-        
-        // Pattern 1: Full GTU Teaching Scheme (Usually 11-12 numeric values after name)
-        // Code(7) Name L T P C ESE(T) PA(T) ESE(P) PA(P) Total
-        // We look for 7 digits, then a name, then at least 6-11 numbers.
-        // Regex: (\d{7}) ([^0-9]+) (\d) (\d) (\d) (\d) (\d+) (\d+) (\d+) (\d+) (\d+)
-        // Pattern 1: Full GTU Teaching Scheme (Usually 11-12 numeric values after name)
-        // Code(7) Name L T P C ESE(T) PA(T) ESE(P) PA(P) Total
-        // Symbols like * or - are common in marks columns.
-        // We use PREG_SET_ORDER to iterate over findings.
+
+        // Pattern 1: Full GTU Teaching Scheme
         if (preg_match_all('/(\d{7})\s+(.+?)\s+(\d)\s+(\d)\s+(\d)\s+(\d)\s+([\d\-\*]+)\s+([\d\-\*]+)\s+([\d\-\*]+)\s+([\d\-\*]+)\s+([\d\-\*]+)/', $text, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $m) {
                 $subjects[] = [
@@ -86,8 +78,8 @@ class CurriculumParser
                     'tutorial_hours' => (int) $m[4],
                     'practical_hours' => (int) $m[5],
                     'credits' => (int) $m[6],
-                    'external_marks' => (int) preg_replace('/[^\d]/', '', $m[7]), // Ext Theory
-                    'internal_marks' => (int) preg_replace('/[^\d]/', '', $m[8]), // Int Theory
+                    'external_marks' => (int) preg_replace('/[^\d]/', '', $m[7]),
+                    'internal_marks' => (int) preg_replace('/[^\d]/', '', $m[8]),
                     'total_marks' => (int) preg_replace('/[^\d]/', '', $m[11]),
                     'subject_type' => ((int)$m[5] > 0) ? 'Practical' : 'Theory',
                 ];

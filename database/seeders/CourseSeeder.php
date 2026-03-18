@@ -26,11 +26,50 @@ class CourseSeeder extends Seeder
         );
 
         $courseMap = [
-            'Computer Engineering' => ['B.E. Computer Engineering', 'B.E. AI & Data Science'],
-            'Mechanical Engineering' => ['B.E. Mechanical Engineering'],
-            'Civil Engineering' => ['B.E. Civil Engineering', 'B.E. Infrastructure Engineering'],
-            'Electrical Engineering' => ['B.E. Electrical Engineering'],
-            'IT Engineering' => ['B.E. Information Technology', 'B.E. Software Engineering'],
+            'Computer Engineering' => [
+                'B.E. Computer Engineering',
+                'B.E. Computer Engineering (IoT)',
+                'B.E. AI & Data Science',
+            ],
+            'Mechanical Engineering' => [
+                'B.E. Mechanical Engineering',
+                'B.E. Mechatronics',
+            ],
+            'Civil Engineering' => [
+                'B.E. Civil Engineering',
+                'B.E. Infrastructure Engineering',
+                'B.E. Environmental Engineering',
+            ],
+            'Electrical Engineering' => [
+                'B.E. Electrical Engineering',
+                'B.E. Power Electronics',
+            ],
+            'IT Engineering' => [
+                'B.E. Information Technology',
+                'B.E. Software Engineering',
+                'B.E. Cloud & Cyber Security',
+            ],
+            'Electronics & Communication' => [
+                'B.E. Electronics & Communication',
+                'B.E. Electronics & Telecommunication',
+            ],
+            'Artificial Intelligence' => [
+                'B.Tech Artificial Intelligence',
+                'B.Tech AI & Machine Learning',
+            ],
+            'Data Science' => [
+                'B.Sc Data Science',
+                'B.Tech Data Science',
+            ],
+            'Management Studies' => [
+                'MBA Finance',
+                'MBA Marketing',
+                'MBA Human Resource Management',
+            ],
+            'Computer Applications' => [
+                'BCA',
+                'MCA',
+            ],
         ];
 
         DB::transaction(function () use ($courseMap, $session) {

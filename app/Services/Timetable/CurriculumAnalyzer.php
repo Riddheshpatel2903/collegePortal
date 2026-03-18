@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Timetable;
 
 use App\Models\Subject;
 use Illuminate\Support\Collection;
@@ -15,7 +15,7 @@ class CurriculumAnalyzer
         $totalLectureSlots = 0;
         $totalLabSlots = 0;
         $labBlocks = [];
-        
+
         // Group subjects by year/semester to find max parallel load
         $loadsBySem = [];
 

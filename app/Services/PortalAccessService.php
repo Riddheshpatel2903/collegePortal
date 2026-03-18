@@ -310,10 +310,10 @@ class PortalAccessService
                 $semesters = $this->timetableRepository->semesterNumbersByType($course, $semesterType);
                 $subjects = $this->timetableRepository->courseSubjectsForSemesters($courseId, $semesters->all());
                 
-                $analyzer = new \App\Services\CurriculumAnalyzer();
+                $analyzer = new \App\Services\Timetable\CurriculumAnalyzer();
                 $analysis = $analyzer->analyze($subjects);
                 
-                $builder = new \App\Services\ScheduleStructureBuilder($this);
+                $builder = new \App\Services\Timetable\ScheduleStructureBuilder($this);
                 $structure = $builder->build($analysis);
                 
                 return $structure['slots_per_day'];

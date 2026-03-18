@@ -16,123 +16,128 @@ class ResultSeeder extends Seeder
     public function run(): void
     {
         $adminId = User::query()->where('role', 'admin')->value('id');
-        $students = Student::query()->with('course')->get();
-        if ($students->isEmpty()) {
-            return;
-        }
+        Student::query()
+            ->select(['id', 'course_id', 'current_year', 'current_semester_id'])
+            ->orderBy('id')
+            ->chunkById(250, function ($students) use ($adminId) {
+                DB::transaction(function () use ($students, $adminId) {
+                    foreach ($students as $student) {
+                        $maxSemester = max(1, min(8, (int) $student->current_year * 2));
+                        $cumulativeCredits = 0.0;
+                        $cumulativeGradePoints = 0.0;
+                        $studentBacklogs = 0;
 
-        DB::transaction(function () use ($students, $adminId) {
-            foreach ($students as $student) {
-                $maxSemester = max(1, min(8, (int) $student->current_year * 2));
-                $cumulativeCredits = 0.0;
-                $cumulativeGradePoints = 0.0;
-                $studentBacklogs = 0;
+                        for ($semesterNo = 1; $semesterNo <= $maxSemester; $semesterNo++) {
+                            $semester = Semester::query()
+                                ->select(['id', 'academic_session_id'])
+                                ->where('course_id', $student->course_id)
+                                ->where('semester_number', $semesterNo)
+                                ->first();
 
-                for ($semesterNo = 1; $semesterNo <= $maxSemester; $semesterNo++) {
-                    $semester = Semester::query()
-                        ->where('course_id', $student->course_id)
-                        ->where('semester_number', $semesterNo)
-                        ->first();
+                            if (!$semester) {
+                                continue;
+                            }
 
-                    $semesterSubjects = SemesterSubject::query()
-                        ->where('semester_id', $semester?->id)
-                        ->with('subject')
-                        ->get();
+                            $semesterSubjects = SemesterSubject::query()
+                                ->where('semester_id', $semester->id)
+                                ->with('subject:id,credits')
+                                ->get();
 
-                    if ($semesterSubjects->isEmpty()) {
-                        continue;
+                            if ($semesterSubjects->isEmpty()) {
+                                continue;
+                            }
+
+                            $result = Result::query()->updateOrCreate(
+                                [
+                                    'student_id' => $student->id,
+                                    'semester_id' => $semester->id,
+                                ],
+                                [
+                                    'course_id' => $student->course_id,
+                                    'academic_year' => (int) ceil($semesterNo / 2),
+                                    'semester_number' => $semesterNo,
+                                    'sgpa' => 0,
+                                    'cgpa' => 0,
+                                    'total_credits_earned' => 0,
+                                    'backlog_subjects' => 0,
+                                    'result_status' => 'pending',
+                                    'promoted' => false,
+                                ]
+                            );
+
+                            $semesterCredits = 0.0;
+                            $semesterGradePoints = 0.0;
+                            $semesterBacklogs = 0;
+                            $earnedCredits = 0;
+
+                            foreach ($semesterSubjects as $semesterSubject) {
+                                $subject = $semesterSubject->subject;
+                                if (!$subject) {
+                                    continue;
+                                }
+
+                                $credits = (int) ($semesterSubject->credits ?: $subject->credits ?: 3);
+                                $internal = random_int(10, 30);
+                                $external = random_int(35, 70);
+
+                                if (random_int(1, 100) <= 10) {
+                                    $external = random_int(0, 25);
+                                }
+
+                                $resultSubject = ResultSubject::query()->updateOrCreate(
+                                    [
+                                        'result_id' => $result->id,
+                                        'semester_subject_id' => $semesterSubject->id,
+                                    ],
+                                    [
+                                        'subject_id' => $semesterSubject->subject_id,
+                                        'student_id' => $student->id,
+                                        'internal_marks' => $internal,
+                                        'external_marks' => $external,
+                                        'max_marks' => 100,
+                                        'credits' => $credits,
+                                    ]
+                                );
+
+                                $semesterCredits += $credits;
+                                $semesterGradePoints += ((float) $resultSubject->grade_point * $credits);
+                                if ($resultSubject->is_backlog) {
+                                    $semesterBacklogs++;
+                                } else {
+                                    $earnedCredits += $credits;
+                                }
+                            }
+
+                            $spi = $semesterCredits > 0 ? round($semesterGradePoints / $semesterCredits, 2) : 0.0;
+                            $cumulativeCredits += $semesterCredits;
+                            $cumulativeGradePoints += $semesterGradePoints;
+                            $cpi = $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0;
+                            $studentBacklogs += $semesterBacklogs;
+
+                            $result->update([
+                                'sgpa' => $spi,
+                                'cgpa' => $cpi,
+                                'total_credits_earned' => $earnedCredits,
+                                'backlog_subjects' => $semesterBacklogs,
+                                'result_status' => $semesterBacklogs > 0 ? 'fail' : 'pass',
+                                'promoted' => $semesterBacklogs === 0,
+                                'result_declared_date' => now()->subDays(random_int(1, 40))->toDateString(),
+                                'locked_at' => now(),
+                                'locked_by' => $adminId,
+                            ]);
+                        }
+
+                        Student::query()->whereKey($student->id)->update([
+                            'cgpa' => $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0,
+                            'cpi' => $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0,
+                            'backlog_count' => $studentBacklogs,
+                            'academic_status' => $studentBacklogs > 0
+                                ? 'backlog'
+                                : (((int) $student->current_year >= 4) ? 'graduated' : 'active'),
+                        ]);
                     }
-
-                    $result = Result::query()->updateOrCreate(
-                        [
-                            'student_id' => $student->id,
-                            'semester_id' => $semester?->id,
-                        ],
-                        [
-                            'course_id' => $student->course_id,
-                            'academic_year' => (int) ceil($semesterNo / 2),
-                            'semester_number' => $semesterNo,
-                            'sgpa' => 0,
-                            'cgpa' => 0,
-                            'total_credits_earned' => 0,
-                            'backlog_subjects' => 0,
-                            'result_status' => 'pending',
-                            'promoted' => false,
-                        ]
-                    );
-
-                    $semesterCredits = 0.0;
-                    $semesterGradePoints = 0.0;
-                    $semesterBacklogs = 0;
-                    $earnedCredits = 0;
-
-                    foreach ($semesterSubjects as $semesterSubject) {
-                        $subject = $semesterSubject->subject;
-                        if (!$subject) {
-                            continue;
-                        }
-
-                        $credits = (int) ($semesterSubject->credits ?: $subject->credits ?: 3);
-                        $internal = random_int(10, 30);
-                        $external = random_int(35, 70);
-
-                        if (random_int(1, 100) <= 10) {
-                            $external = random_int(0, 25);
-                        }
-
-                        $resultSubject = ResultSubject::query()->updateOrCreate(
-                            [
-                                'result_id' => $result->id,
-                                'semester_subject_id' => $semesterSubject->id,
-                            ],
-                            [
-                                'subject_id' => $subject->id,
-                                'student_id' => $student->id,
-                                'internal_marks' => $internal,
-                                'external_marks' => $external,
-                                'max_marks' => 100,
-                                'credits' => $credits,
-                            ]
-                        );
-
-                        $semesterCredits += $credits;
-                        $semesterGradePoints += ((float) $resultSubject->grade_point * $credits);
-                        if ($resultSubject->is_backlog) {
-                            $semesterBacklogs++;
-                        } else {
-                            $earnedCredits += $credits;
-                        }
-                    }
-
-                    $spi = $semesterCredits > 0 ? round($semesterGradePoints / $semesterCredits, 2) : 0.0;
-                    $cumulativeCredits += $semesterCredits;
-                    $cumulativeGradePoints += $semesterGradePoints;
-                    $cpi = $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0;
-                    $studentBacklogs += $semesterBacklogs;
-
-                    $result->update([
-                        'sgpa' => $spi,
-                        'cgpa' => $cpi,
-                        'total_credits_earned' => $earnedCredits,
-                        'backlog_subjects' => $semesterBacklogs,
-                        'result_status' => $semesterBacklogs > 0 ? 'fail' : 'pass',
-                        'promoted' => $semesterBacklogs === 0,
-                        'result_declared_date' => now()->subDays(random_int(1, 40))->toDateString(),
-                        'locked_at' => now(),
-                        'locked_by' => $adminId,
-                    ]);
-                }
-
-                $student->update([
-                    'cgpa' => $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0,
-                    'cpi' => $cumulativeCredits > 0 ? round($cumulativeGradePoints / $cumulativeCredits, 2) : 0.0,
-                    'backlog_count' => $studentBacklogs,
-                    'academic_status' => $studentBacklogs > 0
-                        ? 'backlog'
-                        : (($student->current_year >= 4) ? 'graduated' : 'active'),
-                ]);
-            }
-        });
+                });
+            });
     }
 }
 
