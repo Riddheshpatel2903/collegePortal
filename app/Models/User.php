@@ -8,10 +8,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
 
+use Laravel\Sanctum\HasApiTokens;
+
 class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -174,4 +176,10 @@ class User extends Authenticatable
             return $role->permissions()->where('key', $permissionKey)->exists();
         });
     }
+
+    public function canPage(string $routeName): bool
+    {
+        return app(\App\Services\PortalAccessService::class)->canViewPage($routeName, $this);
+    }
 }
+

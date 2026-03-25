@@ -32,9 +32,6 @@ class FeeController extends Controller
 
     public function index(Request $request)
     {
-        // Proactively ensure all active students have fee entries.
-        $this->ensureAllStudentsHaveFeeEntries();
-
         // Core accountant fee dashboard: always show fee records.
         $query = StudentFee::with(['student.user', 'student.course', 'student.semester'])
             ->orderBy('due_date', 'asc');
@@ -51,12 +48,7 @@ class FeeController extends Controller
         }
 
         if ($request->filled('status') && $request->status !== 'all') {
-            if ($request->status === 'pending') {
-                // Return all unpaid records (pending, partial, or overdue)
-                $query->where('status', '!=', 'paid');
-            } else {
-                $query->where('status', $request->status);
-            }
+            $query->where('status', $request->status);
         }
 
         $fees = $query->paginate(25)->withQueryString();

@@ -10,7 +10,7 @@ class EventController extends Controller
 {
     public function index()
     {
-        $events = Event::latest('event_date')->get();
+        $events = Event::latest('event_date')->paginate(20);
         return view('admin.events.index', compact('events'));
     }
 

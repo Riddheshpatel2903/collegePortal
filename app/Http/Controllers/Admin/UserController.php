@@ -45,7 +45,7 @@ class UserController extends Controller
             $query->where('role', $request->role);
         }
 
-        $users = $query->latest()->paginate(15)->withQueryString();
+        $users = $query->latest()->paginate(20)->withQueryString();
         $roles = Role::query()->orderBy('name')->get();
 
         return view('admin.users.index', compact('users', 'roles'));

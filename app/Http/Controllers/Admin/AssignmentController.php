@@ -28,7 +28,7 @@ class AssignmentController extends Controller
         $assignments = Assignment::with(['teacher.user', 'subject', 'course', 'semester'])
             ->withCount('submissions')
             ->latest()
-            ->paginate(15);
+            ->paginate(20);
 
         // Subject-wise performance (simplified)
         $subjectPerformance = AssignmentSubmission::select('subjects.name', DB::raw('count(*) as count'))

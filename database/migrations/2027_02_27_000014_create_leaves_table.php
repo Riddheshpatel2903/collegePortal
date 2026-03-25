@@ -15,7 +15,11 @@ return new class extends Migration
             $table->morphs('leaveable'); // Student or Teacher
             $table->date('start_date');
             $table->date('end_date');
-            $table->integer('total_days')->virtualAs('DATEDIFF(end_date, start_date) + 1');
+            if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
+                $table->integer('total_days')->virtualAs('CAST(julianday(end_date) - julianday(start_date) AS INTEGER) + 1');
+            } else {
+                $table->integer('total_days')->virtualAs('DATEDIFF(end_date, start_date) + 1');
+            }
             $table->enum('leave_type', ['sick', 'casual', 'emergency', 'other'])->default('casual');
             $table->text('reason');
             $table->string('attachment')->nullable(); // Medical certificate, etc.

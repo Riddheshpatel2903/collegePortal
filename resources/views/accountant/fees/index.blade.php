@@ -131,7 +131,7 @@
         </div>
     </div>
 
-    {{-- Edit Modal --}}
+    {{-- Edit Modal --}
     <div id="editModal" class="fixed inset-0 z-50 hidden" x-data="{ open: false }">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300" onclick="closeEditModal()"></div>
         <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col transform transition-transform duration-500 translate-x-full" id="modalContent">

@@ -18,7 +18,7 @@ class SubjectController extends Controller
 {
     public function index()
     {
-        $subjects = Subject::with(['course', 'teacherAssignments.teacher.user'])->paginate(10);
+        $subjects = Subject::with(['course', 'teacherAssignments.teacher.user'])->paginate(20);
         $subjects->getCollection()->transform(function ($subject) {
             $assignment = $subject->teacherAssignments->first();
             $subject->setRelation('teacher', $assignment?->teacher);

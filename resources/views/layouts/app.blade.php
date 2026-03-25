@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ config('app.locale') }}">
 
 <head>
     <meta charset="utf-8">
@@ -22,9 +22,10 @@
 
     <!-- Theme loaded via Vite from resources/css/theme.css -->
     @stack('styles')
+    <style> [x-cloak] { display: none !important; } </style>
 </head>
 
-<body class="bg-gradient-to-br from-slate-50 via-violet-50/30 to-slate-50 text-slate-900 antialiased">
+<body class="bg-gray-50 text-gray-900 font-sans antialiased" x-data="{ sidebarOpen: false }">
     <noscript>
         <div class="mx-auto max-w-7xl p-4">
             <div class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
@@ -40,18 +41,17 @@
         </div>
     </div>
 
-    <div class="flex min-h-screen" x-data="{ sidebarOpen: true }">
+    <div class="min-h-screen flex bg-gray-50">
 
         @include('layouts.partials.sidebar')
 
         <!-- ─── Main Content ─── -->
-        <div class="flex flex-1 flex-col overflow-hidden">
+        <div class="flex-1 flex flex-col min-w-0 transition-all duration-300">
 
             @include('layouts.partials.header')
 
             <!-- Page Content -->
-            <main class="flex-1 overflow-y-auto">
-                <div class="p-8 max-w-[1600px] w-full mx-auto">
+            <main class="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50 p-4 md:p-6 lg:p-8">
                     @if (session('success'))
                         <div
                             class="mb-6 px-5 py-4 bg-teal-50 border border-teal-100 text-teal-700 rounded-xl flex items-center gap-3">
@@ -72,7 +72,6 @@
                     @isset($slot)
                         {{ $slot }}
                     @endisset
-                </div>
             </main>
         </div>
     </div>

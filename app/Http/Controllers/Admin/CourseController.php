@@ -17,7 +17,7 @@ class CourseController extends Controller
             $query->where('name', 'like', "%{$search}%")
                 ->orWhereHas('department', fn ($q) => $q->where('name', 'like', "%{$search}%"));
         }
-        $courses = $query->orderBy('name')->paginate(12)->withQueryString();
+        $courses = $query->orderBy('name')->paginate(20)->withQueryString();
         return view('admin.courses.index', compact('courses'));
     }
 

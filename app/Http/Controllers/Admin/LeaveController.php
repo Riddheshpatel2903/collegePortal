@@ -34,7 +34,7 @@ class LeaveController extends Controller
             ->withApplicantRelations()
             ->filter($filters)
             ->orderBy('created_at', 'desc')
-            ->paginate(10)
+            ->paginate(20)
             ->withQueryString();
 
         $trends = Leave::query()

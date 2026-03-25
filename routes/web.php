@@ -168,8 +168,7 @@ Route::middleware(['auth', 'page.access'])->group(function () {
             Route::post('/timetable/generate', [\App\Http\Controllers\Hod\ScheduleController::class, 'generate'])
                 ->name('timetable.generate')
                 ->middleware('feature:timetable_edit_enabled');
-            Route::get('/timetable/{schedule}/edit', [\App\Http\Controllers\Hod\ScheduleController::class, 'edit'])->name('timetable.edit');
-            Route::put('/timetable/{schedule}', [\App\Http\Controllers\Hod\ScheduleController::class, 'update'])
+            Route::put('/timetable/{entry}', [\App\Http\Controllers\Hod\ScheduleController::class, 'updateEntry'])
                 ->name('timetable.update')
                 ->middleware(['feature:timetable_edit_enabled', 'feature:semester_lock,false']);
             Route::post('/timetable/availability', [\App\Http\Controllers\Hod\ScheduleController::class, 'setAvailability'])

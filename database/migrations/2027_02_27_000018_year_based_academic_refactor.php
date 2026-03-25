@@ -9,39 +9,42 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // Transition legacy semester foreign keys to nullable so year-based records can be created.
-        if (Schema::hasColumn('students', 'current_semester_id')) {
-            DB::statement('ALTER TABLE students MODIFY current_semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('fee_structures', 'semester_number')) {
-            DB::statement('ALTER TABLE fee_structures MODIFY semester_number INT NULL');
-        }
-        if (Schema::hasColumn('student_fees', 'semester_id')) {
-            DB::statement('ALTER TABLE student_fees MODIFY semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('results', 'semester_id')) {
-            DB::statement('ALTER TABLE results MODIFY semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('assignments', 'semester_id')) {
-            DB::statement('ALTER TABLE assignments MODIFY semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('schedules', 'semester_id')) {
-            DB::statement('ALTER TABLE schedules MODIFY semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('teacher_subject_assignments', 'semester_id')) {
-            DB::statement('ALTER TABLE teacher_subject_assignments MODIFY semester_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('teacher_subject_assignments', 'semester_subject_id')) {
-            DB::statement('ALTER TABLE teacher_subject_assignments MODIFY semester_subject_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('teacher_subject_assignments', 'academic_session_id')) {
-            DB::statement('ALTER TABLE teacher_subject_assignments MODIFY academic_session_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('attendance_sessions', 'semester_subject_id')) {
-            DB::statement('ALTER TABLE attendance_sessions MODIFY semester_subject_id BIGINT UNSIGNED NULL');
-        }
-        if (Schema::hasColumn('result_subjects', 'semester_subject_id')) {
-            DB::statement('ALTER TABLE result_subjects MODIFY semester_subject_id BIGINT UNSIGNED NULL');
+        $driver = DB::getDriverName();
+        if ($driver !== 'sqlite') {
+            // Transition legacy semester foreign keys to nullable so year-based records can be created.
+            if (Schema::hasColumn('students', 'current_semester_id')) {
+                DB::statement('ALTER TABLE students MODIFY current_semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('fee_structures', 'semester_number')) {
+                DB::statement('ALTER TABLE fee_structures MODIFY semester_number INT NULL');
+            }
+            if (Schema::hasColumn('student_fees', 'semester_id')) {
+                DB::statement('ALTER TABLE student_fees MODIFY semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('results', 'semester_id')) {
+                DB::statement('ALTER TABLE results MODIFY semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('assignments', 'semester_id')) {
+                DB::statement('ALTER TABLE assignments MODIFY semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('schedules', 'semester_id')) {
+                DB::statement('ALTER TABLE schedules MODIFY semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('teacher_subject_assignments', 'semester_id')) {
+                DB::statement('ALTER TABLE teacher_subject_assignments MODIFY semester_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('teacher_subject_assignments', 'semester_subject_id')) {
+                DB::statement('ALTER TABLE teacher_subject_assignments MODIFY semester_subject_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('teacher_subject_assignments', 'academic_session_id')) {
+                DB::statement('ALTER TABLE teacher_subject_assignments MODIFY academic_session_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('attendance_sessions', 'semester_subject_id')) {
+                DB::statement('ALTER TABLE attendance_sessions MODIFY semester_subject_id BIGINT UNSIGNED NULL');
+            }
+            if (Schema::hasColumn('result_subjects', 'semester_subject_id')) {
+                DB::statement('ALTER TABLE result_subjects MODIFY semester_subject_id BIGINT UNSIGNED NULL');
+            }
         }
 
         Schema::table('students', function (Blueprint $table) {
@@ -50,7 +53,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasColumn('students', 'current_semester_number')) {
+        if (Schema::hasColumn('students', 'current_semester_number') && $driver !== 'sqlite') {
             DB::statement('UPDATE students SET current_year = GREATEST(1, CEILING(current_semester_number / 2)) WHERE current_semester_number IS NOT NULL');
         }
 
@@ -60,7 +63,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasColumn('fee_structures', 'semester_number')) {
+        if (Schema::hasColumn('fee_structures', 'semester_number') && $driver !== 'sqlite') {
             DB::statement('UPDATE fee_structures SET year_number = GREATEST(1, CEILING(semester_number / 2))');
         }
 
@@ -70,7 +73,9 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('semesters')) {
+        $driver = DB::getDriverName();
+        
+        if (Schema::hasTable('semesters') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE student_fees sf
                 JOIN semesters sem ON sem.id = sf.semester_id
@@ -90,7 +95,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('semesters')) {
+        if (Schema::hasTable('semesters') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE results r
                 JOIN students s ON s.id = r.student_id
@@ -110,7 +115,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('semesters')) {
+        if (Schema::hasTable('semesters') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE assignments a
                 JOIN semesters sem ON sem.id = a.semester_id
@@ -134,7 +139,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('semester_subjects') && Schema::hasTable('semesters')) {
+        if (Schema::hasTable('semester_subjects') && Schema::hasTable('semesters') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE attendance_sessions ats
                 JOIN semester_subjects ss ON ss.id = ats.semester_subject_id
@@ -152,7 +157,7 @@ return new class extends Migration
             }
         });
 
-        if (Schema::hasTable('semester_subjects')) {
+        if (Schema::hasTable('semester_subjects') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE result_subjects rs
                 JOIN semester_subjects ss ON ss.id = rs.semester_subject_id

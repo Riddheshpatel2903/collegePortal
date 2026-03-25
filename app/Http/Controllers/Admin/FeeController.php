@@ -36,7 +36,7 @@ class FeeController extends Controller
         }
 
         $perPage = (int) $request->input('per_page', 15);
-        $fees = $query->orderBy('due_date', 'desc')->paginate($perPage);
+        $fees = $query->orderBy('due_date', 'desc')->paginate(20);
 
         $summary = [
             'total' => $fees->sum('total_amount'),

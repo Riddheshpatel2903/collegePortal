@@ -22,7 +22,7 @@ class TeacherController extends Controller
             $query->whereHas('user', fn ($q) => $q->where('name', 'like', "%{$search}%")->orWhere('email', 'like', "%{$search}%"));
         }
 
-        $teachers = $query->paginate(10)->withQueryString();
+        $teachers = $query->paginate(20)->withQueryString();
         return view('admin.teachers.index', compact('teachers'));
     }
 

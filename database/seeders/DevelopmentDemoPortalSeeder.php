@@ -495,6 +495,9 @@ class DevelopmentDemoPortalSeeder extends Seeder
             ->where('course_id', $course->id)
             ->whereIn('semester_number', $oddSemesters)
             ->whereIn('day', config('timetable.working_days', ['monday','tuesday','wednesday','thursday','friday']))
+            ->get();
+
+        foreach ($timetableRows as $row) {
             $slot = $slotBlocks[(int) $row->slot_number - 1] ?? null;
             if (!$slot) {
                 continue;

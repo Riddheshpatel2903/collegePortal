@@ -12,7 +12,7 @@ class ClassroomController extends Controller
 {
     public function index()
     {
-        $classrooms = Classroom::with('course')->orderBy('name')->get();
+        $classrooms = Classroom::with('course')->orderBy('name')->paginate(20);
         $activeCourses = Course::where('is_active', true)->get();
 
         $batches = [];

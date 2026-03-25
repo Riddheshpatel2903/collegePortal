@@ -11,144 +11,120 @@
         <i id="ajaxToastIcon" class="bi text-lg"></i>
         <span id="ajaxToastMsg"></span>
     </div>
-    <div class="flex items-center justify-between mb-8">
-        <div>
-            <h2 class="text-2xl font-extrabold text-slate-800 tracking-tight">Edit Student</h2>
-            <p class="text-sm text-slate-400 mt-1">Update student enrollment details.</p>
-        </div>
-        <a href="{{ route('admin.students.index') }}"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-slate-500 bg-white border border-slate-200 rounded-xl hover:text-violet-600 hover:border-violet-200 transition-all">
-            <i class="bi bi-arrow-left"></i> Back
-        </a>
+    <x-page-header 
+        title="Edit Student Nexus" 
+        subtitle="Update identity parameters and portal access permissions."
+        icon="bi-pencil-square"
+        back="{{ route('admin.students.index') }}"
+    />
+
+    <div class="max-w-4xl mx-auto">
+        <x-form-card 
+            id="editStudentForm"
+            action="{{ route('admin.students.update', $student->id) }}" 
+            method="PUT"
+            title="Identity Update"
+            subtitle="Record ID: {{ $student->gtu_enrollment_no ?? $student->id }}"
+            icon="bi-fingerprint"
+            submitLabel="Commit Changes"
+            submitIcon="bi-floppy-fill"
+        >
+            {{-- Global error box (AJAX-populated) --}}
+            <div id="formErrorBox" class="hidden p-4 bg-rose-50 border border-rose-100 rounded-xl">
+                <ul id="formErrorList" class="text-sm text-rose-600 space-y-1"></ul>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Legal Full Name</label>
+                    <input type="text" name="name" value="{{ old('name', $student->user->name) }}" class="field input-premium w-full" required>
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Nexus Email</label>
+                    <input type="email" name="email" value="{{ old('email', $student->user->email) }}" class="field input-premium w-full" required>
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Roll Identifier</label>
+                    <input type="text" name="roll_number" value="{{ old('roll_number', $student->roll_number) }}" class="field input-premium w-full" required>
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">GTU Enrollment</label>
+                    <input type="text" name="gtu_enrollment_no" value="{{ old('gtu_enrollment_no', $student->gtu_enrollment_no) }}" class="field input-premium w-full" required>
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Primary Domain</label>
+                    <select name="course_id" class="field input-premium w-full !py-2.5">
+                        <option value="">Select Course</option>
+                        @foreach($courses as $course)
+                            <option value="{{ $course->id }}" {{ old('course_id', $student->course_id) == $course->id ? 'selected' : '' }}>
+                                {{ $course->name }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Current Academic Year</label>
+                    <input type="number" name="current_year" value="{{ old('current_year', $student->current_year ?? 1) }}" class="field input-premium w-full" min="1" max="10">
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Admission Batch</label>
+                    <input type="number" name="admission_year" value="{{ old('admission_year', $student->admission_year) }}" class="field input-premium w-full">
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Contact Protocol</label>
+                    <input type="tel" name="phone" value="{{ old('phone', $student->phone) }}" class="field input-premium w-full">
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Physical Residence</label>
+                    <input type="text" name="address" value="{{ old('address', $student->address) }}" class="field input-premium w-full">
+                    <p class="field-error text-[10px] font-bold text-rose-500 mt-1 hidden"></p>
+                </div>
+
+                <div class="md:col-span-2 space-y-1">
+                    <label class="block text-[11px] font-black text-slate-400 uppercase tracking-widest pl-1">Portal Access Matrix</label>
+                    <div id="toggleCard" class="flex items-center justify-between gap-4 p-5 rounded-2xl border transition-all duration-300
+                        {{ old('is_active', $student->is_active) ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200' }}">
+
+                        <div class="flex items-center gap-4">
+                            <div id="toggleIcon" class="h-12 w-12 rounded-2xl flex items-center justify-center text-2xl transition-all duration-300
+                                {{ old('is_active', $student->is_active) ? 'bg-emerald-100 text-emerald-600 shadow-sm shadow-emerald-200/50' : 'bg-rose-100 text-rose-500 shadow-sm shadow-rose-200/50' }}">
+                                <i id="toggleIconInner" class="bi {{ old('is_active', $student->is_active) ? 'bi-person-check-fill' : 'bi-person-dash-fill' }}"></i>
+                            </div>
+                            <div>
+                                <span class="block text-sm font-black text-slate-800 tracking-tight">Active Identity Status</span>
+                                <span id="toggleLabel" class="block text-[10px] font-black uppercase tracking-widest transition-colors duration-300
+                                    {{ old('is_active', $student->is_active) ? 'text-emerald-600' : 'text-rose-500' }}">
+                                    {{ old('is_active', $student->is_active) ? 'Nexus Authorized — Full Access' : 'Nexus Locked — Access Revoked' }}
+                                </span>
+                            </div>
+                        </div>
+
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" name="is_active" id="isActiveToggle" value="1" {{ old('is_active', $student->is_active) ? 'checked' : '' }} class="sr-only peer">
+                            <div class="w-14 h-7 bg-slate-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-emerald-500 shadow-inner"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </x-form-card>
     </div>
 
-    <div class="glass-card max-w-3xl">
-        <div class="p-8">
-            <form id="editStudentForm" action="{{ route('admin.students.update', $student->id) }}" method="POST" class="space-y-6">
-                @csrf
-                @method('PUT')
-
-                {{-- Global error box (AJAX-populated) --}}
-                <div id="formErrorBox" class="hidden p-4 bg-rose-50 border border-rose-100 rounded-xl">
-                    <ul id="formErrorList" class="text-sm text-rose-600 space-y-1"></ul>
-                </div>
-
-                <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100">
-                    <div class="h-10 w-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg"><i
-                            class="bi bi-pencil-square"></i></div>
-                    <div>
-                        <h3 class="text-base font-bold text-slate-800">Update Student</h3>
-                        <p class="text-xs text-slate-400">Modify student details and enrollment.</p>
-                    </div>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
-                        <input type="text" name="name" value="{{ old('name', $student->user->name) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            required>
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
-                        <input type="email" name="email" value="{{ old('email', $student->user->email) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            required>
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Roll Number</label>
-                        <input type="text" name="roll_number" value="{{ old('roll_number', $student->roll_number) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            required>
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">GTU Enrollment No</label>
-                        <input type="text" name="gtu_enrollment_no" value="{{ old('gtu_enrollment_no', $student->gtu_enrollment_no) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            required>
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Course</label>
-                        <select name="course_id"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
-                            <option value="">Select Course</option>
-                            @foreach($courses as $course)
-                                <option value="{{ $course->id }}" {{ old('course_id', $student->course_id) == $course->id ? 'selected' : '' }}>
-                                    {{ $course->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Current Year</label>
-                        <input type="number" name="current_year"
-                            value="{{ old('current_year', $student->current_year ?? 1) }}" min="1" max="10"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Admission Year</label>
-                        <input type="number" name="admission_year"
-                            value="{{ old('admission_year', $student->admission_year) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
-                        <input type="tel" name="phone" value="{{ old('phone', $student->phone) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Address</label>
-                        <input type="text" name="address" value="{{ old('address', $student->address) }}"
-                            class="field w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
-                        <p class="field-error text-xs text-rose-500 mt-1 hidden"></p>
-                    </div>
-
-                    <div class="md:col-span-2">
-                        <div id="toggleCard" class="flex items-center justify-between gap-4 p-5 rounded-2xl border transition-all duration-300
-                            {{ old('is_active', $student->is_active) ? 'bg-emerald-50/60 border-emerald-200' : 'bg-rose-50/60 border-rose-200' }}">
-
-                            <div class="flex items-center gap-3">
-                                <div id="toggleIcon" class="h-10 w-10 rounded-xl flex items-center justify-center text-xl transition-colors duration-300
-                                    {{ old('is_active', $student->is_active) ? 'bg-emerald-100 text-emerald-600' : 'bg-rose-100 text-rose-500' }}">
-                                    <i id="toggleIconInner" class="bi {{ old('is_active', $student->is_active) ? 'bi-person-check-fill' : 'bi-person-dash-fill' }}"></i>
-                                </div>
-                                <div>
-                                    <span class="block text-sm font-bold text-slate-700">Account Status</span>
-                                    <span id="toggleLabel" class="block text-[10px] font-semibold uppercase tracking-wider transition-colors duration-300
-                                        {{ old('is_active', $student->is_active) ? 'text-emerald-500' : 'text-rose-400' }}">
-                                        {{ old('is_active', $student->is_active) ? '● Active — portal access enabled' : '● Inactive — portal access disabled' }}
-                                    </span>
-                                </div>
-                            </div>
-
-                            <label class="flex items-center cursor-pointer flex-shrink-0" for="isActiveToggle">
-                                <input type="checkbox" name="is_active" id="isActiveToggle"
-                                    {{ old('is_active', $student->is_active) ? 'checked' : '' }}
-                                    class="h-5 w-5 rounded-md border-2 cursor-pointer transition-all duration-200
-                                        border-slate-300 bg-white
-                                        checked:bg-emerald-500 checked:border-emerald-500
-                                        focus:ring-2 focus:ring-emerald-200 focus:outline-none
-                                        accent-emerald-500">
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-3 pt-6 border-t border-slate-100">
-                    <a href="{{ route('admin.students.index') }}"
-                        class="px-6 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">Cancel</a>
-                    <button type="submit" id="submitBtn"
-                        class="px-8 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-violet-600 to-purple-600 rounded-xl hover:shadow-lg hover:shadow-violet-500/25 transition-all flex items-center gap-2">
-                        <i id="submitIcon" class="bi bi-floppy-fill"></i>
-                        <span id="submitLabel">Save Changes</span>
-                    </button>
-                </div>
             </form>
         </div>
     </div>
@@ -218,9 +194,13 @@
     }
 
     function setLoading(loading) {
-        submitBtn.disabled = loading;
-        submitIcon.className = loading ? 'bi bi-arrow-repeat animate-spin' : 'bi bi-floppy-fill';
-        submitLbl.textContent = loading ? 'Saving...' : 'Save Changes';
+        const btn = document.getElementById('editStudentForm-submit');
+        const lbl = document.getElementById('editStudentForm-label');
+        const icon = btn?.querySelector('i');
+        
+        if (btn) btn.disabled = loading;
+        if (icon) icon.className = loading ? 'bi bi-arrow-repeat animate-spin' : 'bi bi-floppy-fill';
+        if (lbl) lbl.textContent = loading ? 'Saving...' : 'Commit Changes';
     }
 
     form.addEventListener('submit', async function (e) {

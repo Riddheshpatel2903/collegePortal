@@ -10,7 +10,7 @@ class NoticeController extends Controller
 {
     public function index()
     {
-        $notices = Notice::with('user')->latest()->get();
+        $notices = Notice::with('user')->latest()->paginate(20);
         return view('admin.notices.index', compact('notices'));
     }
 

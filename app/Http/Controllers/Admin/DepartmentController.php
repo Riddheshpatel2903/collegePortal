@@ -16,7 +16,7 @@ class DepartmentController extends Controller
             $query->where('name', 'like', "%{$search}%")
                 ->orWhere('description', 'like', "%{$search}%");
         }
-        $departments = $query->orderBy('name')->paginate(12)->withQueryString();
+        $departments = $query->orderBy('name')->paginate(20)->withQueryString();
         return view('admin.departments.index', compact('departments'));
     }
 

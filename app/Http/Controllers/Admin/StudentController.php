@@ -96,7 +96,7 @@ class StudentController extends Controller
 
         $students = $query->orderBy('current_year')
             ->orderBy('roll_number')
-            ->paginate(15);
+            ->paginate(20);
 
         $studentsGrouped = $students->groupBy(function ($student) {
             return 'Year ' . ($student->current_year ?: 1);

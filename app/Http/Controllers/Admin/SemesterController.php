@@ -21,7 +21,7 @@ class SemesterController extends Controller
         $semesters = Semester::with(['course', 'academicSession'])
             ->orderByDesc('academic_session_id')
             ->orderBy('semester_number')
-            ->paginate(10);
+            ->paginate(20);
         return view('admin.semesters.index', compact('semesters'));
     }
 

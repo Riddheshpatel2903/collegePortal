@@ -10,7 +10,7 @@ class HolidayController extends Controller
 {
     public function index()
     {
-        $holidays = Holiday::orderBy('date', 'asc')->get();
+        $holidays = Holiday::orderBy('date', 'asc')->paginate(20);
         return view('admin.holidays.index', compact('holidays'));
     }
 

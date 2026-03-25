@@ -31,12 +31,24 @@ return new class extends Migration
         });
 
         if (Schema::hasTable('teacher_subject_assignments') && Schema::hasTable('semester_subjects')) {
-            DB::statement(
-                'UPDATE teacher_subject_assignments tsa
-                 INNER JOIN semester_subjects ss ON ss.id = tsa.semester_subject_id
-                 SET tsa.subject_id = ss.subject_id
-                 WHERE tsa.subject_id IS NULL'
-            );
+            if (\Illuminate\Support\Facades\DB::getDriverName() === 'sqlite') {
+                DB::statement(
+                    'UPDATE teacher_subject_assignments 
+                     SET subject_id = (
+                         SELECT subject_id 
+                         FROM semester_subjects 
+                         WHERE semester_subjects.id = teacher_subject_assignments.semester_subject_id
+                     )
+                     WHERE subject_id IS NULL'
+                );
+            } else {
+                DB::statement(
+                    'UPDATE teacher_subject_assignments tsa
+                     INNER JOIN semester_subjects ss ON ss.id = tsa.semester_subject_id
+                     SET tsa.subject_id = ss.subject_id
+                     WHERE tsa.subject_id IS NULL'
+                );
+            }
         }
 
         Schema::table('fee_structures', function (Blueprint $table) {
