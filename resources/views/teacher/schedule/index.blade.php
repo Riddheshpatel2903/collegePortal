@@ -35,54 +35,6 @@
             />
         </div>
 
-        <!-- ─── List View ─── -->
-        <div class="glass-card overflow-hidden">
-            <div class="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <h3 class="font-black text-slate-800">Assigned Sessions List</h3>
-                <i class="bi bi-list-ul text-slate-400"></i>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="table-premium">
-                    <thead>
-                        <tr>
-                            <th>Day</th>
-                            <th>Time</th>
-                            <th>Subject / Semester</th>
-                            <th>Classroom</th>
-                            <th class="text-right">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($schedules as $slot)
-                            <tr>
-                                <td class="font-bold text-slate-800">{{ ucfirst($slot->day) }}</td>
-                                <td class="font-mono text-xs">{{ $slot->start_time }} - {{ $slot->end_time }}</td>
-                                <td>
-                                    <p class="font-semibold text-slate-700">{{ $slot->subject_name }}</p>
-                                    <span class="text-[10px] font-bold text-indigo-600 uppercase">Sem {{ $slot->semester_number }}</span>
-                                </td>
-                                <td>
-                                    <span class="px-2 py-1 bg-slate-100 border border-slate-200 rounded-lg text-slate-600 font-bold text-[11px]">
-                                        {{ $slot->room_name ?? 'N/A' }}
-                                    </span>
-                                </td>
-                                <td class="text-right">
-                                    <span class="text-[10px] font-bold text-slate-400 italic">Confirmed</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="text-center py-12">
-                                    <div class="flex flex-col items-center opacity-40">
-                                        <i class="bi bi-calendar-x text-5xl mb-2"></i>
-                                        <p class="text-sm font-semibold">No teaching sessions found.</p>
-                                    </div>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-        </div>
+
     </div>
 @endsection

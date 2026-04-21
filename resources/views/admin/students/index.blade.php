@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('header_title', 'Student Nexus')
+@section('header_title', 'Student Management')
 
 @section('content')
     <div x-data="{
@@ -10,99 +10,89 @@
         }
     }">
         <x-page-header 
-            title="Student Nexus" 
-            subtitle="Coordinate student life-cycles, academic progressions, and identity synchronisation."
-            icon="bi-person-badge-fill"
-            actionLabel="Enroll Student"
-            actionIcon="bi-person-plus-fill"
+            title="Student Management" 
+            subtitle="Manage student enrollments, academic records, and portal access."
+            icon="bi-person-badge"
+            actionLabel="Add Student"
+            actionIcon="bi-person-plus"
             actionRoute="{{ route('admin.students.create') }}"
         />
 
-        <!-- ─── Global Student Dynamics ─── -->
+        <!-- ─── Statistics ─── -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <x-stat-card 
-                label="Total Population" 
+                label="Total Students" 
                 value="{{ number_format($stats['total']) }}" 
-                icon="bi-people-fill" 
+                icon="bi-people" 
                 tone="indigo" 
                 trend="+{{ $stats['new'] }} this month"
             />
             <x-stat-card 
-                label="Synchronized Nodes" 
+                label="Active Students" 
                 value="{{ number_format($stats['active']) }}" 
-                icon="bi-person-check-fill" 
+                icon="bi-person-check" 
                 tone="emerald" 
             />
             <x-stat-card 
-                label="Incoming Admissions" 
+                label="New Admissions" 
                 value="{{ number_format($stats['new']) }}" 
-                icon="bi-stars" 
+                icon="bi-plus-circle" 
                 tone="amber" 
             />
             <x-stat-card 
-                label="Archived Profiles" 
+                label="Locked Accounts" 
                 value="{{ number_format($stats['inactive']) }}" 
-                icon="bi-person-dash" 
+                icon="bi-lock" 
                 tone="rose" 
             />
         </div>
 
-        <!-- ─── Search Architecture ─── -->
-        <div class="sticky top-20 z-30 mb-8">
-            <x-card class="p-2 border border-white/60 shadow-2xl">
-                <div class="flex flex-wrap items-center gap-2">
-                    <div class="relative flex-1 min-w-[300px] h-12 group">
-                        <i class="bi bi-search absolute left-5 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors"></i>
-                        <input type="text" id="search"
-                            placeholder="Identify students by ID, name, or GTU enrollment..."
-                            class="input-premium pl-12 h-full">
-                        <div id="searchLoader" class="hidden absolute right-5 top-1/2 -translate-y-1/2">
-                            <div class="animate-spin h-4 w-4 border-2 border-violet-500 border-t-transparent rounded-full"></div>
-                        </div>
+        <!-- ─── Filters & Search ─── -->
+        <div class="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm mb-8 sticky top-20 z-30">
+            <div class="flex flex-wrap items-center gap-4">
+                <div class="relative flex-1 min-w-[300px] h-11 group">
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                    <input type="text" id="search"
+                        placeholder="Search by name, ID, or enrollment number..."
+                        class="w-full h-full bg-slate-50 border-slate-100 rounded-xl pl-11 text-sm focus:border-indigo-500 focus:ring-indigo-500 transition-all font-medium">
+                    <div id="searchLoader" class="hidden absolute right-4 top-1/2 -translate-y-1/2">
+                        <div class="animate-spin h-4 w-4 border-2 border-indigo-500 border-t-transparent rounded-full"></div>
                     </div>
-
-                    <div class="flex flex-wrap items-center gap-2 p-1 bg-slate-50/50 rounded-xl border border-slate-100/50">
-                        <div class="flex items-center px-3 border-r border-slate-200">
-                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Dept</span>
-                            <select id="department_id" class="bg-transparent border-none text-[12px] font-black text-slate-600 focus:ring-0 cursor-pointer min-w-[150px]">
-                                <option value="">All Streams</option>
-                                @foreach($departments as $dept)
-                                    <option value="{{ $dept->id }}">{{ $dept->name }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="flex items-center px-3 border-r border-slate-200">
-                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Term</span>
-                            <select id="current_year" class="bg-transparent border-none text-[12px] font-black text-slate-600 focus:ring-0 cursor-pointer min-w-[120px]">
-                                <option value="">All Phases</option>
-                            </select>
-                        </div>
-
-                        <div class="flex items-center px-3">
-                             <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest mr-2">Status</span>
-                            <select id="status" class="bg-transparent border-none text-[12px] font-black text-slate-600 focus:ring-0 cursor-pointer min-w-[100px]">
-                                <option value="">Global</option>
-                                <option value="1">Active</option>
-                                <option value="0">Locked</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <x-button variant="outline" id="resetFilters" icon="bi-arrow-counterclockwise" class="h-12 w-12 !p-0"></x-button>
                 </div>
-            </x-card>
+
+                <div class="flex flex-wrap items-center gap-1 p-1 bg-slate-50 rounded-xl border border-slate-100">
+                    <select id="department_id" class="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer min-w-[140px] px-3">
+                        <option value="">All Departments</option>
+                        @foreach($departments as $dept)
+                            <option value="{{ $dept->id }}">{{ $dept->name }}</option>
+                        @endforeach
+                    </select>
+                    
+                    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                    <select id="current_year" class="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer min-w-[120px] px-3">
+                        <option value="">All Semesters</option>
+                    </select>
+
+                    <div class="w-px h-6 bg-slate-200 mx-1"></div>
+
+                    <select id="status" class="bg-transparent border-none text-xs font-bold text-slate-600 focus:ring-0 cursor-pointer min-w-[100px] px-3">
+                        <option value="">Status</option>
+                        <option value="1">Active Only</option>
+                        <option value="0">Locked Only</option>
+                    </select>
+                </div>
+
+                <button id="resetFilters" class="h-11 w-11 flex items-center justify-center rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 transition-all shadow-sm" title="Reset Filters">
+                    <i class="bi bi-arrow-counterclockwise"></i>
+                </button>
+            </div>
         </div>
 
         <div id="studentDataContainer" class="min-h-[400px] transition-opacity duration-300">
-            <div class="flex flex-col items-center justify-center py-32 space-y-6">
-                <div class="relative">
-                    <div class="h-16 w-16 border-4 border-violet-500/10 border-t-violet-600 rounded-full animate-spin"></div>
-                    <div class="absolute inset-0 flex items-center justify-center">
-                        <i class="bi bi-cpu-fill text-violet-600/30"></i>
-                    </div>
-                </div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] animate-pulse">Initialising Nexus Data Architecture...</p>
+            <div class="flex flex-col items-center justify-center py-32 space-y-4">
+                <div class="h-12 w-12 border-4 border-indigo-100 border-t-indigo-600 rounded-full animate-spin"></div>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest animate-pulse">Loading Student Records...</p>
             </div>
         </div>
     </div>
@@ -124,163 +114,13 @@
             let fetchTimeout = null;
             let activeRequest = null;
 
-            // ─── Toast ────────────────────────────────────────────────
-            const toast = document.getElementById('ajaxToast');
-            const toastMsg = document.getElementById('ajaxToastMsg');
-            const toastIcon = document.getElementById('ajaxToastIcon');
-            let toastTimer = null;
-
-            function showToast(message, type = 'success') {
-                clearTimeout(toastTimer);
-                toastMsg.textContent = message;
-                toast.className = toast.className
-                    .replace(/bg-\S+/g, '')
-                    .trim();
-                if (type === 'success') {
-                    toast.classList.add('bg-emerald-500');
-                    toastIcon.className = 'bi bi-check-circle-fill text-lg';
-                } else if (type === 'error') {
-                    toast.classList.add('bg-rose-500');
-                    toastIcon.className = 'bi bi-exclamation-circle-fill text-lg';
+            function setLoading(loadingStatus) {
+                if (loadingStatus) {
+                    searchLoader?.classList.remove('hidden');
+                    container?.classList.add('opacity-60');
                 } else {
-                    toast.classList.add('bg-violet-600');
-                    toastIcon.className = 'bi bi-info-circle-fill text-lg';
-                }
-                toast.classList.remove('translate-y-20', 'opacity-0');
-                toast.classList.add('translate-y-0', 'opacity-100');
-                toast.style.pointerEvents = 'auto';
-                toastTimer = setTimeout(() => {
-                    toast.classList.remove('translate-y-0', 'opacity-100');
-                    toast.classList.add('translate-y-20', 'opacity-0');
-                    toast.style.pointerEvents = 'none';
-                }, 3500);
-            }
-
-            // ─── AJAX helpers ─────────────────────────────────────────
-            async function ajaxRequest(url, method, csrf) {
-                const res = await fetch(url, {
-                    method,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': csrf,
-                        'Accept': 'application/json',
-                        'Content-Type': 'application/json',
-                    },
-                });
-                return res.json();
-            }
-
-            // ─── Toggle handler ───────────────────────────────────────
-            async function handleToggle(btn) {
-                const url = btn.dataset.url;
-                const csrf = btn.dataset.csrf;
-                const active = btn.dataset.active === '1';
-                const label = active ? 'Deactivate' : 'Activate';
-                if (!confirm(`${label} this student?`)) return;
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin text-lg leading-none"></i>';
-
-                try {
-                    const data = await ajaxRequest(url, 'PATCH', csrf);
-                    if (!data.success) throw new Error(data.message || 'Failed');
-
-                    const isNowActive = data.is_active;
-                    const row = btn.closest('tr');
-
-                    // Update status dot
-                    const dot = row.querySelector('.status-dot');
-                    if (dot) {
-                        dot.classList.toggle('bg-emerald-500', isNowActive);
-                        dot.classList.toggle('bg-rose-400', !isNowActive);
-                    }
-
-                    // Update Access badge
-                    const badgeWrap = row.querySelector('.access-badge');
-                    if (badgeWrap) {
-                        badgeWrap.innerHTML = isNowActive
-                            ? '<span class="badge badge-success">Active</span>'
-                            : '<span class="badge badge-danger">Locked</span>';
-                    }
-
-                    // Update toggle button itself
-                    const activeClasses = ['bg-emerald-50', 'text-emerald-600', 'border-emerald-200', 'hover:bg-emerald-500', 'hover:text-white', 'hover:border-emerald-500'];
-                    const inactiveClasses = ['bg-amber-50', 'text-amber-500', 'border-amber-200', 'hover:bg-amber-500', 'hover:text-white', 'hover:border-amber-500'];
-                    if (isNowActive) {
-                        btn.classList.remove(...inactiveClasses);
-                        btn.classList.add(...activeClasses);
-                    } else {
-                        btn.classList.remove(...activeClasses);
-                        btn.classList.add(...inactiveClasses);
-                    }
-                    btn.dataset.active = isNowActive ? '1' : '0';
-                    btn.title = isNowActive ? 'Deactivate Student' : 'Activate Student';
-                    btn.innerHTML = `<i class="bi ${isNowActive ? 'bi-toggle-on' : 'bi-toggle-off'} text-lg leading-none"></i>`;
-
-                    showToast(data.message, 'success');
-                } catch (err) {
-                    showToast(err.message || 'Something went wrong.', 'error');
-                    btn.innerHTML = `<i class="bi ${active ? 'bi-toggle-on' : 'bi-toggle-off'} text-lg leading-none"></i>`;
-                } finally {
-                    btn.disabled = false;
-                }
-            }
-
-            // ─── Delete handler ───────────────────────────────────────
-            async function handleDelete(btn) {
-                const url = btn.dataset.url;
-                const csrf = btn.dataset.csrf;
-                const name = btn.dataset.name || 'this student';
-                if (!confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
-
-                btn.disabled = true;
-                btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i>';
-
-                try {
-                    const data = await ajaxRequest(url, 'DELETE', csrf);
-                    if (!data.success) throw new Error(data.message || 'Failed');
-
-                    const row = btn.closest('tr');
-                    row.style.transition = 'opacity 0.4s, transform 0.4s';
-                    row.style.opacity = '0';
-                    row.style.transform = 'translateX(20px)';
-                    setTimeout(() => row.remove(), 420);
-                    showToast(data.message, 'success');
-                } catch (err) {
-                    showToast(err.message || 'Something went wrong.', 'error');
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="bi bi-trash3"></i>';
-                }
-            }
-
-            // ─── Delegated click on container ─────────────────────────
-            container.addEventListener('click', function (event) {
-                // Toggle
-                const toggleBtn = event.target.closest('[data-action="toggle"]');
-                if (toggleBtn) { handleToggle(toggleBtn); return; }
-
-                // Delete
-                const deleteBtn = event.target.closest('[data-action="delete"]');
-                if (deleteBtn) { handleDelete(deleteBtn); return; }
-
-                // Pagination
-                const link = event.target.closest('a[href]');
-                if (!link) return;
-                const href = link.getAttribute('href') || '';
-                const isPaginatorClick = link.closest('.pagination-ajax') || href.includes('page=');
-                if (!isPaginatorClick) return;
-                event.preventDefault();
-                fetchStudents(link.href);
-                window.scrollTo({ top: container.offsetTop - 100, behavior: 'smooth' });
-            });
-
-            function setLoading(loading) {
-                if (loading) {
-                    searchLoader.classList.remove('hidden');
-                    container.classList.add('opacity-60');
-                } else {
-                    searchLoader.classList.add('hidden');
-                    container.classList.remove('opacity-60');
+                    searchLoader?.classList.add('hidden');
+                    container?.classList.remove('opacity-60');
                 }
             }
 
@@ -296,7 +136,7 @@
                         }
                     });
                     const semesters = await response.json();
-                    yearSelect.innerHTML = '<option value="">All Years</option>';
+                    yearSelect.innerHTML = '<option value="">All Semesters</option>';
 
                     semesters.forEach(sem => {
                         const option = document.createElement('option');
@@ -305,7 +145,8 @@
                         yearSelect.appendChild(option);
                     });
                 } catch (e) {
-                    yearSelect.innerHTML = '<option value="">All Years</option>';
+                    yearSelect.innerHTML = '<option value="">All Semesters</option>';
+                    console.error('Failed to load semesters:', e);
                 } finally {
                     yearSelect.disabled = false;
                 }
@@ -322,15 +163,11 @@
                 const base = pageUrl || fetchUrl;
                 const cleanBase = base.split('?')[0];
                 const existing = new URLSearchParams(base.includes('?') ? base.split('?')[1] : '');
-                if (existing.has('page')) {
-                    params.set('page', existing.get('page'));
-                }
+                if (existing.has('page')) params.set('page', existing.get('page'));
 
                 const url = `${cleanBase}?${params.toString()}`;
 
-                if (activeRequest) {
-                    activeRequest.abort();
-                }
+                if (activeRequest) activeRequest.abort();
                 activeRequest = new AbortController();
 
                 setLoading(true);
@@ -343,27 +180,69 @@
                         }
                     });
 
-                    if (!response.ok) {
-                        throw new Error(`Server returned ${response.status}`);
-                    }
-
+                    if (!response.ok) throw new Error(`Server returned ${response.status}`);
                     container.innerHTML = await response.text();
                 } catch (error) {
                     if (error.name !== 'AbortError') {
                         container.innerHTML = `
-                                                    <div class="glass-card py-20 text-center border-rose-100 bg-rose-50/20 mt-4">
-                                                        <div class="h-16 w-16 bg-rose-500/10 text-rose-500 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4">
-                                                            <i class="bi bi-exclamation-triangle-fill"></i>
-                                                        </div>
-                                                        <h3 class="text-rose-900 font-black text-lg mb-1">Failed to Load</h3>
-                                                        <p class="text-rose-600/60 text-sm">${error.message}</p>
-                                                    </div>
-                                                `;
+                            <div class="bg-white border border-slate-200 rounded-2xl p-20 text-center shadow-sm">
+                                <i class="bi bi-exclamation-triangle text-4xl text-rose-500 mb-4 block"></i>
+                                <h3 class="text-slate-800 font-bold mb-1">Failed to Load Data</h3>
+                                <p class="text-slate-500 text-sm font-medium">${error.message}</p>
+                                <button onclick="window.location.reload()" class="mt-6 px-4 py-2 bg-indigo-600 text-white text-xs font-bold rounded-lg hover:bg-indigo-700 transition-all">Retry Load</button>
+                            </div>
+                        `;
                     }
                 } finally {
                     setLoading(false);
                 }
             }
+
+            // Click delegation for table actions
+            container.addEventListener('click', async function (e) {
+                const toggleBtn = e.target.closest('[data-action="toggle"]');
+                const deleteBtn = e.target.closest('[data-action="delete"]');
+                const paginationLink = e.target.closest('.pagination-ajax a, .pagination a');
+
+                if (toggleBtn) {
+                    const url = toggleBtn.dataset.url;
+                    const isActive = toggleBtn.dataset.active === '1';
+                    if (!confirm(`${isActive ? 'Deactivate' : 'Activate'} this student?`)) return;
+                    
+                    toggleBtn.disabled = true;
+                    try {
+                        const response = await fetch(url, {
+                            method: 'PATCH',
+                            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (data.success) fetchStudents();
+                    } catch (err) { alert('Operation failed.'); }
+                    finally { toggleBtn.disabled = false; }
+                }
+
+                if (deleteBtn) {
+                    const url = deleteBtn.dataset.url;
+                    if (!confirm('Permanently delete this student? Use with caution.')) return;
+                    
+                    deleteBtn.disabled = true;
+                    try {
+                        const response = await fetch(url, {
+                            method: 'DELETE',
+                            headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]').content, 'Accept': 'application/json' }
+                        });
+                        const data = await response.json();
+                        if (data.success) fetchStudents();
+                    } catch (err) { alert('Deletion failed.'); }
+                    finally { deleteBtn.disabled = false; }
+                }
+
+                if (paginationLink) {
+                    e.preventDefault();
+                    fetchStudents(paginationLink.href);
+                    window.scrollTo({ top: container.offsetTop - 120, behavior: 'smooth' });
+                }
+            });
 
             searchInput.addEventListener('input', () => {
                 clearTimeout(fetchTimeout);

@@ -43,22 +43,19 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full
-                            Name</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
                         <input type="text" name="name" value="{{ old('name', $user->name) }}"
                             class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            required>
+                            required pattern="[a-zA-Z\s.]+" title="Only characters, spaces and dots are allowed">
                     </div>
                     <div>
-                        <label
-                            class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
                         <input type="email" name="email" value="{{ old('email', $user->email) }}"
                             class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
                             required>
                     </div>
                     <div>
-                        <label
-                            class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Role</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Role</label>
                         <select name="role" id="roleSelect"
                             class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
                             @foreach($roles as $role)
@@ -72,8 +69,7 @@
                         </select>
                     </div>
                     <div>
-                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">New
-                            Password (Optional)</label>
+                        <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">New Password (Optional)</label>
                         <input type="password" name="password"
                             class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
                             placeholder="••••••••">
@@ -94,8 +90,7 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Roll
-                                Number</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Roll Number</label>
                             <input type="text" name="roll_number"
                                 value="{{ old('roll_number', $user->student->roll_number ?? '') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
@@ -109,8 +104,7 @@
                                 placeholder="GTU2024XXXXXX">
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Course</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Course</label>
                             <select name="course_id" id="studentCourseSelect"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
                                 <option value="">Select Course</option>
@@ -122,32 +116,27 @@
                             </select>
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Current Semester</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Current Semester</label>
                             <select name="semester_number" id="studentSemesterSelect"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
                                 <option value="">Select Semester</option>
                             </select>
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Admission
-                                Year</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Admission Year</label>
                             <input type="number" name="admission_year"
                                 value="{{ old('admission_year', $user->student->admission_year ?? date('Y')) }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
                                 placeholder="2024">
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
                             <input type="tel" name="phone" value="{{ old('phone', $user->student->phone ?? '') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                                placeholder="+91 xxxxxxxxxx">
+                                placeholder="e.g. 9876543210" pattern="\d{10}" maxlength="10" title="Exactly 10 digits are required">
                         </div>
                         <div class="md:col-span-2">
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Address</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Address</label>
                             <input type="text" name="address" value="{{ old('address', $user->student->address ?? '') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
                                 placeholder="Full address">
@@ -158,8 +147,7 @@
                 {{-- Teacher Fields --}}
                 <div id="teacherFields" class="hidden">
                     <div class="flex items-center gap-3 mb-6 pb-6 border-b border-slate-100 mt-6">
-                        <div
-                            class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                        <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
                             <i class="bi bi-person-badge-fill"></i>
                         </div>
                         <div>
@@ -169,8 +157,7 @@
                     </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Department</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Department</label>
                             <select name="department_id"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all">
                                 <option value="">Select Department</option>
@@ -182,19 +169,17 @@
                             </select>
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Qualification</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Qualification</label>
                             <input type="text" name="qualification"
                                 value="{{ old('qualification', $user->teacher->qualification ?? '') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
                                 placeholder="Ph.D. Computer Science">
                         </div>
                         <div>
-                            <label
-                                class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
+                            <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
                             <input type="tel" name="phone" value="{{ old('phone', $user->teacher->phone ?? '') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                                placeholder="+91 xxxxxxxxxx">
+                                placeholder="e.g. 9876543210" pattern="\d{10}" maxlength="10" title="Exactly 10 digits are required">
                         </div>
                     </div>
                 </div>
@@ -203,8 +188,7 @@
                     <a href="{{ route('admin.users.index') }}"
                         class="px-6 py-2.5 text-sm font-semibold text-slate-500 bg-white border border-slate-200 rounded-xl hover:bg-slate-50 transition-all">Cancel</a>
                     <button type="submit"
-                        class="px-8 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl hover:shadow-lg hover:shadow-teal-500/25 transition-all">Save
-                        Changes</button>
+                        class="px-8 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-teal-500 to-teal-600 rounded-xl hover:shadow-lg hover:shadow-teal-500/25 transition-all">Save Changes</button>
                 </div>
             </form>
         </div>
@@ -217,7 +201,10 @@
             const teacherFields = document.getElementById('teacherFields');
             const studentCourseSelect = document.getElementById('studentCourseSelect');
             const studentSemesterSelect = document.getElementById('studentSemesterSelect');
-            const oldSemesterNumber = @json(old('semester_number', $user->student->current_semester_number ?? null));
+            @php
+                $currentSemesterNumber = $user->student->currentSemester->semester_number ?? null;
+            @endphp
+            const oldSemesterNumber = @json(old('semester_number', $currentSemesterNumber));
 
             function loadSemesterOptions() {
                 if (!studentCourseSelect || !studentSemesterSelect) return;

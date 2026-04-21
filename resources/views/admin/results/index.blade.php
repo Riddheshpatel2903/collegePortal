@@ -1,35 +1,34 @@
 @extends('layouts.app')
 
-@section('header_title', 'Results')
+@section('header_title', 'Result Management')
 
 @section('content')
     <x-page-header 
-        title="Results Nexus" 
-        subtitle="GTU Examination outcomes and global registry" 
-        tag="Academic Sync"
+        title="Examination Results" 
+        subtitle="Manage student academic outcomes, SPI/CPI tracking, and examination record synchronization." 
         icon="bi-trophy"
     />
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {{-- Import Panel --}}
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8 mt-8">
+        <!-- ─── Import Section ─── -->
         <div class="lg:col-span-1">
-            <div class="glass-card p-8 border-l-4 border-l-violet-500 sticky top-6">
-                <div class="flex items-center gap-4 mb-6">
-                    <div class="h-12 w-12 rounded-2xl bg-violet-50 text-violet-600 flex items-center justify-center text-xl shadow-inner">
-                        <i class="bi bi-cloud-arrow-up-fill"></i>
+            <div class="bg-white border border-slate-200 rounded-2xl p-8 shadow-sm sticky top-24">
+                <div class="flex items-center gap-4 mb-8">
+                    <div class="h-12 w-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xl border border-indigo-100">
+                        <i class="bi bi-cloud-arrow-up"></i>
                     </div>
                     <div>
-                        <h3 class="text-sm font-black text-slate-800 uppercase tracking-widest">GTU Batch Import</h3>
-                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tight mt-0.5">Automated Result Injection</p>
+                        <h3 class="text-sm font-bold text-slate-800 uppercase tracking-widest">Data Import</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest mt-0.5">Bulk Upload Results</p>
                     </div>
                 </div>
 
                 <form method="POST" action="{{ route('admin.results.import') }}" enctype="multipart/form-data" class="space-y-6">
                     @csrf
                     <div>
-                        <label class="input-label">Academic Semester</label>
-                        <select name="semester_number" class="input-premium h-12" required>
-                            <option value="">Select Target Term</option>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Examination Term</label>
+                        <select name="semester_number" class="w-full bg-slate-50 border-slate-200 rounded-xl text-sm font-medium focus:border-indigo-500 focus:ring-0 h-11" required>
+                            <option value="">Select Semester...</option>
                             @for($i = 1; $i <= 8; $i++)
                                 <option value="{{ $i }}" @selected(old('semester_number') == $i)>Semester {{ $i }}</option>
                             @endfor
@@ -37,126 +36,149 @@
                     </div>
 
                     <div>
-                        <label class="input-label">Result Manifest (CSV/XLSX/PDF)</label>
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Result Manifest</label>
                         <div class="relative group">
                             <input type="file" name="result_file" class="absolute inset-0 opacity-0 cursor-pointer z-10" accept=".csv,.xlsx,.pdf" required
                                 onchange="this.nextElementSibling.querySelector('.file-label').textContent = this.files[0].name">
-                            <div class="input-premium h-24 flex flex-col items-center justify-center gap-2 group-hover:border-violet-300 transition-all border-dashed">
-                                <i class="bi bi-file-earmark-arrow-up text-2xl text-slate-300 group-focus-within:text-violet-500"></i>
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest file-label text-center px-4">Select or Drop Manifest</span>
+                            <div class="h-24 bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center gap-2 group-hover:border-indigo-300 transition-all">
+                                <i class="bi bi-file-earmark-arrow-up text-xl text-slate-300 group-hover:text-indigo-400"></i>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest file-label px-4 text-center">Click to Upload</span>
                             </div>
                         </div>
                     </div>
 
-                    <button class="w-full py-4 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 text-white text-[10px] font-black uppercase tracking-widest hover:shadow-xl hover:shadow-violet-500/20 active:scale-[0.98] transition-all">
-                        Synchronize & Lock Results
+                    <button class="w-full py-3 bg-indigo-600 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100">
+                        Record & Lock
                     </button>
+                    
+                    <div class="p-4 bg-amber-50 rounded-xl border border-amber-100 mt-2">
+                        <p class="text-[9px] text-amber-900/60 font-medium leading-relaxed">
+                            <i class="bi bi-exclamation-triangle mr-1"></i> Critical: Ensure student GTU enrollment numbers match the records in the portal before final sync.
+                        </p>
+                    </div>
                 </form>
             </div>
         </div>
 
-        {{-- Global Registry --}}
-        <div class="lg:col-span-2 space-y-6">
-            <div class="glass-card p-6 border border-white/60">
-                <form method="GET" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <div class="lg:col-span-2">
-                        <label class="input-label text-[10px]">Registry Search</label>
-                        <div class="relative group">
-                            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors"></i>
-                            <input type="text" name="search" value="{{ request('search') }}" class="input-premium pl-10 h-11"
-                            placeholder="Student ID, Name, GTU Enrollment...">
+        <!-- ─── Registry Section ─── -->
+        <div class="lg:col-span-3 space-y-6">
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm">
+                <form method="GET" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Search Registry</label>
+                        <div class="relative group h-11">
+                            <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
+                            <input type="text" name="search" value="{{ request('search') }}" 
+                                class="w-full h-full bg-slate-50 border-slate-100 rounded-xl pl-11 text-sm font-medium focus:border-indigo-500 focus:ring-0"
+                                placeholder="Name, ID, or Enrollment...">
                         </div>
                     </div>
                     <div>
-                        <label class="input-label text-[10px]">Filter Course</label>
-                        <select name="course_id" class="input-premium h-11">
+                        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 ml-1">Filter Program</label>
+                        <select name="course_id" class="w-full bg-slate-50 border-slate-100 rounded-xl text-sm font-bold focus:border-indigo-500 focus:ring-0 h-11 text-slate-600">
                             <option value="">All Branches</option>
                             @foreach($courses as $course)
                                 <option value="{{ $course->id }}" @selected((int) request('course_id') === (int) $course->id)>{{ $course->name }}</option>
                             @endforeach
                         </select>
                     </div>
-                    <div>
-                        <label class="input-label text-[10px]">Semester</label>
-                        <select name="semester_number" class="input-premium h-11">
-                            <option value="">All Terms</option>
-                            @for($i = 1; $i <= 8; $i++)
-                                <option value="{{ $i }}" @selected((int) request('semester_number') === $i)>Sem {{ $i }}</option>
-                            @endfor
-                        </select>
-                    </div>
-                    <div class="lg:col-span-2 flex items-end">
-                        <button class="w-full h-11 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">
-                            Execute Filter
-                        </button>
-                    </div>
+                    <button class="h-11 bg-slate-800 text-white text-[10px] font-bold uppercase tracking-widest rounded-xl hover:bg-slate-900 transition-all shadow-md">
+                        Update View
+                    </button>
                 </form>
             </div>
 
-            <div class="glass-card overflow-hidden">
-                <table class="table-premium">
-                    <thead>
-                        <tr>
-                            <th>Student Scholar</th>
-                            <th>GTU Enrollment</th>
-                            <th>Term</th>
-                            <th>SPI</th>
-                            <th>CPI</th>
-                            <th>Backlogs</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-right">Operations</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($results as $result)
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
-                                <td>
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-black text-slate-800">{{ $result->student?->user?->name ?? 'N/A' }}</span>
-                                        <span class="text-[10px] text-slate-400 font-bold uppercase tracking-tight">ID: #{{ $result->student?->id }}</span>
-                                    </div>
-                                </td>
-                                <td><span class="text-xs font-bold text-slate-600 tracking-tighter">{{ $result->student?->gtu_enrollment_no ?? '-' }}</span></td>
-                                <td><span class="text-[10px] font-black text-violet-600 uppercase tracking-widest">Sem {{ $result->semester_number }}</span></td>
-                                <td><span class="text-sm font-black text-slate-700 tracking-tight">{{ number_format((float) $result->sgpa, 2) }}</span></td>
-                                <td><span class="text-sm font-black text-slate-900 tracking-tight">{{ number_format((float) $result->cgpa, 2) }}</span></td>
-                                <td>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-black {{ $result->backlog_subjects > 0 ? 'text-rose-600 bg-rose-50' : 'text-slate-400 bg-slate-50' }}">
-                                        {{ $result->backlog_subjects }} BL
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest {{ $result->result_status === 'pass' ? 'text-emerald-700 bg-emerald-100' : ($result->result_status === 'pending' ? 'text-amber-700 bg-amber-50' : 'text-rose-700 bg-rose-50') }}">
-                                        {{ $result->result_status }}
-                                    </span>
-                                </td>
-                                <td class="text-right">
-                                    <div class="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        @if(!$result->locked_at)
-                                            <form method="POST" action="{{ route('admin.results.lock', $result) }}" class="inline">
-                                                @csrf
-                                                <button class="h-8 px-3 rounded-lg bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all">Lock</button>
-                                            </form>
-                                        @endif
-                                        @if($result->student?->gtu_enrollment_no)
-                                            <a class="h-8 px-3 rounded-lg bg-white border border-slate-200 text-slate-400 text-[9px] font-black uppercase tracking-widest hover:text-violet-600 hover:border-violet-200 flex items-center transition-all"
-                                                href="https://www.students.gtu.ac.in/Default.aspx?enrollmentno={{ urlencode($result->student->gtu_enrollment_no) }}"
-                                                target="_blank" rel="noopener">GTU Portal</a>
-                                        @endif
-                                    </div>
-                                </td>
+            <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-100">
+                                <th class="px-6 py-4">Student Profile</th>
+                                <th class="px-6 py-4">Enrollment</th>
+                                <th class="px-6 py-4">SPI / CPI</th>
+                                <th class="px-6 py-4">Backlogs</th>
+                                <th class="px-6 py-4 text-center">Result Status</th>
+                                <th class="px-6 py-4 text-right">Actions</th>
                             </tr>
-                        @empty
-                            <tr><td colspan="8" class="text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-[10px]">Registry is currently empty</td></tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($results as $result)
+                                <tr class="hover:bg-slate-50/50 transition-colors group">
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-700 leading-tight">{{ $result->student?->user?->name ?? 'Unknown' }}</span>
+                                            <span class="text-[9px] text-indigo-500 font-bold uppercase tracking-widest mt-1">Semester {{ $result->semester_number }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="text-xs font-bold text-slate-500 tracking-tight font-mono">{{ $result->student?->gtu_enrollment_no ?? '-' }}</span>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex items-center gap-3">
+                                            <div>
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase block leading-none mb-1">SPI</span>
+                                                <span class="text-sm font-black text-indigo-600 tracking-tight">{{ number_format((float) $result->sgpa, 2) }}</span>
+                                            </div>
+                                            <div class="w-px h-6 bg-slate-100"></div>
+                                            <div>
+                                                <span class="text-[8px] font-bold text-slate-400 uppercase block leading-none mb-1">CPI</span>
+                                                <span class="text-sm font-black text-slate-900 tracking-tight">{{ number_format((float) $result->cgpa, 2) }}</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold uppercase border {{ $result->backlog_subjects > 0 ? 'text-rose-600 bg-rose-50 border-rose-100' : 'text-slate-400 bg-slate-50 border-slate-100' }}">
+                                            {{ $result->backlog_subjects }} BL
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        <span class="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold uppercase tracking-wider border {{ $result->result_status === 'pass' ? 'text-emerald-700 bg-emerald-50 border-emerald-100' : ($result->result_status === 'pending' ? 'text-amber-700 bg-amber-50 border-amber-100' : 'text-rose-700 bg-rose-50 border-rose-100') }}">
+                                            {{ $result->result_status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2 opacity-80 group-hover:opacity-100 transition-opacity">
+                                            @if(!$result->locked_at)
+                                                <form method="POST" action="{{ route('admin.results.lock', $result) }}" class="inline">
+                                                    @csrf
+                                                    <button class="px-3 py-1.5 rounded-lg bg-indigo-600 text-white text-[9px] font-bold uppercase tracking-widest hover:bg-indigo-700 shadow-sm transition-all shadow-indigo-100">Lock</button>
+                                                </form>
+                                            @else
+                                                <div class="h-8 w-8 rounded-lg bg-slate-100 text-slate-400 flex items-center justify-center border border-slate-200" title="Record Locked">
+                                                    <i class="bi bi-lock-fill"></i>
+                                                </div>
+                                            @endif
+                                            
+                                            @if($result->student?->gtu_enrollment_no)
+                                                <a class="h-8 w-8 rounded-lg bg-white border border-slate-200 text-slate-400 flex items-center justify-center hover:text-indigo-600 hover:border-indigo-200 transition-all shadow-sm"
+                                                    href="https://www.students.gtu.ac.in/Default.aspx?enrollmentno={{ urlencode($result->student->gtu_enrollment_no) }}"
+                                                    target="_blank" rel="noopener" title="Verify on GTU Portal">
+                                                    <i class="bi bi-box-arrow-up-right"></i>
+                                                </a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" class="py-24 text-center">
+                                        <div class="flex flex-col items-center opacity-30">
+                                            <i class="bi bi-journal-x text-5xl mb-4"></i>
+                                            <p class="text-[10px] font-bold uppercase tracking-widest">No Results Found</p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
 
-            <div class="mt-6">
-                {{ $results->links() }}
+                @if($results->hasPages())
+                    <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100">
+                        {{ $results->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
 @endsection
-

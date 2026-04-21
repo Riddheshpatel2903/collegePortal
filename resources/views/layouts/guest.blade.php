@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ config('app.name', 'EduPortal') }}</title>
+    <title>{{ config('app.name', 'College Management Portal') }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -35,7 +35,7 @@
                 class="h-12 w-12 rounded-xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
                 <i class="bi bi-mortarboard-fill text-xl"></i>
             </div>
-            <span class="text-xl font-extrabold tracking-tight">EduPortal</span>
+            <span class="text-xl font-extrabold tracking-tight">College Management Portal</span>
         </a>
     </div>
 
@@ -44,7 +44,7 @@
         {{ $slot }}
     </div>
 
-    <p class="text-xs text-white/20 mt-6 relative z-10">&copy; 2026 EduPortal. All rights reserved.</p>
+    <p class="text-xs text-white/20 mt-6 relative z-10">&copy; 2026 College Management Portal. All rights reserved.</p>
 </body>
 
 </html>

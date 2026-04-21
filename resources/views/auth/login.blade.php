@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | EduPortal</title>
+    <title>Login | College Management Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -23,82 +23,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #0f0a1a 0%, #1a1035 50%, #0f172a 100%);
+            background: #f1f5f9;
             padding: 20px;
-            overflow: hidden;
-        }
-
-        .bg-orb {
-            position: fixed;
-            border-radius: 50%;
-            filter: blur(100px);
-            opacity: 0.15;
-            pointer-events: none;
-        }
-
-        .bg-orb-1 {
-            width: 600px;
-            height: 600px;
-            background: #7c3aed;
-            top: -200px;
-            left: -200px;
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .bg-orb-2 {
-            width: 500px;
-            height: 500px;
-            background: #a78bfa;
-            bottom: -150px;
-            right: -150px;
-            animation: float 25s ease-in-out infinite reverse;
-        }
-
-        .bg-orb-3 {
-            width: 300px;
-            height: 300px;
-            background: #c084fc;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            animation: float 15s ease-in-out infinite;
-        }
-
-        @keyframes float {
-
-            0%,
-            100% {
-                transform: translate(0, 0);
-            }
-
-            50% {
-                transform: translate(30px, -30px);
-            }
         }
 
         .login-card {
             width: 100%;
-            max-width: 460px;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 48px 40px;
-            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
-            animation: slideUp 0.6s ease-out;
+            max-width: 400px;
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
             position: relative;
             z-index: 1;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(24px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
 
         .brand {
@@ -107,21 +44,20 @@
         }
 
         .brand-icon {
-            width: 56px;
-            height: 56px;
+            width: 48px;
+            height: 48px;
             margin: 0 auto 16px;
-            border-radius: 16px;
-            background: linear-gradient(135deg, #7c3aed, #a855f7);
+            border-radius: 12px;
+            background: #6366f1;
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 24px;
-            box-shadow: 0 8px 24px rgba(124, 58, 237, 0.4);
+            font-size: 20px;
         }
 
         .brand h2 {
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 800;
             color: #1e293b;
         }
@@ -140,42 +76,36 @@
 
         .role-btn {
             flex: 1;
-            padding: 14px;
-            border-radius: 14px;
-            border: 2px solid #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
             cursor: pointer;
             text-align: center;
             background: #fff;
-            transition: all 0.25s;
+            transition: all 0.2s;
         }
 
         .role-btn i {
             display: block;
-            font-size: 20px;
+            font-size: 18px;
             color: #94a3b8;
             margin-bottom: 4px;
-            transition: color 0.25s;
         }
 
         .role-btn span {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             color: #64748b;
-            transition: color 0.25s;
         }
 
         .role-btn.active {
-            border-color: #7c3aed;
-            background: rgba(124, 58, 237, 0.06);
+            border-color: #6366f1;
+            background: #f5f3ff;
         }
 
         .role-btn.active i,
         .role-btn.active span {
-            color: #7c3aed;
-        }
-
-        .role-btn:hover:not(.active) {
-            border-color: #c4b5fd;
+            color: #6366f1;
         }
 
         .field {
@@ -185,37 +115,35 @@
 
         .field i.icon {
             position: absolute;
-            left: 16px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
-            font-size: 18px;
-            z-index: 2;
+            font-size: 16px;
         }
 
         .field input {
             width: 100%;
-            padding: 14px 16px 14px 48px;
-            border: 1.5px solid #e2e8f0;
-            border-radius: 14px;
+            padding: 12px 16px 12px 42px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
             font-size: 14px;
             color: #1e293b;
-            background: #f8fafc;
+            background: #ffffff;
             outline: none;
-            transition: all 0.25s;
+            transition: all 0.2s;
         }
 
         .field input:focus {
-            border-color: #7c3aed;
-            box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.1);
-            background: #fff;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.1);
         }
 
         .row-between {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
             font-size: 13px;
         }
 
@@ -225,54 +153,48 @@
             gap: 8px;
             color: #64748b;
             cursor: pointer;
-            font-weight: 500;
         }
 
         .row-between label input {
-            width: 16px;
-            height: 16px;
-            accent-color: #7c3aed;
+            width: 15px;
+            height: 15px;
+            accent-color: #6366f1;
         }
 
         .row-between a {
-            color: #7c3aed;
+            color: #6366f1;
             font-weight: 600;
             text-decoration: none;
         }
 
-        .row-between a:hover {
-            text-decoration: underline;
-        }
-
         .btn-submit {
             width: 100%;
-            padding: 16px;
+            padding: 12px;
             border: none;
-            border-radius: 14px;
-            background: linear-gradient(135deg, #7c3aed, #6d28d9);
+            border-radius: 8px;
+            background: #6366f1;
             color: white;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         .btn-submit:hover {
-            box-shadow: 0 12px 32px rgba(124, 58, 237, 0.4);
-            transform: translateY(-2px);
+            background: #4f46e5;
         }
 
         .footer-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 24px;
             font-size: 13px;
-            color: #94a3b8;
+            color: #64748b;
         }
 
         .footer-link a {
-            color: #7c3aed;
+            color: #6366f1;
             font-weight: 700;
             text-decoration: none;
         }
@@ -281,36 +203,29 @@
             color: #ef4444;
             font-size: 12px;
             margin-top: 4px;
-            font-weight: 500;
         }
 
         .copyright {
             text-align: center;
-            margin-top: 28px;
+            margin-top: 32px;
             font-size: 12px;
-            color: rgba(255, 255, 255, 0.3);
-            position: relative;
-            z-index: 1;
+            color: #94a3b8;
         }
     </style>
 </head>
 
 <body>
-    <div class="bg-orb bg-orb-1"></div>
-    <div class="bg-orb bg-orb-2"></div>
-    <div class="bg-orb bg-orb-3"></div>
-
     <div>
         <div class="login-card">
             <div class="brand">
                 <div class="brand-icon"><i class="bi bi-mortarboard-fill"></i></div>
-                <h2>EduPortal</h2>
-                <p>Online College Management System</p>
+                <h2>College Management Portal</h2>
+                <p> </p>
             </div>
 
             @if (session('status'))
                 <div
-                    style="padding: 12px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 12px; color: #059669; font-size: 13px; font-weight: 600; margin-bottom: 20px;">
+                    style="padding: 12px 16px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; color: #059669; font-size: 13px; font-weight: 500; margin-bottom: 20px;">
                     {{ session('status') }}
                 </div>
             @endif
@@ -319,7 +234,7 @@
                 @csrf
 
                 <p
-                    style="font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;">
+                    style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;">
                     Sign in as</p>
                 <div class="role-row">
                     <div class="role-btn active" onclick="selectRole('teacher')"><i
@@ -334,14 +249,14 @@
                     <input type="email" name="email" placeholder="Email Address" value="{{ old('email') }}" required
                         autofocus>
                 </div>
-                @error('email') <p class="error-msg"><i class="bi bi-exclamation-circle"></i> {{ $message }}</p>
+                @error('email') <p class="error-msg">{{ $message }}</p>
                 @enderror
 
                 <div class="field">
                     <i class="bi bi-shield-lock icon"></i>
                     <input type="password" name="password" placeholder="Password" required>
                 </div>
-                @error('password') <p class="error-msg"><i class="bi bi-exclamation-circle"></i> {{ $message }}</p>
+                @error('password') <p class="error-msg">{{ $message }}</p>
                 @enderror
 
                 <div class="row-between">
@@ -351,15 +266,14 @@
                     @endif
                 </div>
 
-                <button type="submit" class="btn-submit">Log In <i class="bi bi-arrow-right"
-                        style="margin-left: 8px;"></i></button>
+                <button type="submit" class="btn-submit">Log In</button>
 
                 <div class="footer-link">
                     Don't have an account? <a href="{{ route('register') }}">Create Account</a>
                 </div>
             </form>
         </div>
-        <div class="copyright">&copy; 2026 EduPortal. All rights reserved.</div>
+        <div class="copyright">&copy; 2026 College Management Portal. All rights reserved.</div>
     </div>
 
     <script>

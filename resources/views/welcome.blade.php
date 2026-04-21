@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ config('app.name', 'EduPortal') }} | Premium Academic Experience</title>
+    <title>{{ config('app.name', 'College Management Portal') }} | Institutional Management</title>
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,74 +18,43 @@
 
     <style>
         :root {
-            --premium-bg: #f8fafc;
-            --indigo-accent: #4361ee;
-            --rose-accent: #f72585;
-            --emerald-accent: #06d6a0;
+            --slate-bg: #f8fafc;
+            --indigo-primary: #4f46e5;
         }
 
         body {
             font-family: 'Outfit', sans-serif;
-            background-color: var(--premium-bg);
+            background-color: var(--slate-bg);
             background-image:
-                radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(247, 37, 133, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(6, 214, 160, 0.08) 0px, transparent 50%),
-                radial-gradient(at 0% 100%, rgba(67, 97, 238, 0.08) 0px, transparent 50%);
+                radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.05) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(79, 70, 229, 0.05) 0px, transparent 50%);
             background-attachment: fixed;
-            min-height: 100vh;
-        }
-
-        .hero-mesh {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            overflow: hidden;
-        }
-
-        .glass-nav {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .hero-title {
             font-size: 5rem;
             font-weight: 800;
-            line-height: 1;
+            line-height: 1.1;
             letter-spacing: -0.04em;
-            background: linear-gradient(135deg, #1e293b 0%, #4361ee 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
         }
 
-        .premium-card {
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            border-radius: 2rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 3rem;
+            }
+        }
+
+        .action-card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 2.5rem;
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .premium-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 40px 80px -15px rgba(67, 97, 238, 0.15);
-            background: rgba(255, 255, 255, 0.95);
-        }
-
-        .btn-glow {
-            position: relative;
-            transition: all 0.3s;
-        }
-
-        .btn-glow:hover {
-            box-shadow: 0 0 30px rgba(67, 97, 238, 0.4);
-            transform: scale(1.05);
+        .action-card:hover {
+            transform: translateY(-8px);
+            border-color: #c7d2fe;
+            box-shadow: 0 25px 50px -12px rgba(79, 70, 229, 0.1);
         }
 
         .floating {
@@ -93,168 +62,150 @@
         }
 
         @keyframes floating {
-            0% {
+
+            0%,
+            100% {
                 transform: translateY(0px);
             }
 
             50% {
                 transform: translateY(-20px);
             }
-
-            100% {
-                transform: translateY(0px);
-            }
         }
     </style>
 </head>
 
-<body class="antialiased">
-    <!-- Navbar -->
-    <nav class="glass-nav sticky top-0 z-50 px-8 py-4 flex items-center justify-between">
-        <div class="flex items-center gap-3">
+<body class="antialiased min-h-screen">
+    <!-- Navigation -->
+    <nav
+        class="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-slate-100 px-8 py-5 flex items-center justify-between">
+        <div class="flex items-center gap-4">
             <div
-                class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-500/30">
+                class="w-11 h-11 bg-slate-900 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-slate-200">
                 <i class="bi bi-mortarboard-fill text-xl"></i>
             </div>
-            <span class="text-xl font-extrabold tracking-tighter text-slate-800 uppercase">EduPortal<span
-                    class="text-indigo-600">Pro</span></span>
+            <span class="text-xl font-black tracking-tighter text-slate-800 uppercase">College Management Portal<span
+                    class="text-indigo-600">Core</span></span>
         </div>
 
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-8">
             @if (Route::has('login'))
                 @auth
                     <a href="{{ url('/dashboard') }}"
-                        class="text-sm font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-colors">Workspace</a>
+                        class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 hover:text-indigo-600 transition-colors">Personal
+                        Workspace</a>
                 @else
                     <a href="{{ route('login') }}"
-                        class="text-sm font-black uppercase tracking-widest text-slate-500 hover:text-indigo-600 transition-colors">Access
-                        Hub</a>
-                    @if (Route::has('register'))
-                        <a href="{{ route('register') }}"
-                            class="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-indigo-600 transition-all shadow-xl">Join
-                            Nexus</a>
-                    @endif
+                        class="text-xs font-black uppercase tracking-[0.2em] text-slate-400 hover:text-slate-900 transition-colors">Portal
+                        Access</a>
                 @endauth
             @endif
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <main class="relative px-8 pt-20 pb-40 overflow-hidden">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
-            <div class="lg:w-1/2 space-y-10">
+    <!-- Main Entry Context -->
+    <main class="relative px-8 pt-24 pb-48 overflow-hidden">
+        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-24">
+            <div class="lg:w-1/2 space-y-12">
                 <div
-                    class="inline-flex items-center gap-3 px-4 py-2 bg-indigo-50 text-indigo-600 rounded-full text-xs font-black uppercase tracking-widest border border-indigo-100">
+                    class="inline-flex items-center gap-3 px-5 py-2.5 bg-indigo-50 text-indigo-600 rounded-full text-[10px] font-black uppercase tracking-[0.2em] border border-indigo-100">
                     <span class="relative flex h-2 w-2">
                         <span
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
                     </span>
-                    Next Generation Learning
+                    Institutional Infrastructure v2.0
                 </div>
 
-                <h1 class="hero-title">
-                    Empowering <br>
-                    <span class="text-slate-800">Academic</span> <br>
-                    Excellence.
+                <h1 class="hero-title text-slate-900">
+                    Elevating <br>
+                    <span class="text-indigo-600">Academic</span> <br>
+                    Governance.
                 </h1>
 
                 <p class="text-xl text-slate-500 font-medium max-w-lg leading-relaxed">
-                    A premium management ecosystem designed for modern institutions. Seamlessly bridge the gap between
-                    administration, educators, and scholars.
+                    A streamlined management architecture designed for modern departments. Unify your instructional
+                    faculty, students, and curriculum records.
                 </p>
 
-                <div class="flex items-center gap-6">
-                    <a href="{{ route('login') }}"
-                        class="btn-glow px-10 py-5 bg-indigo-600 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-2xl shadow-indigo-500/40">
-                        Primary Initialization
-                    </a>
-                    <a href="#"
-                        class="px-10 py-5 bg-white text-slate-800 rounded-2xl text-xs font-black uppercase tracking-widest border border-slate-100 hover:bg-slate-50 transition-all shadow-sm">
-                        View Matrix
-                    </a>
+                <div class="flex flex-wrap items-center gap-6">
+                    @auth
+                        <a href="{{ url('/dashboard') }}"
+                            class="h-16 px-12 bg-slate-900 text-white rounded-[1.25rem] text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-slate-200 flex items-center transition-all hover:bg-black active:scale-95">
+                            Enter Dashboard
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="h-16 px-12 bg-indigo-600 text-white rounded-[1.25rem] text-xs font-black uppercase tracking-[0.2em] shadow-2xl shadow-indigo-200 flex items-center transition-all hover:bg-indigo-700 active:scale-95">
+                            Institutional Login
+                        </a>
+                    @endauth
+                    <div class="flex items-center gap-3 text-slate-400">
+                        <span class="h-1 w-8 bg-slate-200"></span>
+                        <span class="text-[10px] font-black uppercase tracking-widest">Digital Registry Active</span>
+                    </div>
                 </div>
             </div>
 
             <div class="lg:w-1/2 relative">
-                <div class="premium-card p-10 floating relative z-10">
-                    <div class="grid grid-cols-2 gap-6">
+                <div class="action-card p-12 floating relative z-10 shadow-2xl shadow-slate-200">
+                    <div class="grid grid-cols-2 gap-8">
                         <div
-                            class="aspect-square rounded-3xl bg-indigo-50 flex flex-col items-center justify-center gap-4 text-indigo-600 p-8 border border-indigo-100">
+                            class="aspect-square rounded-[2rem] bg-indigo-50 flex flex-col items-center justify-center gap-4 text-indigo-600 p-8 border border-indigo-100">
                             <i class="bi bi-people-fill text-4xl"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Scholars</span>
-                            <span class="text-3xl font-black">12.5k</span>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Enrolled Users</span>
+                            <span class="text-4xl font-black tracking-tighter">12.5k</span>
                         </div>
                         <div
-                            class="aspect-square rounded-3xl bg-rose-50 flex flex-col items-center justify-center gap-4 text-rose-600 p-8 border border-rose-100">
-                            <i class="bi bi-journal-check text-4xl"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Courses</span>
-                            <span class="text-3xl font-black">482</span>
+                            class="aspect-square rounded-[2rem] bg-slate-900 flex flex-col items-center justify-center gap-4 text-white p-8">
+                            <i class="bi bi-journal-check text-4xl text-indigo-400"></i>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Active Modules</span>
+                            <span class="text-4xl font-black tracking-tighter">482</span>
                         </div>
                         <div
-                            class="aspect-square rounded-3xl bg-emerald-50 flex flex-col items-center justify-center gap-4 text-emerald-600 p-8 border border-emerald-100">
-                            <i class="bi bi-award-fill text-4xl"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Faculty</span>
-                            <span class="text-3xl font-black">1.2k</span>
+                            class="aspect-square rounded-[2rem] bg-slate-50 flex flex-col items-center justify-center gap-4 text-slate-800 p-8 border border-slate-100">
+                            <i class="bi bi-mortarboard-fill text-4xl text-indigo-600"></i>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Faculty Staff</span>
+                            <span class="text-4xl font-black tracking-tighter">1.2k</span>
                         </div>
                         <div
-                            class="aspect-square rounded-3xl bg-amber-50 flex flex-col items-center justify-center gap-4 text-amber-600 p-8 border border-amber-100">
-                            <i class="bi bi-calendar-event-fill text-4xl"></i>
-                            <span class="text-[10px] font-black uppercase tracking-widest">Events</span>
-                            <span class="text-3xl font-black">94</span>
+                            class="aspect-square rounded-[2rem] bg-indigo-600 flex flex-col items-center justify-center gap-4 text-white p-8">
+                            <i class="bi bi-calendar-event text-4xl"></i>
+                            <span class="text-[10px] font-black uppercase tracking-[0.2em]">Live Sessions</span>
+                            <span class="text-4xl font-black tracking-tighter">24/7</span>
                         </div>
                     </div>
-                </div>
-
-                <!-- Decorative Blobs -->
-                <div class="absolute -top-20 -right-20 w-80 h-80 bg-rose-200/30 rounded-full blur-[100px] -z-10"></div>
-                <div class="absolute -bottom-20 -left-20 w-80 h-80 bg-indigo-200/30 rounded-full blur-[100px] -z-10">
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- Content Sections -->
-    <section class="max-w-7xl mx-auto px-8 pb-40">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div class="premium-card p-10 space-y-6">
-                <div
-                    class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center border border-indigo-100">
-                    <i class="bi bi-command text-2xl"></i>
+    <!-- Operational Highlighting -->
+    <section class="max-w-7xl mx-auto px-8 pb-48">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+            @foreach([
+                    ['icon' => 'bi-diagram-3', 'title' => 'Structural Clarity', 'desc' => 'Organize departments, courses, and semesters with absolute instructional precision.'],
+                    ['icon' => 'bi-calendar-range', 'title' => 'Dynamic Scheduling', 'desc' => 'Automated timetable generation optimized for faculty availability and room constraints.'],
+                    ['icon' => 'bi-shield-check', 'title' => 'Secure Governance', 'desc' => 'Strict role-based access control protecting academic records across the entire institution.']
+                ] as $feature)
+                <div class="action-card p-12 space-y-8 flex flex-col">
+                    <div class="w-16 h-16 bg-slate-50 text-indigo-600 rounded-3xl flex items-center justify-cente
+                            r border border-slate-100 shadow-sm">
+                        <i class="bi {{ $feature['icon'] }} text-2xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-xl font-black text-slate-800 tracking-tight leading-none mb-4 uppercase">{{ $feature['title'] }}</h3>
+                        <p class="text-slate-500 font-medium leading-relaxed italic text-sm">"{{ $feature['desc'] }}"</p>
+                    </div>
                 </div>
-                <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Unified Interface
-                </h3>
-                <p class="text-slate-500 font-medium">Single digital identity for all institutional needs. Command and
-                    control with absolute precision.</p>
-            </div>
-
-            <div class="premium-card p-10 space-y-6">
-                <div
-                    class="w-14 h-14 bg-rose-50 text-rose-600 rounded-2xl flex items-center justify-center border border-rose-100">
-                    <i class="bi bi-shield-check text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Encrypted Core</h3>
-                <p class="text-slate-500 font-medium">Enterprise grade security protocols protecting academic integrity
-                    and scholar privacy.</p>
-            </div>
-
-            <div class="premium-card p-10 space-y-6">
-                <div
-                    class="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center border border-emerald-100">
-                    <i class="bi bi-lightning-charge-fill text-2xl"></i>
-                </div>
-                <h3 class="text-xl font-black text-slate-800 uppercase tracking-tight leading-none">Instant Analytics
-                </h3>
-                <p class="text-slate-500 font-medium">Real-time data streams providing deep insights into institutional
-                    performance metrics.</p>
-            </div>
+            @endforeach
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- Global Footer -->
     <footer class="max-w-7xl mx-auto px-8 py-20 border-t border-slate-100 text-center">
-        <p class="text-[10px] font-black uppercase tracking-[0.4em] text-slate-400">
-            &copy; {{ date('Y') }} EduPortal Pro Engineering. All Systems Nominal.
+        <p class="text-[10px] font-black uppercase tracking-[0.5em] text-slate-400">
+            &copy; {{ date('Y') }} College Management Portal Core Systems. Operational Excellence Guaranteed.
         </p>
     </footer>
 </body>

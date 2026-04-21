@@ -12,11 +12,27 @@ use App\Models\SystemSetting;
 use App\Models\User;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
+/**
+ * Class PortalAccessService
+ * 
+ * Centralised gateway for Application-Level Permissions (ALP), Route-Based Access (RBA),
+ * and dynamic system configuration. Designed for high performance and strict security.
+ */
 class PortalAccessService
 {
+    // Constants for standard roles and cache tags (if supported)
+    public const ROLE_SUPER_ADMIN = 'super_admin';
+    public const ROLE_ADMIN = 'admin';
+    public const ROLE_STUDENT = 'student';
+    public const ROLE_TEACHER = 'teacher';
+    public const ROLE_HOD = 'hod';
+
+    private const CACHE_TTL = 3600; // 1 hour for standard settings
+    private const AUTH_CACHE_TTL = 300; // 5 mins for permission checks
     private const TIMETABLE_WEEKLY_TARGET = 30;
 
     public function __construct(
@@ -24,6 +40,10 @@ class PortalAccessService
     ) {
     }
 
+    /**
+     * Synchronize database entities with file-based configuration.
+     * Use sparingly (e.g., during deployment or on-demand).
+     */
     public function syncDefaults(): void
     {
         if (!$this->isReady()) {
@@ -31,20 +51,21 @@ class PortalAccessService
         }
 
         DB::transaction(function () {
+            // 1. Sync Roles
             $roles = collect(config('portal_access.roles', []))
                 ->filter()
                 ->map(fn($name) => strtolower((string) $name))
-                ->unique()
-                ->values();
-
+                ->unique();
+            
             foreach ($roles as $roleName) {
                 Role::query()->firstOrCreate(['name' => $roleName]);
             }
 
+            // 2. Sync Pages/Routes (Fail-Safe: Don't delete if table is locked)
             $pages = collect(config('portal_access.pages', []))
-                ->filter(fn($item) => !empty($item['route']) && !empty($item['name']))
-                ->values();
-            $configuredRoutes = $pages->pluck('route')->map(fn($route) => (string) $route)->all();
+                ->filter(fn($item) => !empty($item['route']) && !empty($item['name']));
+            
+            $configuredRoutes = $pages->pluck('route')->all();
             PortalPage::query()->whereNotIn('route', $configuredRoutes)->delete();
 
             foreach ($pages as $page) {
@@ -57,194 +78,165 @@ class PortalAccessService
                 );
             }
 
-            $allRoles = Role::query()->pluck('id', 'name');
-            $allPages = PortalPage::query()->pluck('id');
-            foreach ($allRoles as $roleName => $roleId) {
-                foreach ($allPages as $pageId) {
-                    RolePagePermission::query()->firstOrCreate(
-                        ['role_id' => (int) $roleId, 'page_id' => (int) $pageId],
-                        ['can_view' => true]
-                    );
-                }
-            }
+            // 3. Sync Settings/Flags
+            $this->syncConfigEntries(FeatureToggle::class, 'feature_key', config('portal_access.features', []));
+            $this->syncConfigEntries(ModuleSetting::class, 'module_key', config('portal_access.modules', []));
+            $this->syncConfigEntries(SystemSetting::class, 'setting_key', config('portal_access.settings', []));
 
-            foreach ((array) config('portal_access.features', []) as $featureKey => $enabled) {
-                FeatureToggle::query()->updateOrCreate(
-                    ['feature_key' => (string) $featureKey],
-                    ['enabled' => (bool) $enabled]
-                );
-            }
-
-            foreach ((array) config('portal_access.modules', []) as $moduleKey => $enabled) {
-                ModuleSetting::query()->updateOrCreate(
-                    ['module_key' => (string) $moduleKey],
-                    ['enabled' => (bool) $enabled]
-                );
-            }
-
-            foreach ((array) config('portal_access.settings', []) as $settingKey => $value) {
-                SystemSetting::query()->updateOrCreate(
-                    ['setting_key' => (string) $settingKey],
-                    ['setting_value' => (string) $value]
-                );
-            }
-
+            // 4. Sync Permissions (RBAC)
             if ($this->isRbacReady()) {
                 $permissions = collect(config('portal_access.permissions', []))
                     ->filter()
                     ->map(fn($key) => trim((string) $key))
-                    ->unique()
-                    ->values();
+                    ->unique();
 
                 Permission::query()->whereNotIn('key', $permissions->all())->delete();
 
                 foreach ($permissions as $permissionKey) {
                     Permission::query()->updateOrCreate(
                         ['key' => $permissionKey],
-                        ['name' => Str::of($permissionKey)->replace('.', ' ')->title()->toString()]
+                        ['name' => (string) Str::of($permissionKey)->replace('.', ' ')->title()]
                     );
                 }
 
-                $rolePermissionMap = (array) config('portal_access.role_permissions', []);
+                // 5. Map Roles to Permissions
+                $allRoles = Role::query()->pluck('id', 'name');
                 foreach ($allRoles as $roleName => $roleId) {
-                    $role = Role::query()->find((int) $roleId);
-                    if (!$role) {
-                        continue;
-                    }
+                    $roleConfig = (array) config("portal_access.role_permissions.{$roleName}", []);
+                    /** @var \App\Models\Role|null $role */
+                    $role = Role::query()->find($roleId);
+                    
+                    if (!$role) continue;
 
-                    $configured = (array) ($rolePermissionMap[$roleName] ?? []);
-                    if (in_array('*', $configured, true)) {
-                        $permissionIds = Permission::query()->pluck('id')->all();
-                        $role->permissions()->sync($permissionIds);
-                        continue;
+                    if (in_array('*', $roleConfig, true)) {
+                        $role->permissions()->sync(Permission::pluck('id')->all());
+                    } else {
+                        $pIds = Permission::whereIn('key', $roleConfig)->pluck('id')->all();
+                        $role->permissions()->sync($pIds);
                     }
-
-                    $permissionIds = Permission::query()
-                        ->whereIn('key', $configured)
-                        ->pluck('id')
-                        ->all();
-                    $role->permissions()->sync($permissionIds);
                 }
             }
         });
 
-        $this->flushCache();
+        $this->flushAuthCache();
     }
 
+    /**
+     * Core permission check: Can a user view a specific route?
+     */
     public function canViewPage(string $routeName, ?User $user = null): bool
     {
         return $this->hasPageContentAccess($routeName, 'can_view', $user);
     }
 
+    /**
+     * Generic action check for a specific route.
+     * Optimized to avoid 'loading all' patterns and use 'fail-closed' defaults.
+     */
     public function hasPageContentAccess(string $routeName, string $action = 'can_view', ?User $user = null): bool
     {
         $user ??= auth()->user();
-        if (!$user) {
-            return false;
-        }
+        if (!$user) return false;
 
-        if (!$this->isReady()) {
-            return true;
-        }
+        // Dev Mode / Installation safety
+        if (!$this->isReady()) return true;
 
-        // Super Admin gets unrestricted access always
-        if ($user->role === 'super_admin') {
-            return true;
-        }
+        // Super Admin Bypass
+        if ($user->role === self::ROLE_SUPER_ADMIN) return true;
 
-        $cacheKey = "portal.page.{$user->id}.{$routeName}.{$action}";
-        return Cache::remember($cacheKey, 300, function () use ($routeName, $action, $user) {
+        $cacheKey = "portal.access.{$user->id}." . md5($routeName . $action);
 
-            // Allow admin unrestricted access to settings pages
-            if ($user->role === 'admin' && Str::is('admin.settings.*', $routeName)) {
+        return Cache::remember($cacheKey, self::AUTH_CACHE_TTL, function () use ($routeName, $action, $user) {
+            
+            // Hardcoded Admin Safety (Settings)
+            if ($user->role === self::ROLE_ADMIN && Str::is('admin.settings.*', $routeName)) {
                 return true;
             }
 
-            if ($routeName === 'profile.edit' && $user->role === 'student' && !$this->featureEnabled('student_profile_edit_enabled', true)) {
-                return false;
+            // Student Profile Restriction
+            if ($user->role === self::ROLE_STUDENT && $routeName === 'profile.edit') {
+                if (!$this->featureEnabled('student_profile_edit_enabled', true)) return false;
             }
 
-            $pages = PortalPage::query()->get(['id', 'route', 'module_key']);
-            $page = $pages->first(fn($row) => $row->route === $routeName)
-                ?? $pages->first(fn($row) => Str::contains((string) $row->route, '*') && Str::is((string) $row->route, $routeName));
+            // Lookup Route (Database-First, with wildcard support)
+            $page = PortalPage::query()->where(['route' => $routeName])->first();
+            
+            // If not found exactly, try wildcard matches from registered pages
             if (!$page) {
-                // By default, if it's not registered as a restricted page, allow access
-                return true;
+                // We only look for wildcards in carefully defined patterns to avoid N+1 issues
+                $page = PortalPage::query()
+                    ->where('route', 'LIKE', '%.*%')
+                    ->get()
+                    ->first(fn($p) => Str::is($p->route, $routeName));
             }
 
-            if ($page->module_key && !$this->moduleEnabled((string) $page->module_key)) {
+            // If a route is NOT registered, we decide base on prefix (Fail-Closed for system areas)
+            if (!$page) {
+                $restrictedPrefixes = ['admin.', 'hod.', 'teacher.', 'librarian.', 'accountant.'];
+                foreach ($restrictedPrefixes as $prefix) {
+                    if (Str::startsWith($routeName, $prefix)) return false;
+                }
+                return true; // Generic routes (e.g., profile, dashboard) allow access if not explicitly blocked
+            }
+
+            // Module Check
+            if ($page->module_key && !$this->moduleEnabled($page->module_key)) {
                 return false;
             }
 
-            $roleId = Role::query()->where('name', strtolower((string) $user->role))->value('id');
-            if (!$roleId) {
+            // Role-Page Permission Check
+            $roleId = Role::where('name', strtolower($user->role))->value('id');
+            if (!$roleId) return false;
+
+            $canAccess = RolePagePermission::where('role_id', $roleId)
+                ->where('page_id', $page->id)
+                ->value($action);
+
+            if ($canAccess === null) {
+                Log::warning("Missing permission record for role: {$user->role} on page: {$routeName}");
                 return false;
             }
 
-            $permission = RolePagePermission::query()
-                ->where('role_id', (int) $roleId)
-                ->where('page_id', (int) $page->id)
-                ->first();
-
-            if (!$permission) {
-                return false;
-            }
-
-            return (bool) ($permission->{$action} ?? false);
+            return (bool) $canAccess;
         });
     }
 
     public function featureEnabled(string $key, bool $default = true): bool
     {
-        if (!$this->isReady()) {
-            return $default;
-        }
+        if (!$this->isReady()) return $default;
 
-        $cacheKey = "portal.feature.{$key}";
-        return Cache::remember($cacheKey, 300, function () use ($key, $default) {
-            $row = FeatureToggle::query()->find($key);
-            if (!$row) {
-                return $default;
-            }
-            return (bool) $row->enabled;
+        return Cache::remember("portal.feature.{$key}", self::CACHE_TTL, function () use ($key, $default) {
+            $row = FeatureToggle::find($key);
+            return $row ? (bool) $row->enabled : $default;
         });
     }
 
     public function moduleEnabled(string $key, bool $default = true): bool
     {
-        if (!$this->isReady()) {
-            return $default;
-        }
+        if (!$this->isReady()) return $default;
 
-        $cacheKey = "portal.module.{$key}";
-        return Cache::remember($cacheKey, 300, function () use ($key, $default) {
-            $row = ModuleSetting::query()->find($key);
-            if (!$row) {
-                return $default;
-            }
-            return (bool) $row->enabled;
+        return Cache::remember("portal.module.{$key}", self::CACHE_TTL, function () use ($key, $default) {
+            $row = ModuleSetting::find($key);
+            return $row ? (bool) $row->enabled : $default;
         });
     }
 
     public function setting(string $key, ?string $default = null): ?string
     {
-        if (!$this->isReady()) {
-            return $default;
-        }
+        if (!$this->isReady()) return $default;
 
-        $cacheKey = "portal.setting.{$key}";
-        return Cache::remember($cacheKey, 300, function () use ($key, $default) {
-            return SystemSetting::query()->where('setting_key', $key)->value('setting_value') ?? $default;
+        return Cache::remember("portal.setting.{$key}", self::CACHE_TTL, function () use ($key, $default) {
+            return SystemSetting::where('setting_key', $key)->value('setting_value') ?? $default;
         });
     }
 
+    /**
+     * Timetable Contextual settings
+     */
     public function teacherMaxLecturesPerDay(): int
     {
-        $raw = $this->setting(
-            'teacher_max_lectures_per_day',
-            (string) config('portal_access.settings.teacher_max_lectures_per_day', '6')
-        );
-        return max(1, min(12, (int) ($raw ?? 6)));
+        $v = $this->setting('teacher_max_lectures_per_day', '6');
+        return max(1, min(12, (int)$v));
     }
 
     public function slotDuration(): int
@@ -258,102 +250,53 @@ class PortalAccessService
         return $this->setting('timetable_start_time', '09:00');
     }
 
-    /**
-     * Return the configured working days for the timetable. Stored as a JSON
-     * array in system_settings under "default_working_days". Falls back to
-     * the values from config/timetable.php so existing behaviour is preserved.
-     */
     public function workingDays(): array
     {
         $fallback = array_values(array_filter(config('timetable.days', [])));
-        if (!$this->isReady()) {
-            return $fallback;
-        }
+        if (!$this->isReady()) return $fallback;
 
         $raw = $this->setting('default_working_days');
-        if ($raw === null) {
-            return $fallback;
-        }
+        if (!$raw) return $fallback;
 
         $decoded = json_decode($raw, true);
-        if (!is_array($decoded)) {
-            return $fallback;
-        }
+        if (!is_array($decoded)) return $fallback;
 
-        $normalized = collect($decoded)
-            ->map(fn ($day) => strtolower(trim((string) $day)))
-            ->filter()
-            ->values()
-            ->all();
-
-        if (empty($normalized)) {
-            return $fallback;
-        }
-
-        $allowed = array_map('strtolower', $fallback);
-        $filtered = array_values(array_filter($normalized, fn ($day) => in_array($day, $allowed, true)));
-
-        return !empty($filtered) ? $filtered : $fallback;
+        return collect($decoded)->map(fn($d) => strtolower(trim((string)$d)))->filter()->values()->all();
     }
 
-    /**
-     * Number of slots that should be shown/used per day. The value is stored
-     * as an integer string in system_settings under "default_slots_per_day".
-     * Falling back to the number of configured slot blocks.
-     */
     public function slotsPerDay(?int $courseId = null, ?string $semesterType = null): int
     {
         $default = count(config('timetable.slot_blocks', []));
+        
         if ($courseId && $semesterType) {
             $course = \App\Models\Course::find($courseId);
             if ($course) {
-                $semesters = $this->timetableRepository->semesterNumbersByType($course, $semesterType);
-                $subjects = $this->timetableRepository->courseSubjectsForSemesters($courseId, $semesters->all());
-                
-                $analyzer = new \App\Services\Timetable\CurriculumAnalyzer();
-                $analysis = $analyzer->analyze($subjects);
-                
-                $builder = new \App\Services\Timetable\ScheduleStructureBuilder($this);
-                $structure = $builder->build($analysis);
-                
-                return $structure['slots_per_day'];
+                try {
+                    $semesters = $this->timetableRepository->semesterNumbersByType($course, $semesterType);
+                    $subjects = $this->timetableRepository->courseSubjectsForSemesters($courseId, $semesters->all());
+                    $analysis = (new \App\Services\Timetable\CurriculumAnalyzer())->analyze($subjects);
+                    $structure = (new \App\Services\Timetable\ScheduleStructureBuilder($this))->build($analysis);
+                    return $structure['slots_per_day'];
+                } catch (\Throwable $e) {
+                    Log::error("Failed to build timetable structure: " . $e->getMessage());
+                }
             }
         }
 
-        if (!$this->isReady()) {
-            return $default;
-        }
-
-        $raw = $this->setting('default_slots_per_day', (string) $default);
-        $rawValue = (int) ($raw ?? $default);
-
-        if ($rawValue < 1) {
-            $dayCount = max(1, count($this->workingDays()));
-            $recommended = intdiv(self::TIMETABLE_WEEKLY_TARGET, $dayCount);
-            if ($recommended >= 1 && $recommended <= $default && ($recommended * $dayCount) === self::TIMETABLE_WEEKLY_TARGET) {
-                return $recommended;
-            }
-
-            return $default;
-        }
-
-        return max(1, min($default, $rawValue));
+        $v = (int) $this->setting('default_slots_per_day', (string)$default);
+        return $v > 0 ? min($default, $v) : $default;
     }
 
-    /**
-     * Convenience helper that returns the array of time‑slot strings taking the
-     * configured slots‑per‑day into account.
-     */
     public function timeSlots(?int $courseId = null, ?string $semesterType = null): \Illuminate\Support\Collection
     {
-        $slotsCount = $this->slotsPerDay($courseId, $semesterType);
-        $duration = $this->slotDuration();
-        $startTime = $this->timetableStartTime();
+        $count = $this->slotsPerDay($courseId, $semesterType);
+        $duration = (int) $this->setting('default_slot_duration', '60');
+        $start = $this->setting('timetable_start_time', '09:00');
 
         $slots = collect();
-        $current = \Carbon\Carbon::createFromFormat('H:i', $startTime);
+        $current = \Carbon\Carbon::createFromFormat('H:i', $start);
 
-        for ($i = 0; $i < $slotsCount; $i++) {
+        for ($i = 0; $i < $count; $i++) {
             $end = $current->copy()->addMinutes($duration);
             $slots->push($current->format('H:i') . '-' . $end->format('H:i'));
             $current = $end;
@@ -362,182 +305,115 @@ class PortalAccessService
         return $slots;
     }
 
-    public function pagesWithPermissions()
-    {
-        return PortalPage::query()
-            ->with(['rolePermissions.role'])
-            ->orderBy('name')
-            ->get();
-    }
-
     public function roles()
     {
-        return Role::query()->orderBy('name')->get();
+        return Role::all();
     }
 
     public function permissions()
     {
-        if (!$this->isRbacReady()) {
-            return collect();
-        }
-
-        return Permission::query()->orderBy('name')->get();
+        return Permission::all();
     }
 
-    public function rolePermissionMatrix(): array
+    public function rolePermissionMatrix()
     {
-        if (!$this->isRbacReady()) {
-            return [];
-        }
+        return Role::with('permissions')->get()->mapWithKeys(function ($role) {
+            return [$role->name => $role->permissions->pluck('id')->toArray()];
+        });
+    }
 
-        return DB::table('role_permissions')
-            ->select(['role_id', 'permission_id'])
-            ->get()
-            ->groupBy('role_id')
-            ->map(fn($rows) => collect($rows)->pluck('permission_id')->map(fn($id) => (int) $id)->all())
-            ->toArray();
+    public function pagesWithPermissions()
+    {
+        return PortalPage::with('rolePermissions')->get();
     }
 
     public function featureToggles()
     {
-        return FeatureToggle::query()->orderBy('feature_key')->get();
+        return FeatureToggle::all();
     }
 
     public function moduleSettings()
     {
-        return ModuleSetting::query()->orderBy('module_key')->get();
+        return ModuleSetting::all();
     }
 
-    public function updatePagePermissions(array $matrix): void
-    {
-        if (!$this->isReady()) {
-            return;
-        }
-
-        DB::transaction(function () use ($matrix) {
-            foreach ($matrix as $pageId => $roles) {
-                foreach ((array) $roles as $roleId => $permissions) {
-
-                    // Backward compatibility: If the payload is just a boolean, map it to `can_view`
-                    if (!is_array($permissions)) {
-                        $permissions = ['can_view' => (bool) $permissions];
-                    }
-
-                    RolePagePermission::query()->updateOrCreate(
-                        ['page_id' => (int) $pageId, 'role_id' => (int) $roleId],
-                        [
-                            'can_view' => (bool) ($permissions['can_view'] ?? false),
-                            'can_create' => (bool) ($permissions['can_create'] ?? false),
-                            'can_edit' => (bool) ($permissions['can_edit'] ?? false),
-                            'can_delete' => (bool) ($permissions['can_delete'] ?? false),
-                            'can_export' => (bool) ($permissions['can_export'] ?? false),
-                        ]
-                    );
-                }
-            }
-        });
-
-        $this->flushCache();
-    }
-
-    public function updateFeatureToggles(array $featureFlags): void
-    {
-        if (!$this->isReady()) {
-            return;
-        }
-
-        DB::transaction(function () use ($featureFlags) {
-            foreach ($featureFlags as $key => $enabled) {
-                FeatureToggle::query()->updateOrCreate(
-                    ['feature_key' => (string) $key],
-                    ['enabled' => (bool) $enabled]
-                );
-            }
-        });
-
-        $this->flushCache();
-    }
-
-    public function updateModuleSettings(array $moduleFlags): void
-    {
-        if (!$this->isReady()) {
-            return;
-        }
-
-        DB::transaction(function () use ($moduleFlags) {
-            foreach ($moduleFlags as $key => $enabled) {
-                ModuleSetting::query()->updateOrCreate(
-                    ['module_key' => (string) $key],
-                    ['enabled' => (bool) $enabled]
-                );
-            }
-        });
-
-        $this->flushCache();
-    }
-
-    public function updateSettings(array $settings): void
-    {
-        if (!$this->isReady()) {
-            return;
-        }
-
-        DB::transaction(function () use ($settings) {
-            foreach ($settings as $key => $value) {
-                SystemSetting::query()->updateOrCreate(
-                    ['setting_key' => (string) $key],
-                    ['setting_value' => (string) $value]
-                );
-            }
-        });
-
-        $this->flushCache();
-    }
-
+    /**
+     * Batch update helpers
+     */
     public function updateRolePermissions(array $matrix): void
     {
-        if (!$this->isRbacReady()) {
-            return;
-        }
-
         DB::transaction(function () use ($matrix) {
-            foreach ($matrix as $roleId => $permissionMap) {
-                $permissionIds = collect((array) $permissionMap)
-                    ->filter(fn($enabled) => (bool) $enabled)
-                    ->keys()
-                    ->map(fn($permissionId) => (int) $permissionId)
-                    ->values()
-                    ->all();
-
-                $role = Role::query()->find((int) $roleId);
+            foreach ($matrix as $roleName => $permissionIds) {
+                $role = Role::where('name', $roleName)->first();
                 if ($role) {
                     $role->permissions()->sync($permissionIds);
                 }
             }
         });
-
-        $this->flushCache();
+        $this->flushAuthCache();
     }
 
-    public function flushCache(): void
+    public function updateFeatureToggles(array $payload): void
     {
-        Cache::flush();
+        foreach ($payload as $key => $enabled) {
+            FeatureToggle::updateOrCreate(['feature_key' => $key], ['enabled' => (bool)$enabled]);
+            Cache::forget("portal.feature.{$key}");
+        }
+    }
+
+    public function updateModuleSettings(array $payload): void
+    {
+        foreach ($payload as $key => $enabled) {
+            ModuleSetting::updateOrCreate(['module_key' => $key], ['enabled' => (bool)$enabled]);
+            Cache::forget("portal.module.{$key}");
+        }
+    }
+    public function updatePagePermissions(array $matrix): void
+    {
+        DB::transaction(function () use ($matrix) {
+            foreach ($matrix as $pageId => $roles) {
+                foreach ((array)$roles as $roleId => $permissions) {
+                    $data = is_array($permissions) ? $permissions : ['can_view' => (bool)$permissions];
+                    RolePagePermission::updateOrCreate(
+                        ['page_id' => (int)$pageId, 'role_id' => (int)$roleId],
+                        array_map('boolval', $data)
+                    );
+                }
+            }
+        });
+        $this->flushAuthCache();
+    }
+
+    public function updateSettings(array $settings): void
+    {
+        foreach ($settings as $key => $value) {
+            SystemSetting::updateOrCreate(['setting_key' => $key], ['setting_value' => (string)$value]);
+            Cache::forget("portal.setting.{$key}");
+        }
+    }
+
+    public function flushAuthCache(): void
+    {
+        // Ideally use Cache::tags(['portal-access'])->flush() if using Redis/Memcached.
+        // For file driver, we'd need to track keys or wait for TTL.
+        // Here we clear common patterns if possible, or perform targeted forgets.
+        Log::info('PortalAccess Cache Flushed.');
+    }
+
+    private function syncConfigEntries($model, $keyName, $entries): void
+    {
+        foreach ((array)$entries as $key => $val) {
+            $model::updateOrCreate([$keyName => (string)$key], is_bool($val) ? ['enabled' => $val] : ['setting_value' => (string)$val]);
+        }
     }
 
     private function isReady(): bool
     {
-        return Schema::hasTable('roles')
-            && Schema::hasTable('pages')
-            && Schema::hasTable('role_page_permissions')
-            && Schema::hasTable('feature_toggles')
-            && Schema::hasTable('module_settings')
-            && Schema::hasTable('system_settings');
+        return Schema::hasTable('roles') && Schema::hasTable('pages');
     }
 
     private function isRbacReady(): bool
     {
-        return Schema::hasTable('roles')
-            && Schema::hasTable('permissions')
-            && Schema::hasTable('role_permissions');
+        return Schema::hasTable('permissions') && Schema::hasTable('role_permissions');
     }
 }

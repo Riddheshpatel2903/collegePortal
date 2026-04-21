@@ -45,7 +45,7 @@
                         <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Full Name</label>
                         <input type="text" name="name" value="{{ old('name') }}"
                             class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                            placeholder="e.g. Christopher Nolan" required>
+                            placeholder="e.g. Christopher Nolan" required pattern="[a-zA-Z\s.]+" title="Only characters, spaces and dots are allowed">
                     </div>
                     <div>
                         <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Email</label>
@@ -128,7 +128,7 @@
                             <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
                             <input type="tel" name="phone" value="{{ old('phone') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                                placeholder="+91 xxxxxxxxxx">
+                                placeholder="e.g. 9876543210" pattern="\d{10}" maxlength="10" title="Exactly 10 digits are required">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Address</label>
@@ -172,7 +172,7 @@
                             <label class="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Phone</label>
                             <input type="tel" name="phone" value="{{ old('phone') }}"
                                 class="w-full border border-slate-200 rounded-xl py-3 px-4 text-sm text-slate-700 bg-slate-50/50 focus:ring-2 focus:ring-violet-500/20 focus:border-violet-300 transition-all"
-                                placeholder="+91 xxxxxxxxxx">
+                                placeholder="e.g. 9876543210" pattern="\d{10}" maxlength="10" title="Exactly 10 digits are required">
                         </div>
                     </div>
                 </div>

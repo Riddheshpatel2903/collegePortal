@@ -3,340 +3,328 @@
 @section('header_title', 'Mark Attendance')
 
 @section('content')
-    {{-- Page Header --}}
-    <div class="space-y-8">
-        {{-- Page Header --}}
-        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div>
-                <x-badge type="info" class="mb-4">
-                    <i class="bi bi-calendar-check mr-1"></i> Academic Session
-                </x-badge>
-                <h2 class="text-4xl font-black text-slate-900 tracking-tight leading-none mb-3">Attendance <span
-                        class="text-transparent bg-clip-text bg-gradient-to-r from-violet-600 to-indigo-600">Register</span>
-                </h2>
-                <p class="text-lg text-slate-400 font-medium">Click a date to mark or edit attendance for your class.</p>
+<div class="space-y-8 animate-fade-in">
+    <!-- ─── Page Header ─── -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+        <div>
+            <div class="inline-flex items-center px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[10px] font-bold uppercase tracking-widest mb-4 border border-indigo-100">
+                <i class="bi bi-calendar-check mr-2"></i> Academic Session 2023-24
             </div>
-            <div class="flex items-center gap-3">
-                <select id="subjectSelect" class="bg-white border-slate-200 rounded-2xl py-3 px-6 text-sm font-bold text-slate-700 shadow-sm focus:ring-[6px] focus:ring-violet-500/5 focus:border-violet-200 transition-all outline-none min-w-[250px]">
-                    <option value="">Select Subject</option>
-                    @foreach($subjects as $sub)
-                        <option value="{{ $sub->id }}" data-semester="{{ $sub->semester_id }}">
-                            {{ $sub->name }} — {{ $sub->semester->name ?? '' }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-1">Attendance Register</h2>
+            <p class="text-sm text-slate-500 font-medium">Click a date to mark or edit attendance for your class.</p>
         </div>
-
-        {{-- Month Stats Row --}}
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-6" id="monthStats" style="display:none;">
-            <x-card class="border-l-4 border-l-violet-500">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-11 w-11 rounded-xl bg-violet-500/10 text-violet-600 flex items-center justify-center text-xl">
-                        <i class="bi bi-calendar-check-fill"></i>
-                    </div>
-                    <x-badge>Sessions This Month</x-badge>
-                </div>
-                <div class="text-2xl font-black text-slate-800 tracking-tight" id="statSessions">0</div>
-            </x-card>
-
-            <x-card class="border-l-4 border-l-emerald-500">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-11 w-11 rounded-xl bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-xl">
-                        <i class="bi bi-person-check-fill"></i>
-                    </div>
-                    <x-badge type="success">Avg Present %</x-badge>
-                </div>
-                <div class="text-2xl font-black text-slate-800 tracking-tight" id="statPresent">0%</div>
-            </x-card>
-
-            <x-card class="border-l-4 border-l-rose-500">
-                <div class="flex justify-between items-start mb-4">
-                    <div class="h-11 w-11 rounded-xl bg-rose-500/10 text-rose-600 flex items-center justify-center text-xl">
-                        <i class="bi bi-person-x-fill"></i>
-                    </div>
-                    <x-badge type="danger">Avg Absent %</x-badge>
-                </div>
-                <div class="text-2xl font-black text-slate-800 tracking-tight" id="statAbsent">0%</div>
-            </x-card>
-        </div>
-
-        {{-- Calendar --}}
-        <x-card id="calendarCard" class="overflow-hidden !p-0" style="display:none;">
-            <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-                <x-button variant="outline" size="sm" onclick="changeMonth(-1)" icon="bi-chevron-left" class="!px-3"></x-button>
-                <h3 class="text-base font-black text-slate-800 tracking-tight" id="calendarTitle">Month Year</h3>
-                <x-button variant="outline" size="sm" onclick="changeMonth(1)" icon="bi-chevron-right" class="!px-3"></x-button>
-            </div>
-
-            <div class="overflow-x-auto">
-                {{-- Calendar Table --}}
-                <table class="cal-table" id="calendarTable">
-                    <thead>
-                        <tr>
-                            <th class="sun-header">Sun</th>
-                            <th>Mon</th>
-                            <th>Tue</th>
-                            <th>Wed</th>
-                            <th>Thu</th>
-                            <th>Fri</th>
-                            <th>Sat</th>
-                        </tr>
-                    </thead>
-                    <tbody id="calendarGrid">
-                        {{-- JS-rendered --}}
-                    </tbody>
-                </table>
-            </div>
-        </x-card>
-
-        {{-- Placeholder --}}
-        <div id="placeholder">
-            <x-card class="py-24 text-center border-dashed border-2">
-                <div class="h-20 w-20 rounded-3xl bg-violet-50 text-violet-400 flex items-center justify-center text-3xl mx-auto mb-6">
-                    <i class="bi bi-calendar3"></i>
-                </div>
-                <h3 class="text-xl font-black text-slate-800 mb-2 tracking-tight">Select a Subject</h3>
-                <p class="text-sm text-slate-400 font-medium max-w-sm mx-auto">Choose a subject from the dropdown above to manage its attendance register.</p>
-            </x-card>
+        <div class="flex items-center gap-3">
+            <select id="subjectSelect" class="w-full md:min-w-[280px] px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none">
+                <option value="">Select Subject</option>
+                @foreach($subjects as $sub)
+                    <option value="{{ $sub->id }}" data-semester="{{ $sub->semester_id }}">
+                        {{ $sub->name }} — {{ $sub->semester->name ?? '' }}
+                    </option>
+                @endforeach
+            </select>
         </div>
     </div>
 
-    {{-- Slide-in Attendance Panel --}}
-    <div id="attendancePanel" class="fixed inset-0 z-50 hidden">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity duration-300" onclick="closePanel()"></div>
-        <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white/95 backdrop-blur-xl shadow-2xl flex flex-col transform transition-transform duration-500 translate-x-full" id="panelContent">
-            {{-- Panel Header --}}
-            <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
-                <div class="flex items-center gap-4">
-                    <div class="h-12 w-12 rounded-2xl bg-violet-600 text-white flex items-center justify-center text-xl shadow-lg shadow-violet-200">
-                        <i class="bi bi-person-check"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-lg font-black text-slate-900 tracking-tight" id="panelTitle">Mark Attendance</h3>
-                        <p class="text-xs text-slate-400 font-bold uppercase tracking-widest" id="panelDate">Date</p>
-                    </div>
+    {{-- Month Stats Row --}}
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6" id="monthStats" style="display:none;">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm border-l-4 border-l-indigo-500">
+            <div class="flex justify-between items-start mb-4">
+                <div class="h-10 w-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg border border-indigo-100">
+                    <i class="bi bi-calendar-check text-xl"></i>
                 </div>
-                <button onclick="closePanel()" class="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
-                    <i class="bi bi-x-lg"></i>
-                </button>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Sessions</span>
             </div>
+            <div class="text-2xl font-bold text-slate-800 tracking-tight" id="statSessions">0</div>
+        </div>
 
-            {{-- Panel Stats --}}
-            <div class="p-8 border-b border-slate-100">
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100">
-                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Total</p>
-                        <p class="text-xl font-extrabold text-slate-700" id="panelTotal">0</p>
-                    </div>
-                    <div class="bg-emerald-50 rounded-2xl p-4 text-center border border-emerald-100/50">
-                        <p class="text-[10px] font-black text-emerald-500 uppercase tracking-widest mb-1">Present</p>
-                        <p class="text-xl font-extrabold text-emerald-600" id="panelPresent">0</p>
-                    </div>
-                    <div class="bg-rose-50 rounded-2xl p-4 text-center border border-rose-100/50">
-                        <p class="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-1">Absent</p>
-                        <p class="text-xl font-extrabold text-rose-500" id="panelAbsent">0</p>
-                    </div>
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm border-l-4 border-l-emerald-500">
+            <div class="flex justify-between items-start mb-4">
+                <div class="h-10 w-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg border border-emerald-100">
+                    <i class="bi bi-person-check text-xl"></i>
                 </div>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg Present</span>
             </div>
+            <div class="text-2xl font-bold text-slate-800 tracking-tight" id="statPresent">0%</div>
+        </div>
 
-            {{-- Mark All Buttons --}}
-            <div class="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center gap-3">
-                <x-button variant="outline" size="sm" onclick="markAll('present')" icon="bi-check-all" class="flex-1 bg-white">
-                    Mark All Present
-                </x-button>
-                <x-button variant="outline" size="sm" onclick="markAll('absent')" icon="bi-x-circle" class="flex-1 bg-white">
-                    Mark All Absent
-                </x-button>
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm border-l-4 border-l-rose-500">
+            <div class="flex justify-between items-start mb-4">
+                <div class="h-10 w-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg border border-rose-100">
+                    <i class="bi bi-person-x text-xl"></i>
+                </div>
+                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg Absent</span>
             </div>
-
-            {{-- Student List --}}
-            <div class="flex-1 overflow-y-auto px-8 py-6 space-y-3 custom-scrollbar" id="studentList">
-                {{-- JS-rendered --}}
-            </div>
-
-            {{-- Save Button --}}
-            <div class="px-8 py-6 border-t border-slate-100 bg-white">
-                <x-button variant="primary" id="saveBtn" onclick="saveAttendance()" icon="bi-shield-check" class="w-full !py-4 text-sm uppercase tracking-widest bg-slate-900">
-                    Authorize & Save Register
-                </x-button>
-            </div>
+            <div class="text-2xl font-bold text-slate-800 tracking-tight" id="statAbsent">0%</div>
         </div>
     </div>
 
-    @push('styles')
-    <style>
-        .cal-table {
-            width: 100%;
-            border-collapse: collapse;
-            table-layout: fixed;
-        }
+    {{-- Calendar --}}
+    <div id="calendarCard" class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm" style="display:none;">
+        <div class="px-8 py-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+            <button onclick="changeMonth(-1)" class="h-9 w-9 bg-white border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg flex items-center justify-center transition-all">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-widest" id="calendarTitle">Month Year</h3>
+            <button onclick="changeMonth(1)" class="h-9 w-9 bg-white border border-slate-200 text-slate-400 hover:text-slate-600 rounded-lg flex items-center justify-center transition-all">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+        </div>
 
-        .cal-table thead th {
-            padding: 1.25rem 0.5rem;
-            text-align: center;
-            font-size: 10px;
-            font-weight: 900;
-            color: #94a3b8;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            border-bottom: 1px solid #f1f5f9;
-            background: #f8fafc;
-        }
+        <div class="overflow-x-auto">
+            <table class="cal-table w-full border-collapse" id="calendarTable">
+                <thead>
+                    <tr class="bg-slate-50/50">
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sun</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Mon</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Tue</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Wed</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Thu</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Fri</th>
+                        <th class="px-4 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sat</th>
+                    </tr>
+                </thead>
+                <tbody id="calendarGrid" class="divide-y divide-slate-100">
+                    {{-- JS-rendered --}}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
-        .cal-table thead th.sun-header {
-            color: #f43f5e;
-            background: #fff1f2/50;
-        }
+    {{-- Placeholder --}}
+    <div id="placeholder">
+        <div class="py-24 text-center bg-white border-2 border-dashed border-slate-200 rounded-3xl">
+            <div class="h-20 w-20 bg-slate-50 text-slate-300 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6">
+                <i class="bi bi-calendar3"></i>
+            </div>
+            <h3 class="text-xl font-bold text-slate-800 mb-2">Select a Subject</h3>
+            <p class="text-sm text-slate-500 font-medium max-w-sm mx-auto">Choose a subject from the dropdown above to manage its attendance register.</p>
+        </div>
+    </div>
+</div>
 
-        .cal-table td {
-            height: 120px;
-            vertical-align: top;
-            border-right: 1px solid #f1f5f9;
-            border-bottom: 1px solid #f1f5f9;
-            padding: 0.75rem;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
+{{-- Slide-in Attendance Panel --}}
+<div id="attendancePanel" class="fixed inset-0 z-[100] hidden">
+    <div class="absolute inset-0 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300" onclick="closePanel()"></div>
+    <div class="absolute right-0 top-0 h-full w-full max-w-lg bg-white shadow-2xl flex flex-col transform transition-transform duration-500 translate-x-full" id="panelContent">
+        {{-- Panel Header --}}
+        <div class="flex items-center justify-between px-8 py-6 border-b border-slate-100">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center text-xl shadow-lg shadow-indigo-100">
+                    <i class="bi bi-person-check"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-bold text-slate-800 tracking-tight" id="panelTitle">Mark Attendance</h3>
+                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest" id="panelDate">Date</p>
+                </div>
+            </div>
+            <button onclick="closePanel()" class="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-rose-50 hover:text-rose-500 transition-all">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
 
-        .cal-table td:last-child {
-            border-right: none;
-        }
+        {{-- Panel Stats --}}
+        <div class="p-8 border-b border-slate-100">
+            <div class="grid grid-cols-3 gap-6">
+                <div class="bg-slate-50 rounded-2xl p-4 text-center border border-slate-100">
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Total</p>
+                    <p class="text-xl font-bold text-slate-700" id="panelTotal">0</p>
+                </div>
+                <div class="bg-emerald-50 rounded-2xl p-4 text-center border border-emerald-100/50">
+                    <p class="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-1">Present</p>
+                    <p class="text-xl font-bold text-emerald-600" id="panelPresent">0</p>
+                </div>
+                <div class="bg-rose-50 rounded-2xl p-4 text-center border border-rose-100/50">
+                    <p class="text-[10px] font-bold text-rose-400 uppercase tracking-widest mb-1">Absent</p>
+                    <p class="text-xl font-bold text-rose-500" id="panelAbsent">0</p>
+                </div>
+            </div>
+        </div>
 
-        .cal-table td:hover:not(.empty):not(.locked) {
-            background: #f5f3ff;
-            transform: scale(1.02);
-            z-index: 10;
-            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.1);
-            border-radius: 1rem;
-        }
+        {{-- Mark All Buttons --}}
+        <div class="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex items-center gap-3">
+            <button onclick="markAll('present')" class="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-2 text-xs rounded-xl hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-100 transition-all flex items-center justify-center gap-2 shadow-sm">
+                <i class="bi bi-check-all text-sm"></i> Mark All Present
+            </button>
+            <button onclick="markAll('absent')" class="flex-1 bg-white border border-slate-200 text-slate-600 font-bold py-2 text-xs rounded-xl hover:bg-rose-50 hover:text-rose-600 hover:border-rose-100 transition-all flex items-center justify-center gap-2 shadow-sm">
+                <i class="bi bi-x-circle text-sm"></i> Mark All Absent
+            </button>
+        </div>
 
-        .cal-table td.today {
-            background: #ede9fe/30;
-        }
-        
-        .cal-table td.today .day-num {
-            background: #7c3aed;
-            color: white;
-            width: 28px;
-            height: 28px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            margin-left: auto;
-            box-shadow: 0 4px 6px -1px rgba(124, 58, 237, 0.3);
-        }
+        {{-- Student List --}}
+        <div class="flex-1 overflow-y-auto px-8 py-6 space-y-4 custom-scrollbar" id="studentList">
+            {{-- JS-rendered --}}
+        </div>
 
-        .cal-table td.sunday {
-            background: #fff1f2/20;
-            cursor: default;
-        }
+        {{-- Save Button --}}
+        <div class="px-8 py-6 border-t border-slate-100 bg-white">
+            <button id="saveBtn" onclick="saveAttendance()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2 text-sm uppercase tracking-widest">
+                <i class="bi bi-shield-check"></i> Authorize & Save Register
+            </button>
+        </div>
+    </div>
+</div>
 
-        .cal-table td.empty {
-            background: #fafafa;
-            cursor: default;
-        }
+@push('styles')
+<style>
+    .cal-table td {
+        height: 110px;
+        vertical-align: top;
+        border-right: 1px solid #f1f5f9;
+        padding: 1rem;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        position: relative;
+    }
 
-        .cal-table td.locked {
-            cursor: default;
-            background: #fcfcfc;
-        }
+    .cal-table td:last-child {
+        border-right: none;
+    }
 
-        .cal-table td.locked .lock-icon {
-            position: absolute;
-            bottom: 0.75rem;
-            right: 0.75rem;
-            font-size: 10px;
-            color: #cbd5e1;
-            opacity: 0.5;
-        }
+    .cal-table td:hover:not(.empty):not(.locked) {
+        background: #f8fafc;
+        border-radius: 0;
+    }
 
-        .cal-table .day-num {
-            text-align: right;
-            font-size: 13px;
-            font-weight: 800;
-            color: #64748b;
-        }
+    .cal-table td.today {
+        background: #eff6ff;
+    }
+    
+    .cal-table td.today .day-num {
+        background: #3b82f6;
+        color: white;
+        width: 26px;
+        height: 26px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        margin-left: auto;
+        box-shadow: 0 4px 10px rgba(59, 130, 246, 0.2);
+    }
 
-        .cal-table .holiday-tag {
-            font-size: 9px;
-            font-weight: 900;
-            color: #f43f5e;
-            background: #fff1f2;
-            border-radius: 6px;
-            padding: 2px 6px;
-            margin-top: 8px;
-            display: inline-block;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+    .cal-table td.sunday {
+        background: #fffafa;
+        cursor: default;
+    }
 
-        .cal-table .session-info {
-            margin-top: 8px;
-            font-size: 10px;
-            font-weight: 800;
-            color: #7c3aed;
-            background: #ede9fe;
-            border-radius: 8px;
-            padding: 4px 8px;
-            display: inline-block;
-            box-shadow: 0 2px 4px rgba(124, 58, 237, 0.05);
-        }
+    .cal-table td.sunday .day-num {
+        color: #fca5a5;
+    }
 
-        .cal-table td.has-session::after {
-            content: '';
-            position: absolute;
-            bottom: 12px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            border-radius: 50%;
-            background: #7c3aed;
-        }
+    .cal-table td.empty {
+        background: #fafafa;
+        cursor: default;
+    }
 
-        .att-toggle {
-            display: flex;
-            align-items: center;
-            padding: 3px;
-            background: #f1f5f9;
-            border-radius: 12px;
-            gap: 2px;
-        }
+    .cal-table td.locked {
+        cursor: default;
+        opacity: 0.6;
+    }
 
-        .att-toggle button {
-            padding: 6px 12px;
-            font-size: 10px;
-            font-weight: 800;
-            border-radius: 10px;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
+    .cal-table td.locked .lock-icon {
+        position: absolute;
+        bottom: 0.75rem;
+        right: 0.75rem;
+        font-size: 10px;
+        color: #e2e8f0;
+    }
 
-        .att-toggle button.active-present {
-            background: white;
-            color: #059669;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
+    .cal-table .day-num {
+        text-align: right;
+        font-size: 12px;
+        font-bold: 800;
+        color: #cbd5e1;
+    }
 
-        .att-toggle button.active-absent {
-            background: white;
-            color: #e11d48;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        }
-        
-        .student-row {
-            @apply flex items-center justify-between p-4 rounded-2xl bg-slate-50 border border-slate-100 transition-all duration-300;
-        }
-        .student-row:hover {
-            @apply bg-white shadow-xl shadow-slate-200/50 -translate-y-0.5 border-violet-100;
-        }
-    </style>
-    @endpush
+    .cal-table .holiday-tag {
+        font-size: 8px;
+        font-bold: 900;
+        color: #fca5a5;
+        background: #fef2f2;
+        border-radius: 4px;
+        padding: 1px 5px;
+        margin-top: 6px;
+        display: inline-block;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
 
+    .cal-table .session-info {
+        margin-top: 8px;
+        font-size: 9px;
+        font-bold: 800;
+        color: #6366f1;
+        background: #f5f3ff;
+        border-radius: 6px;
+        padding: 3px 6px;
+        display: inline-block;
+        border: 1px solid #e0e7ff;
+    }
+
+    .cal-table td.has-session::after {
+        content: '';
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        border-radius: 50%;
+        background: #6366f1;
+    }
+
+    .att-toggle {
+        display: flex;
+        align-items: center;
+        padding: 3px;
+        background: #f1f5f9;
+        border-radius: 10px;
+        gap: 2px;
+    }
+
+    .att-toggle button {
+        padding: 5px 10px;
+        font-size: 9px;
+        font-bold: 800;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .att-toggle button.active-present {
+        background: white;
+        color: #059669;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .att-toggle button.active-absent {
+        background: white;
+        color: #e11d48;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    .student-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-radius: 1rem;
+        background: #f8fafc;
+        border: 1px solid #f1f5f9;
+        transition: all 0.2s ease;
+    }
+    .student-row:hover {
+        background: white;
+        border-color: #e2e8f0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+    }
+</style>
+@endpush
+
+@endsection
+
+@push('scripts')
     <script>
         const CSRF = '{{ csrf_token() }}';
         const sessionsUrl = '{{ route("teacher.attendance.sessions") }}';
@@ -601,4 +589,4 @@
             });
         }
     </script>
-@endsection
+@endpush

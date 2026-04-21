@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Services\PortalAccessService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PortalSettingsController extends Controller
 {
@@ -17,6 +19,7 @@ class PortalSettingsController extends Controller
         $this->accessService->syncDefaults();
 
         return view('admin.settings.index', [
+            'accessService' => $this->accessService,
             'roles' => $this->accessService->roles(),
             'permissions' => $this->accessService->permissions(),
             'rolePermissionMatrix' => $this->accessService->rolePermissionMatrix(),
@@ -36,6 +39,10 @@ class PortalSettingsController extends Controller
     {
         $this->accessService->updatePagePermissions((array) $request->input('permissions', []));
 
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Access matrix updated successfully.']);
+        }
+
         return back()->with('success', 'Page visibility permissions updated.');
     }
 
@@ -48,6 +55,11 @@ class PortalSettingsController extends Controller
         }
 
         $this->accessService->updateFeatureToggles($payload);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Feature toggles optimized.']);
+        }
+
         return back()->with('success', 'Feature toggles updated.');
     }
 
@@ -67,6 +79,11 @@ class PortalSettingsController extends Controller
         }
 
         $this->accessService->updateModuleSettings($payload);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Module configuration synchronized.']);
+        }
+
         return back()->with('success', 'Module settings updated.');
     }
     public function updateSmartSettings(Request $request)
@@ -125,41 +142,49 @@ class PortalSettingsController extends Controller
     public function storeRole(Request $request)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:50', 'unique:roles,name'],
-            'description' => ['nullable', 'string', 'max:255'],
+            'name' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('roles', 'name')],
         ]);
 
-        $roleName = str_replace(' ', '_', strtolower($validated['name']));
+        Role::create(['name' => strtolower($validated['name'])]);
 
-        \App\Models\Role::create([
-            'name' => $roleName,
-            'description' => $validated['description'] ?? 'Custom role created by admin.',
-            'is_system' => false,
-        ]);
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Role created successfully.']);
+        }
 
-        return back()->with('success', 'Custom Role created successfully.');
+        return back()->with('success', 'Role created successfully.');
     }
 
-    public function updateRole(Request $request, \App\Models\Role $role)
+    public function updateRole(Request $request, Role $role)
     {
         $validated = $request->validate([
-            'name' => ['required', 'string', 'max:50', \Illuminate\Validation\Rule::unique('roles')->ignore($role->id)],
+            'name' => ['required', 'string', 'max:50', 'alpha_dash', Rule::unique('roles', 'name')->ignore($role->id)],
         ]);
 
-        $role->update([
-            'name' => str_replace(' ', '_', strtolower($validated['name']))
-        ]);
+        $role->update(['name' => strtolower($validated['name'])]);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Role updated successfully.']);
+        }
 
         return back()->with('success', 'Role updated successfully.');
     }
 
-    public function destroyRole(\App\Models\Role $role)
+    public function destroyRole(Role $role)
     {
-        if (\App\Models\User::where('role', $role->name)->exists()) {
-            return back()->with('error', 'Cannot delete a role that is assigned to active users.');
+        $protected = ['super_admin', 'admin', 'teacher', 'student', 'hod', 'accountant', 'librarian'];
+
+        if (in_array($role->name, $protected, true)) {
+            if (request()->ajax() || request()->wantsJson()) {
+                return response()->json(['success' => false, 'message' => 'System roles cannot be deleted.'], 403);
+            }
+            return back()->with('error', 'System roles cannot be deleted.');
         }
 
         $role->delete();
+
+        if (request()->ajax() || request()->wantsJson()) {
+            return response()->json(['success' => true, 'message' => 'Role deleted successfully.']);
+        }
 
         return back()->with('success', 'Role deleted successfully.');
     }

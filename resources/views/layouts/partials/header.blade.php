@@ -1,8 +1,8 @@
 <header
-    class="h-16 bg-white/70 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-8 sticky top-0 z-40">
+    class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 sticky top-0 z-40">
     <div class="flex items-center gap-4">
         <button @click="sidebarOpen = !sidebarOpen"
-            class="text-slate-400 hover:text-violet-600 lg:hidden transition-colors">
+            class="text-slate-400 hover:text-indigo-600 lg:hidden transition-colors">
             <i class="bi bi-list text-2xl"></i>
         </button>
         <div class="flex flex-col">
@@ -14,14 +14,14 @@
                     $currentSession = \App\Models\AcademicSession::where('is_current', true)->first();
                 @endphp
                 @if($currentSession)
-                    <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-violet-50 text-violet-600 text-[9px] font-black uppercase tracking-widest border border-violet-100">
+                    <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
                         <i class="bi bi-calendar-event"></i>
                         {{ $currentSession->name }}
                     </span>
                 @endif
                 
                 @if(auth()->user()->role === 'student' && auth()->user()->student && auth()->user()->student->currentSemester)
-                    <span class="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-600 text-[9px] font-black uppercase tracking-widest border border-emerald-100">
+                    <span class="flex items-center gap-1.5 px-2 py-0.5 rounded bg-slate-100 text-slate-600 text-[10px] font-bold border border-slate-200">
                         <i class="bi bi-mortarboard"></i>
                         {{ auth()->user()->student->currentSemester->name }}
                     </span>
@@ -32,24 +32,24 @@
 
     <div class="flex items-center gap-5">
         <!-- Notification Bell -->
-        <button class="relative text-slate-400 hover:text-violet-600 transition-colors">
-            <i class="bi bi-bell text-xl"></i>
+        <button class="relative text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="bi bi-bell"></i>
             <span
-                class="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 bg-rose-500 rounded-full border-2 border-white animate-pulse"></span>
+                class="absolute top-0 right-0 h-2 w-2 bg-rose-500 rounded-full border-2 border-white"></span>
         </button>
 
         <!-- User Dropdown -->
         <div class="relative" x-data="{ open: false }">
-            <button @click="open = !open" class="flex items-center gap-2 focus:outline-none group">
+            <button @click="open = !open" class="flex items-center gap-3 focus:outline-none group">
                 <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-slate-700 leading-none mb-1">{{ auth()->user()->name }}</p>
-                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest leading-none">{{ auth()->user()->role }}</p>
+                    <p class="text-[11px] font-bold text-slate-700 leading-none mb-1">{{ auth()->user()->name }}</p>
+                    <p class="text-[9px] font-bold text-slate-400 uppercase tracking-wider leading-none">{{ auth()->user()->role }}</p>
                 </div>
-                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=7c3aed&color=fff"
-                    class="h-9 w-9 rounded-lg ring-2 ring-violet-100 group-hover:ring-violet-300 transition-all"
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=6366f1&color=fff"
+                    class="h-8 w-8 rounded-lg"
                     alt="User">
                 <i
-                    class="bi bi-chevron-down text-slate-400 text-xs group-hover:text-violet-600 transition-colors"></i>
+                    class="bi bi-chevron-down text-slate-400 text-[10px] group-hover:text-indigo-600 transition-colors"></i>
             </button>
 
             <div x-show="open" @click.away="open = false"

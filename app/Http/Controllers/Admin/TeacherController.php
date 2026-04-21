@@ -35,10 +35,12 @@ class TeacherController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
             'department_id' => 'required|exists:departments,id',
+            'phone' => 'nullable|digits:10',
+            'qualification' => 'nullable|string|max:255',
         ]);
 
         $user = User::create([
@@ -70,9 +72,11 @@ class TeacherController extends Controller
     public function update(Request $request, Teacher $teacher)
     {
         $request->validate([
-            'name' => 'required',
+            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
             'email' => 'required|email|unique:users,email,' . $teacher->user_id,
             'department_id' => 'required|exists:departments,id',
+            'phone' => 'nullable|digits:10',
+            'qualification' => 'nullable|string|max:255',
         ]);
 
         $teacher->user->update([

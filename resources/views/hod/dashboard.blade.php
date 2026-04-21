@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('header_title', 'HOD Dashboard')
+@section('header_title', 'Departmental Oversight')
 
 @section('content')
 <div x-data="{
@@ -15,136 +15,161 @@
     }
 }" @keydown.escape.window="closeNotice()">
     
-    <!-- ─── Welcome Header ─── -->
-    <div class="bg-gradient-to-r from-indigo-600 via-blue-600 to-indigo-700 rounded-2xl p-8 mb-8 relative overflow-hidden shadow-xl shadow-indigo-500/20">
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-            <div>
-                <h2 class="text-2xl font-extrabold text-white mb-1">Welcome, Head of Department</h2>
-                <div class="flex items-center gap-3">
-                    <span class="text-indigo-100 text-sm font-medium">{{ $department->name }} Division</span>
-                    <span class="h-1 w-1 rounded-full bg-indigo-300"></span>
-                    <span class="text-indigo-100 text-sm font-medium">Academic Management Workspace</span>
+    <!-- ─── Departmental Identity Header ─── -->
+    <div class="mb-10">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 bg-white border border-slate-200 rounded-[2.5rem] p-10 shadow-sm relative overflow-hidden">
+            <div class="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
+                <i class="bi bi-shield-shaded text-[120px] text-indigo-500"></i>
+            </div>
+            
+            <div class="relative z-10 space-y-4">
+                <div class="inline-flex items-center px-4 py-1.5 rounded-full bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.2em]">
+                    <span class="h-2 w-2 rounded-full bg-emerald-500 mr-2 animate-pulse"></span>
+                    Faculty Governance Active
+                </div>
+                <div>
+                    <h2 class="text-3xl font-black text-slate-800 tracking-tight leading-none mb-2">Welcome, {{ explode(' ', auth()->user()->name)[0] }}</h2>
+                    <div class="flex flex-wrap items-center gap-x-6 gap-y-2 text-slate-400">
+                        <div class="flex items-center gap-2">
+                            <i class="bi bi-diagram-3 text-indigo-500"></i>
+                            <span class="text-xs font-black uppercase text-slate-600">{{ $department->name }} Administration</span>
+                        </div>
+                        <div class="h-1 w-1 rounded-full bg-slate-200"></div>
+                        <div class="flex items-center gap-2">
+                            <i class="bi bi-check-circle-fill text-emerald-500"></i>
+                            <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">Strategic Oversight Role</span>
+                        </div>
+                    </div>
                 </div>
             </div>
-            <div class="flex flex-wrap gap-2">
+
+            <div class="flex flex-wrap gap-3 relative z-10 lg:pl-10 lg:border-l border-slate-100">
                 @canPage('hod.timetable.index')
-                <a href="{{ route('hod.timetable.index') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-2">
-                    <i class="bi bi-calendar3"></i> Timetable Manager
+                <a href="{{ route('hod.timetable.index') }}" class="h-14 px-8 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all shadow-xl shadow-indigo-100 flex items-center gap-3 active:scale-95">
+                    <i class="bi bi-calendar3 text-lg"></i>
+                    Schedule Matrix
                 </a>
                 @endcanPage
                 @canPage('hod.teacher-assignments.index')
-                <a href="{{ route('hod.teacher-assignments.index') }}" class="px-4 py-2 bg-white/10 hover:bg-white/20 backdrop-blur-md rounded-xl text-white text-xs font-bold border border-white/20 transition-all flex items-center gap-2">
-                    <i class="bi bi-person-badge"></i> Faculty Allocations
+                <a href="{{ route('hod.teacher-assignments.index') }}" class="h-14 px-8 bg-white hover:bg-slate-50 text-slate-700 rounded-2xl text-[11px] font-black uppercase tracking-widest border border-slate-200 transition-all shadow-sm flex items-center gap-3 active:scale-95">
+                    <i class="bi bi-people text-lg"></i>
+                    Faculty Allocation
                 </a>
                 @endcanPage
             </div>
         </div>
-        <div class="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full blur-2xl"></div>
-        <div class="absolute right-20 -bottom-10 w-32 h-32 bg-blue-400/20 rounded-full blur-3xl"></div>
     </div>
 
-    <!-- ─── Statistics Grid ─── -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+    <!-- ─── Strategic Metric Matrix ─── -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
         @foreach([
-            ['label' => 'Total Faculty', 'value' => $stats['teachers'], 'icon' => 'bi-mortarboard-fill', 'tone' => 'blue', 'route' => 'hod.teacher-assignments.index'],
-            ['label' => 'Total Students', 'value' => $stats['students'], 'icon' => 'bi-people-fill', 'tone' => 'violet', 'route' => null],
-            ['label' => 'Pending Leaves', 'value' => $stats['pending_leaves'], 'icon' => 'bi-calendar2-x-fill', 'tone' => 'amber', 'route' => 'hod.leaves.index'],
-            ['label' => 'Active Notices', 'value' => $stats['active_notices'], 'icon' => 'bi-megaphone-fill', 'tone' => 'emerald', 'route' => 'hod.notices.index'],
+            ['label' => 'Academic Faculty', 'value' => $stats['teachers'], 'icon' => 'bi-mortarboard', 'color' => 'indigo', 'route' => 'hod.teacher-assignments.index'],
+            ['label' => 'Department Students', 'value' => $stats['students'], 'icon' => 'bi-people', 'color' => 'slate', 'route' => null],
+            ['label' => 'Leave Requests', 'value' => $stats['pending_leaves'], 'icon' => 'bi-calendar-minus', 'color' => 'amber', 'route' => 'hod.leaves.index'],
+            ['label' => 'Strategic Notices', 'value' => $stats['active_notices'], 'icon' => 'bi-megaphone', 'color' => 'rose', 'route' => 'hod.notices.index'],
         ] as $stat)
-            <div class="stat-card group">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="h-11 w-11 rounded-xl bg-{{ $stat['tone'] }}-50 text-{{ $stat['tone'] }}-600 flex items-center justify-center text-lg group-hover:scale-110 transition-transform">
-                        <i class="bi {{ $stat['icon'] }}"></i>
-                    </div>
+            <div class="bg-white border border-slate-200 rounded-[2rem] p-8 hover:border-{{ $stat['color'] }}-200 transition-all group relative overflow-hidden">
+                <div class="absolute -right-4 -top-4 opacity-5 group-hover:scale-110 transition-transform">
+                    <i class="bi {{ $stat['icon'] }} text-8xl"></i>
                 </div>
-                <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1">{{ $stat['label'] }}</p>
-                <div class="flex items-baseline gap-2">
-                    <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">{{ $stat['value'] }}</h3>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">{{ $stat['label'] }}</p>
+                <div class="flex items-baseline gap-3">
+                    <h3 class="text-3xl font-black text-slate-800 tracking-tighter">{{ $stat['value'] }}</h3>
                     @if($stat['route'] && Auth::user()->canPage($stat['route']))
-                        <a href="{{ route($stat['route']) }}" class="text-[10px] font-bold text-{{ $stat['tone'] }}-600 hover:underline">Manage</a>
+                        <a href="{{ route($stat['route']) }}" class="text-[9px] font-black text-indigo-500 uppercase tracking-tight hover:underline ml-auto">Control Center</a>
                     @endif
                 </div>
             </div>
         @endforeach
     </div>
 
-    <!-- ─── Main Content Grid ─── -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- ─── Notices Section ─── -->
-        <div class="lg:col-span-1 glass-card overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i class="bi bi-megaphone-fill text-indigo-500"></i> Department Notices
-                </h3>
-                <a href="{{ route('hod.notices.index') }}" class="text-[11px] font-bold text-indigo-600 hover:underline">New Notice</a>
+    <!-- ─── Operational Grid ─── -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {{-- Departmental Bulletins --}}
+        <div class="lg:col-span-1 bg-white border border-slate-200 rounded-[2.5rem] overflow-hidden shadow-sm flex flex-col">
+            <div class="px-10 py-8 border-b border-slate-50 flex items-center justify-between bg-slate-50/30">
+                <div>
+                    <h4 class="text-xl font-black text-slate-800 tracking-tight">Bulletins</h4>
+                    <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mt-1">Live announcements</p>
+                </div>
+                <a href="{{ route('hod.notices.index') }}" class="h-10 w-10 rounded-xl bg-indigo-600 text-white flex items-center justify-center shadow-lg shadow-indigo-100 hover:scale-105 transition-transform">
+                    <i class="bi bi-plus-lg"></i>
+                </a>
             </div>
-            <div class="p-4 space-y-4">
+            <div class="p-4 space-y-2 flex-1">
                 @forelse($notices as $notice)
                     <button type="button" 
-                        @click="openNotice({
-                            title: @js($notice->title),
-                            content: @js($notice->content),
-                            date: @js($notice->created_at->format('M d, Y h:i A'))
-                        })"
-                        class="w-full text-left p-3 rounded-xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
-                        <div class="flex items-center justify-between mb-1">
-                            <h4 class="text-sm font-bold text-slate-700 group-hover:text-indigo-600 truncate">{{ $notice->title }}</h4>
-                            <span class="text-[9px] font-bold text-slate-400 whitespace-nowrap">{{ $notice->created_at->format('M d') }}</span>
+                        data-title="{{ $notice->title }}"
+                        data-content="{{ $notice->content }}"
+                        data-date="{{ $notice->created_at->format('M d, Y h:i A') }}"
+                        @click="openNotice({ title: $el.dataset.title, content: $el.dataset.content, date: $el.dataset.date })"
+                        class="w-full text-left p-6 rounded-3xl hover:bg-slate-50 border border-transparent hover:border-slate-100 transition-all group">
+                        <div class="flex items-center justify-between mb-2">
+                            <h5 class="text-sm font-black text-slate-700 group-hover:text-indigo-600 transition-colors truncate mr-4">{{ $notice->title }}</h5>
+                            <span class="text-[10px] font-black text-slate-400 shrink-0">{{ $notice->created_at->format('d M') }}</span>
                         </div>
-                        <p class="text-[11px] text-slate-400 line-clamp-1 italic">"{{ Str::limit($notice->content, 60) }}"</p>
+                        <p class="text-xs text-slate-500 line-clamp-1 italic font-medium opacity-60">"{{ Str::limit($notice->content, 80) }}"</p>
                     </button>
                 @empty
-                    <div class="py-8 flex flex-col items-center opacity-30">
-                        <i class="bi bi-journal-x text-4xl"></i>
-                        <p class="text-[11px] font-bold uppercase mt-2">No active notices</p>
+                    <div class="py-20 flex flex-col items-center justify-center text-center opacity-30">
+                        <i class="bi bi-journal-x text-5xl mb-4"></i>
+                        <p class="text-[11px] font-black uppercase tracking-widest">Registry Clear</p>
                     </div>
                 @endforelse
             </div>
         </div>
 
-        <!-- ─── Pending Leaves Section ─── -->
-        <div class="lg:col-span-2 glass-card overflow-hidden">
-            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
-                <h3 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i class="bi bi-calendar2-check-fill text-amber-500"></i> Pending Approvals
-                </h3>
+        {{-- Pending Strategic Approvals --}}
+        <div class="lg:col-span-2 bg-slate-900 rounded-[2.5rem] overflow-hidden shadow-xl text-white">
+            <div class="px-10 py-8 border-b border-white/5 flex items-center justify-between">
+                <div>
+                    <h4 class="text-xl font-black tracking-tight text-white">Pending Approvals</h4>
+                    <p class="text-[9px] font-black text-slate-500 uppercase tracking-widest mt-1">Faculty & resource requests</p>
+                </div>
                 @canPage('hod.leaves.index')
-                <a href="{{ route('hod.leaves.index') }}" class="text-[11px] font-bold text-amber-600 hover:underline">View All Requests</a>
+                <a href="{{ route('hod.leaves.index') }}" class="text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:underline">Full Registry</a>
                 @endcanPage
             </div>
             <div class="overflow-x-auto">
-                <table class="table-premium">
+                <table class="w-full text-left">
                     <thead>
-                        <tr>
-                            <th>Applicant</th>
-                            <th>Request Period</th>
-                            <th>Reason Preview</th>
-                            <th class="text-right">Action</th>
+                        <tr class="bg-white/5 text-[9px] font-black text-slate-500 uppercase tracking-[0.2em] border-b border-white/5">
+                            <th class="px-10 py-6">Applicant Entity</th>
+                            <th class="px-10 py-6">Operational Period</th>
+                            <th class="px-10 py-6">Rationale Preview</th>
+                            <th class="px-10 py-6 text-right">Engagement</th>
                         </tr>
                     </thead>
-                    <tbody>
+                    <tbody class="divide-y divide-white/5">
                         @forelse($pendingLeaves as $leave)
-                            <tr>
-                                <td>
-                                    <p class="font-black text-slate-800 leading-tight">{{ $leave->leaveable?->user?->name }}</p>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase">{{ $leave->leave_type }}</p>
+                            <tr class="hover:bg-white/10 transition-colors">
+                                <td class="px-10 py-6 text-white font-bold text-sm">
+                                    <div class="flex items-center gap-4">
+                                        <div class="h-10 w-10 rounded-xl bg-white/10 flex items-center justify-center text-xs font-black border border-white/10 uppercase">
+                                            {{ substr($leave->leaveable?->user?->name, 0, 1) }}
+                                        </div>
+                                        <div>
+                                            <span class="block truncate max-w-[150px]">{{ $leave->leaveable?->user?->name }}</span>
+                                            <span class="text-[9px] font-black uppercase tracking-widest text-indigo-400">{{ $leave->leave_type }}</span>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td>
-                                    <p class="text-[11px] font-bold text-slate-600">{{ \Carbon\Carbon::parse($leave->start_date)->format('M d') }} - {{ \Carbon\Carbon::parse($leave->end_date)->format('M d') }}</p>
-                                    <p class="text-[10px] text-slate-400 italic">Duration: {{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }} Days</p>
+                                <td class="px-10 py-6">
+                                    <span class="text-xs font-black text-slate-300">{{ \Carbon\Carbon::parse($leave->start_date)->format('M d') }} - {{ \Carbon\Carbon::parse($leave->end_date)->format('M d') }}</span>
+                                    <span class="block text-[10px] text-slate-500 font-bold uppercase mt-1">{{ \Carbon\Carbon::parse($leave->start_date)->diffInDays(\Carbon\Carbon::parse($leave->end_date)) + 1 }} Working Days</span>
                                 </td>
-                                <td class="text-xs text-slate-500 line-clamp-1 max-w-[200px]">
+                                <td class="px-10 py-6 text-xs text-slate-400 font-medium truncate max-w-[200px]">
                                     {{ $leave->reason }}
                                 </td>
-                                <td class="text-right">
-                                    <a href="{{ route('hod.leaves.index') }}" class="btn-outline py-1 px-3 text-[10px] font-black h-auto">Quick Review</a>
+                                <td class="px-10 py-6 text-right">
+                                    <a href="{{ route('hod.leaves.index') }}" class="inline-flex h-10 px-6 bg-white text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-indigo-400 hover:text-white transition-all items-center">Review</a>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="py-12 text-center opacity-30">
-                                    <i class="bi bi-shield-check text-4xl"></i>
-                                    <p class="text-[11px] font-bold uppercase mt-2">All leave requests processed</p>
+                                <td colspan="4" class="py-24 text-center opacity-20">
+                                    <i class="bi bi-shield-check text-6xl block mb-4"></i>
+                                    <p class="text-xs font-black uppercase tracking-widest text-white">All Strategic Requests Synchronized</p>
                                 </td>
                             </tr>
                         @endforelse
@@ -154,41 +179,43 @@
         </div>
     </div>
 
-    <!-- ─── Notice Modal ─── -->
-    <div x-show="noticeModalOpen" x-cloak class="fixed inset-0 z-50 overflow-y-auto">
-        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm"
+    <!-- ─── Notice Detailer Overlay ─── -->
+    <div x-show="noticeModalOpen" x-cloak class="fixed inset-0 z-[100] overflow-y-auto">
+        <div class="fixed inset-0 bg-slate-900/60 backdrop-blur-md transition-opacity"
              x-show="noticeModalOpen"
-             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter="ease-out duration-300"
              x-transition:enter-start="opacity-0"
              x-transition:enter-end="opacity-100"
-             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave="ease-in duration-200"
              x-transition:leave-start="opacity-100"
              x-transition:leave-end="opacity-0"
              @click="closeNotice()"></div>
 
-        <div class="min-h-screen px-4 py-8 flex items-center justify-center">
+        <div class="min-h-screen px-4 py-12 flex items-center justify-center">
             <div x-show="noticeModalOpen"
-                 x-transition:enter="transition ease-out duration-300"
-                 x-transition:enter-start="opacity-0 translate-y-4 scale-95"
+                 x-transition:enter="ease-out duration-300"
+                 x-transition:enter-start="opacity-0 translate-y-8 scale-95"
                  x-transition:enter-end="opacity-100 translate-y-0 scale-100"
-                 x-transition:leave="transition ease-in duration-200"
+                 x-transition:leave="ease-in duration-200"
                  x-transition:leave-start="opacity-100 translate-y-0 scale-100"
-                 x-transition:leave-end="opacity-0 translate-y-4 scale-95"
-                 class="relative w-full max-w-2xl rounded-3xl border border-slate-200 bg-white shadow-2xl">
-                <div class="px-6 py-5 border-b border-slate-100 flex items-start justify-between gap-4">
+                 x-transition:leave-end="opacity-0 translate-y-8 scale-95"
+                 class="relative w-full max-w-2xl rounded-[2.5rem] border border-slate-200 bg-white shadow-2xl overflow-hidden">
+                <div class="px-10 py-8 border-b border-slate-50 flex items-start justify-between gap-6">
                     <div>
-                        <h3 class="text-xl font-black text-slate-900" x-text="activeNotice.title"></h3>
-                        <p class="text-xs font-semibold uppercase tracking-widest text-slate-400 mt-1" x-text="activeNotice.date"></p>
+                        <h3 class="text-2xl font-black text-slate-800 tracking-tight leading-tight" x-text="activeNotice.title"></h3>
+                        <p class="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-500 mt-2 flex items-center gap-2">
+                            <i class="bi bi-clock"></i> Disseminated on <span x-text="activeNotice.date"></span>
+                        </p>
                     </div>
-                    <button type="button" @click="closeNotice()" class="h-10 w-10 rounded-xl bg-slate-100 text-slate-500 hover:bg-slate-200 hover:text-slate-700 transition-colors">
-                        <i class="bi bi-x-lg"></i>
+                    <button type="button" @click="closeNotice()" class="h-10 w-10 rounded-xl bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition-colors flex items-center justify-center">
+                        <i class="bi bi-x-lg text-sm"></i>
                     </button>
                 </div>
-                <div class="px-6 py-6">
-                    <p class="text-sm leading-7 text-slate-600 whitespace-pre-line" x-text="activeNotice.content"></p>
+                <div class="px-10 py-10 max-h-[60vh] overflow-y-auto font-medium text-slate-600 leading-8 text-sm whitespace-pre-line">
+                    <p x-text="activeNotice.content"></p>
                 </div>
-                <div class="px-6 py-4 border-t border-slate-100 flex justify-end">
-                    <button type="button" @click="closeNotice()" class="btn-primary-gradient px-8">Close</button>
+                <div class="px-10 py-8 border-t border-slate-50 bg-slate-50/50 flex justify-end">
+                    <button type="button" @click="closeNotice()" class="h-14 px-10 bg-slate-900 text-white rounded-2xl text-[11px] font-black uppercase tracking-widest hover:bg-black transition-all shadow-lg active:scale-95">Dismiss Detail</button>
                 </div>
             </div>
         </div>

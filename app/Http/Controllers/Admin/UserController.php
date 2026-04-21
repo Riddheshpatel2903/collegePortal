@@ -65,9 +65,10 @@ class UserController extends Controller
         $this->ensureDefaultRoles();
         $roleName = str_replace(' ', '_', strtolower((string) $request->input('role')));
         $rules = [
-            'name' => 'required',
+            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|min:6',
+            'phone' => 'nullable|digits:10',
             'role' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9_ ]+$/'],
         ];
 
@@ -138,8 +139,9 @@ class UserController extends Controller
         $this->ensureDefaultRoles();
         $roleName = str_replace(' ', '_', strtolower((string) $request->input('role')));
         $rules = [
-            'name' => 'required',
+            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
             'email' => 'required|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|digits:10',
             'role' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9_ ]+$/'],
         ];
 

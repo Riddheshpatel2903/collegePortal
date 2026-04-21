@@ -128,7 +128,7 @@ class StudentController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
                 'email' => 'required|email|unique:users,email',
                 'password' => 'required|min:6',
                 'roll_number' => 'required|unique:students,roll_number',
@@ -136,7 +136,7 @@ class StudentController extends Controller
                 'course_id' => 'required|exists:courses,id',
                 'current_year' => 'nullable|integer|min:1|max:10',
                 'admission_year' => 'nullable|integer|min:2000|max:2100',
-                'phone' => 'nullable|string|max:20',
+                'phone' => 'nullable|digits:10',
                 'address' => 'nullable|string|max:1000',
             ]);
             $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? 1));
@@ -193,14 +193,14 @@ class StudentController extends Controller
     {
         try {
             $validated = $request->validate([
-                'name' => 'required|string|max:255',
+                'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
                 'email' => 'required|email|unique:users,email,' . $student->user_id,
                 'roll_number' => 'required|unique:students,roll_number,' . $student->id,
                 'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,' . $student->id,
                 'course_id' => 'required|exists:courses,id',
                 'current_year' => 'nullable|integer|min:1|max:10',
                 'admission_year' => 'nullable|integer|min:2000|max:2100',
-                'phone' => 'nullable|string|max:20',
+                'phone' => 'nullable|digits:10',
                 'address' => 'nullable|string|max:1000',
             ]);
             $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? $student->current_year ?? 1));

@@ -20,11 +20,11 @@
         <div>
             <div class="flex items-center gap-3 mb-1">
                 @if($icon)
-                    <div class="h-8 w-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm">
+                    <div class="h-7 w-7 rounded bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs">
                         <i class="bi {{ $icon }}"></i>
                     </div>
                 @endif
-                <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+                <h1 class="text-xl font-bold text-slate-900 tracking-tight">
                     {{ $title }}
                 </h1>
             </div>

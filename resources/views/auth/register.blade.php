@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register | EduPortal</title>
+    <title>Register | College Management Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
@@ -256,7 +256,7 @@
             <div class="brand">
                 <div class="brand-icon"><i class="bi bi-person-plus-fill"></i></div>
                 <h2>Create Account</h2>
-                <p>Join the EduPortal Community</p>
+                <p>Join the College Management Portal Community</p>
             </div>
 
             <form action="{{ route('register') }}" method="POST">
@@ -297,7 +297,7 @@
                 <div class="footer-link">Already have an account? <a href="{{ route('login') }}">Log In</a></div>
             </form>
         </div>
-        <div class="copyright">&copy; 2026 EduPortal. All rights reserved.</div>
+        <div class="copyright">&copy; 2026 College Management Portal. All rights reserved.</div>
     </div>
 
     <script>

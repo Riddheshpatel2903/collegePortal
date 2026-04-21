@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login — EduPortal</title>
+    <title>Admin Login — College Management Portal</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -272,7 +272,7 @@
             <div class="logo-icon">
                 <i class="bi bi-shield-lock-fill"></i>
             </div>
-            <h1 class="logo-title">EduPortal</h1>
+            <h1 class="logo-title">College Management Portal</h1>
             <p class="logo-subtitle">Management System</p>
         </div>
 
@@ -297,7 +297,7 @@
                 <label class="form-label">Email Address</label>
                 <div class="input-wrapper">
                     <i class="bi bi-envelope input-icon"></i>
-                    <input type="email" name="email" class="form-input" placeholder="admin@eduportal.com" value="{{ old('email') }}" required autofocus>
+                    <input type="email" name="email" class="form-input" placeholder="admin@College Management Portal.com" value="{{ old('email') }}" required autofocus>
                 </div>
             </div>
 

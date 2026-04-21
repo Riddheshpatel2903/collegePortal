@@ -1,69 +1,80 @@
 @extends('layouts.app')
 
-@section('header_title', 'Leave Management Overview')
+@section('header_title', 'Leave Management')
 
 @section('content')
-    <x-page-header 
-        title="Leave Nexus" 
-        subtitle="Manage faculty and staff absence requests" 
-        tag="HR Operations"
-        icon="bi-calendar-check"
-    />
+<div class="space-y-8 animate-fade-in">
+    <!-- ─── Page Header ─── -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
+        <div>
+            <h2 class="text-2xl font-bold text-slate-800 mb-1">Leave Requests</h2>
+            <p class="text-sm text-slate-500">Manage and track employee and student leave requests.</p>
+        </div>
+    </div>
 
-    <!-- Stats Hub -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-        <div class="glass-card p-6 flex items-center gap-5 border-l-4 border-l-slate-400">
-            <div class="h-12 w-12 rounded-2xl bg-slate-50 text-slate-600 flex items-center justify-center text-xl shadow-inner">
-                <i class="bi bi-list-task"></i>
-            </div>
-            <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Registry</p>
-                <h3 class="text-2xl font-black text-slate-800 tracking-tight">{{ $stats['total'] }}</h3>
-            </div>
-        </div>
-        <div class="glass-card p-6 flex items-center gap-5 border-l-4 border-l-amber-500">
-            <div class="h-12 w-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl shadow-inner">
-                <i class="bi bi-clock-history"></i>
-            </div>
-            <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Pending Sync</p>
-                <h3 class="text-2xl font-black text-slate-800 tracking-tight">{{ $stats['pending'] }}</h3>
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-slate-50 text-slate-600 flex items-center justify-center border border-slate-100">
+                    <i class="bi bi-list-task text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ $stats['total'] }}</h3>
+                </div>
             </div>
         </div>
-        <div class="glass-card p-6 flex items-center gap-5 border-l-4 border-l-emerald-500">
-            <div class="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl shadow-inner">
-                <i class="bi bi-check2-all"></i>
-            </div>
-            <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Approved Nodes</p>
-                <h3 class="text-2xl font-black text-slate-800 tracking-tight">{{ $stats['approved'] }}</h3>
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center border border-amber-100">
+                    <i class="bi bi-clock-history text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Pending</p>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ $stats['pending'] }}</h3>
+                </div>
             </div>
         </div>
-        <div class="glass-card p-6 flex items-center gap-5 border-l-4 border-l-rose-500">
-            <div class="h-12 w-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl shadow-inner">
-                <i class="bi bi-x-circle"></i>
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100">
+                    <i class="bi bi-check2-all text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Approved</p>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ $stats['approved'] }}</h3>
+                </div>
             </div>
-            <div>
-                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Rejected</p>
-                <h3 class="text-2xl font-black text-slate-800 tracking-tight">{{ $stats['rejected'] }}</h3>
+        </div>
+        <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+            <div class="flex items-center gap-4">
+                <div class="h-12 w-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-100">
+                    <i class="bi bi-x-circle text-xl"></i>
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold text-slate-400 uppercase tracking-widest">Rejected</p>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ $stats['rejected'] }}</h3>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Filter Nexus -->
-    <div class="glass-card p-6 mb-8 border border-white/60">
-        <form method="GET" action="{{ route('admin.leaves.index') }}" id="leaveFilterForm" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+    <!-- Filters -->
+    <div class="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
+        <form method="GET" action="{{ route('admin.leaves.index') }}" id="leaveFilterForm" class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-6">
             <div class="md:col-span-2">
-                <label class="input-label text-[10px]">Registry Search</label>
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Search</label>
                 <div class="relative group">
-                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300 group-focus-within:text-violet-500 transition-colors"></i>
+                    <i class="bi bi-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors"></i>
                     <input type="text" name="search" value="{{ $filters['search'] ?? '' }}" 
-                        class="input-premium pl-10 h-11" placeholder="Name, email, or department index...">
+                        class="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none" 
+                        placeholder="Name, email, or department...">
                 </div>
             </div>
             <div>
-                <label class="input-label text-[10px]">Role Filter</label>
-                <select name="role" class="input-premium h-11" onchange="this.form.submit()">
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Role</label>
+                <select name="role" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none" onchange="this.form.submit()">
                     <option value="">All Roles</option>
                     <option value="student" @selected(($filters['role'] ?? '') === 'student')>Student</option>
                     <option value="teacher" @selected(($filters['role'] ?? '') === 'teacher')>Teacher</option>
@@ -71,17 +82,17 @@
                 </select>
             </div>
             <div>
-                <label class="input-label text-[10px]">Status Filter</label>
-                <select name="status" class="input-premium h-11" onchange="this.form.submit()">
+                <label class="block text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-2">Status</label>
+                <select name="status" class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-500 transition-all outline-none" onchange="this.form.submit()">
                     <option value="">All Statuses</option>
-                    <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Pending Sync</option>
+                    <option value="pending" @selected(($filters['status'] ?? '') === 'pending')>Pending</option>
                     <option value="approved" @selected(($filters['status'] ?? '') === 'approved')>Approved</option>
-                    <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Declined</option>
+                    <option value="rejected" @selected(($filters['status'] ?? '') === 'rejected')>Rejected</option>
                 </select>
             </div>
             <div class="flex items-end">
-                <button type="submit" class="w-full h-11 rounded-xl bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest hover:bg-slate-800 transition-all shadow-lg shadow-slate-900/10">
-                    Execute Query
+                <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2.5 rounded-xl transition-all shadow-lg shadow-slate-200 flex items-center justify-center gap-2">
+                    <i class="bi bi-funnel"></i> Apply
                 </button>
             </div>
         </form>
@@ -90,118 +101,134 @@
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
         <!-- Left: Trends -->
         <div class="lg:col-span-1">
-            <div class="glass-card p-6 sticky top-6">
-                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-6 border-b border-slate-50 pb-4">Request Volume Index</h3>
+            <div class="bg-white border border-slate-200 rounded-2xl p-6 shadow-sm sticky top-6">
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-6 pb-4 border-b border-slate-100 flex items-center gap-2">
+                    <i class="bi bi-graph-up text-indigo-500"></i> Request Trends
+                </h3>
                 <div class="space-y-6">
                     @forelse($trends as $trend)
-                        <div class="group">
+                        <div>
                             <div class="flex justify-between items-center mb-2">
-                                <span class="text-[11px] font-black text-slate-600 uppercase tracking-tight group-hover:text-violet-600 transition-colors">{{ \Carbon\Carbon::parse($trend->date)->format('D, d M') }}</span>
-                                <span class="text-[11px] font-black text-violet-600 bg-violet-50 px-2 py-0.5 rounded shadow-sm">{{ $trend->count }}</span>
+                                <span class="text-xs font-bold text-slate-600">{{ \Carbon\Carbon::parse($trend->date)->format('D, d M') }}</span>
+                                <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100">{{ $trend->count }}</span>
                             </div>
-                            <div class="h-1.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
-                                <div class="h-full bg-slate-700 rounded-full group-hover:bg-violet-600 transition-all" 
+                            <div class="h-2 bg-slate-50 rounded-full overflow-hidden border border-slate-100">
+                                <div class="h-full bg-indigo-500 rounded-full transition-all duration-1000" 
                                      style="width: {{ (int) (($trend->count / max(1, (int) $trends->max('count'))) * 100) }}%"></div>
                             </div>
                         </div>
                     @empty
-                        <div class="py-12 text-center">
-                            <i class="bi bi-graph-down text-4xl text-slate-100 mb-4 block"></i>
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No trend data found</p>
+                        <div class="py-12 text-center opacity-30">
+                            <i class="bi bi-graph-down text-3xl mb-2 block"></i>
+                            <p class="text-[10px] font-bold uppercase">No records</p>
                         </div>
                     @endforelse
                 </div>
             </div>
         </div>
 
-        <!-- Right: Registry Table -->
+        <!-- Right: Table -->
         <div class="lg:col-span-3">
-            <div class="glass-card overflow-hidden">
-                <table class="table-premium">
-                    <thead>
-                        <tr>
-                            <th>Faculty Node</th>
-                            <th>Identity Hub</th>
-                            <th>Absence Window</th>
-                            <th class="text-center">Status</th>
-                            <th class="text-right">Operations</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($leaves as $leave)
-                            @php
-                                $applicant = $leave->leaveable?->user;
-                                $departmentName = $leave->leaveable?->department?->name ?? 'N/A';
-                                $roleLabel = str_contains((string) $leave->leaveable_type, 'Teacher')
-                                    ? 'Teacher'
-                                    : (str_contains((string) $leave->leaveable_type, 'Student') ? 'Student' : strtoupper($leave->requested_by_role ?? '-'));
-                            @endphp
-                            <tr class="group hover:bg-slate-50/50 transition-colors">
-                                <td>
-                                    <div class="flex flex-col">
-                                        <span class="text-xs font-black text-slate-800 tracking-tight">{{ $applicant?->name ?? 'Unknown' }}</span>
-                                        <span class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic mt-0.5">{{ $roleLabel }} Node</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="flex flex-col">
-                                        <span class="text-[10px] font-black text-slate-600 uppercase tracking-tight">{{ $applicant?->email ?? 'N/A' }}</span>
-                                        <span class="text-[9px] text-violet-500 font-bold uppercase tracking-widest mt-0.5">{{ $departmentName }}</span>
-                                    </div>
-                                </td>
-                                <td>
-                                    <span class="text-xs font-black text-slate-700 tracking-tighter">
-                                        {{ $leave->start_date?->format('d M') }} - {{ $leave->end_date?->format('d M Y') }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <span class="inline-flex items-center px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest {{ $leave->status === 'approved' ? 'text-emerald-700 bg-emerald-100' : ($leave->status === 'pending' ? 'text-amber-700 bg-amber-50' : 'text-rose-700 bg-rose-50') }}">
-                                        {{ $leave->status }}
-                                    </span>
-                                </td>
-                                <td class="text-right">
-                                    <div class="flex justify-end gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <form action="{{ route('admin.leaves.destroy', $leave->id) }}" method="POST" onsubmit="return confirm('Hard delete this leave record index?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button class="h-8 w-8 flex items-center justify-center rounded-lg bg-white border border-slate-200 text-slate-400 hover:text-rose-600 hover:border-rose-200 transition-all shadow-sm">
-                                                <i class="bi bi-trash3"></i>
-                                            </button>
-                                        </form>
-                                    </div>
-                                </td>
+            <div class="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50/50 border-b border-slate-200">
+                                <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Applicant</th>
+                                <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Details</th>
+                                <th class="px-6 py-4 text-[10px] font-bold text-slate-400 uppercase tracking-widest">Dates</th>
+                                <th class="px-6 py-4 text-center text-[10px] font-bold text-slate-400 uppercase tracking-widest">Status</th>
+                                <th class="px-6 py-4 text-right text-[10px] font-bold text-slate-400 uppercase tracking-widest">Actions</th>
                             </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="py-32 text-center">
-                                    <i class="bi bi-calendar-x text-6xl text-slate-100 mb-6 block"></i>
-                                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">No matching registry records found</p>
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-                <div class="px-8 py-6 bg-slate-50/50 border-t border-slate-50">
-                    {{ $leaves->links() }}
+                        </thead>
+                        <tbody class="divide-y divide-slate-100">
+                            @forelse($leaves as $leave)
+                                @php
+                                    $applicant = $leave->leaveable?->user;
+                                    $departmentName = $leave->leaveable?->department?->name ?? 'N/A';
+                                    $roleLabel = str_contains((string) $leave->leaveable_type, 'Teacher')
+                                        ? 'Teacher'
+                                        : (str_contains((string) $leave->leaveable_type, 'Student') ? 'Student' : strtoupper($leave->requested_by_role ?? '-'));
+                                @endphp
+                                <tr class="hover:bg-slate-50/50 transition-colors">
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-sm font-bold text-slate-800">{{ $applicant?->name ?? 'Unknown' }}</span>
+                                            <span class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ $roleLabel }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs text-slate-600 font-medium">{{ $applicant?->email ?? 'N/A' }}</span>
+                                            <span class="text-[10px] text-indigo-500 font-bold uppercase tracking-widest">{{ $departmentName }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4">
+                                        <div class="flex flex-col">
+                                            <span class="text-xs font-bold text-slate-700">{{ $leave->start_date?->format('d M') }}</span>
+                                            <span class="text-[10px] text-slate-400 font-medium italic">to {{ $leave->end_date?->format('d M Y') }}</span>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-4 text-center">
+                                        @php
+                                            $statusStyle = match($leave->status) {
+                                                'approved' => 'text-emerald-700 bg-emerald-50 border-emerald-100',
+                                                'pending' => 'text-amber-700 bg-amber-50 border-amber-100',
+                                                'rejected' => 'text-rose-700 bg-rose-50 border-rose-100',
+                                                default => 'text-slate-700 bg-slate-50 border-slate-100'
+                                            };
+                                        @endphp
+                                        <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-black uppercase border {{ $statusStyle }}">
+                                            {{ $leave->status }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4 text-right">
+                                        <div class="flex justify-end gap-2">
+                                            <form action="{{ route('admin.leaves.destroy', $leave->id) }}" method="POST" onsubmit="return confirm('Delete this leave record?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button class="h-8 w-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-100 border border-rose-100 transition-colors flex items-center justify-center">
+                                                    <i class="bi bi-trash3 text-xs"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-20 text-center opacity-30">
+                                        <i class="bi bi-calendar-x text-4xl mb-3 block"></i>
+                                        <p class="text-[11px] font-bold uppercase tracking-widest">No records found</p>
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
+                @if($leaves->hasPages())
+                    <div class="px-6 py-4 bg-slate-50/50 border-t border-slate-100">
+                        {{ $leaves->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>
+</div>
 
-    @push('scripts')
-        <script>
-            const leaveFilterForm = document.getElementById('leaveFilterForm');
-            let leaveSearchTimer = null;
-            document.querySelectorAll('#leaveFilterForm input[type=\"text\"]').forEach((input) => {
-                input.addEventListener('input', () => {
-                    clearTimeout(leaveSearchTimer);
-                    leaveSearchTimer = setTimeout(() => leaveFilterForm.submit(), 400);
-                });
+@push('scripts')
+    <script>
+        const leaveFilterForm = document.getElementById('leaveFilterForm');
+        let leaveSearchTimer = null;
+        document.querySelectorAll('#leaveFilterForm input[type="text"]').forEach((input) => {
+            input.addEventListener('input', () => {
+                clearTimeout(leaveSearchTimer);
+                leaveSearchTimer = setTimeout(() => leaveFilterForm.submit(), 400);
             });
+        });
 
-            document.querySelectorAll('#leaveFilterForm select').forEach((input) => {
-                input.addEventListener('change', () => leaveFilterForm.submit());
-            });
-        </script>
-    @endpush
+        document.querySelectorAll('#leaveFilterForm select').forEach((input) => {
+            input.addEventListener('change', () => leaveFilterForm.submit());
+        });
+    </script>
+@endpush
 @endsection

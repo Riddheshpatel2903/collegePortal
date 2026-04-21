@@ -14,7 +14,7 @@
                 <i class="bi bi-check-circle-fill"></i>
             </div>
             <div>
-                <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Welcome to EduPortal</h3>
+                <h3 class="text-2xl font-extrabold text-slate-800 tracking-tight">Welcome to College Management Portal</h3>
                 <p class="text-sm text-slate-400 mt-2">You are logged in. Use the sidebar to navigate to your dashboard.</p>
             </div>
             <div class="flex gap-3 pt-4">
