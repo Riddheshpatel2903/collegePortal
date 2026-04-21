@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::dropIfExists('result_subjects');
-        
+
         Schema::create('result_subjects', function (Blueprint $table) {
             $table->id();
             $table->foreignId('result_id')->constrained()->onDelete('cascade');
@@ -26,7 +26,7 @@ return new class extends Migration
             $table->boolean('is_backlog')->default(false);
             $table->enum('subject_status', ['pass', 'fail', 'absent'])->default('pass');
             $table->timestamps();
-            
+
             $table->unique(['result_id', 'semester_subject_id'], 'unique_result_subject');
         });
     }

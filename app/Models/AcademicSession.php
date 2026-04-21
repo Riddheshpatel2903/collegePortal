@@ -16,7 +16,7 @@ class AcademicSession extends Model
         'session_start_date',
         'session_end_date',
         'is_current',
-        'status'
+        'status',
     ];
 
     protected $casts = [

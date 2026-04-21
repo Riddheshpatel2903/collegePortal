@@ -32,7 +32,7 @@ class Student extends Model
         'admission_date',
         'admission_year',
         'photo',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

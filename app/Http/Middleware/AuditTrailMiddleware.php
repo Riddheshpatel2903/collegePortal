@@ -14,7 +14,7 @@ class AuditTrailMiddleware
     {
         $response = $next($request);
 
-        if (!Schema::hasTable('audit_logs')) {
+        if (! Schema::hasTable('audit_logs')) {
             return $response;
         }
 
@@ -38,7 +38,7 @@ class AuditTrailMiddleware
             'action' => $routeName ?: "{$method} {$request->path()}",
             'method' => $method,
             'route_name' => $routeName,
-            'path' => '/' . ltrim($request->path(), '/'),
+            'path' => '/'.ltrim($request->path(), '/'),
             'status_code' => $response->getStatusCode(),
             'ip_address' => $request->ip(),
             'user_agent' => substr((string) $request->userAgent(), 0, 500),
@@ -50,4 +50,3 @@ class AuditTrailMiddleware
         return $response;
     }
 }
-

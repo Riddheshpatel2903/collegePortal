@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        if (!Schema::hasTable('leaves')) {
+        if (! Schema::hasTable('leaves')) {
             return;
         }
 
         Schema::table('leaves', function (Blueprint $table) {
-            if (!Schema::hasColumn('leaves', 'applied_at')) {
+            if (! Schema::hasColumn('leaves', 'applied_at')) {
                 $table->timestamp('applied_at')->nullable()->after('approved_at');
             }
             // Change leave_type to string to accommodate various names
@@ -26,7 +26,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (!Schema::hasTable('leaves')) {
+        if (! Schema::hasTable('leaves')) {
             return;
         }
 

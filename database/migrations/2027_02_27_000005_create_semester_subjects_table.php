@@ -17,7 +17,7 @@ return new class extends Migration
             $table->boolean('is_mandatory')->default(true);
             $table->integer('total_classes')->default(60); // For attendance calculation
             $table->timestamps();
-            
+
             $table->unique(['semester_id', 'subject_id'], 'unique_semester_subject');
         });
     }

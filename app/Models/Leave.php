@@ -25,7 +25,7 @@ class Leave extends Model
         'approved_by',
         'approval_remarks',
         'approved_at',
-        'applied_at'
+        'applied_at',
     ];
 
     protected $casts = [

@@ -13,6 +13,7 @@ class AcademicPhaseController extends Controller
     public function index()
     {
         $phases = AcademicPhase::query()->orderBy('id')->get();
+
         return view('admin.academic-phase.index', compact('phases'));
     }
 
@@ -38,14 +39,14 @@ class AcademicPhaseController extends Controller
                     ->whereRaw('MOD(semester_number, 2) = ?', [$isOdd ? 1 : 0])
                     ->update([
                         'status' => 'active',
-                        'is_current' => true
+                        'is_current' => true,
                     ]);
 
                 \App\Models\Semester::where('academic_session_id', $currentSession->id)
                     ->whereRaw('MOD(semester_number, 2) = ?', [$isOdd ? 0 : 1])
                     ->update([
                         'status' => $isOdd ? 'upcoming' : 'completed',
-                        'is_current' => false
+                        'is_current' => false,
                     ]);
             }
         });

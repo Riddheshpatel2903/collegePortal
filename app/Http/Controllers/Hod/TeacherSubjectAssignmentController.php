@@ -13,9 +13,7 @@ use Illuminate\Http\Request;
 
 class TeacherSubjectAssignmentController extends Controller
 {
-    public function __construct(private TeacherAssignmentService $assignmentService)
-    {
-    }
+    public function __construct(private TeacherAssignmentService $assignmentService) {}
 
     public function index(Request $request)
     {

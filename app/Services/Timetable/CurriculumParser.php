@@ -20,10 +20,10 @@ class CurriculumParser
 
             while (($data = fgetcsv($handle)) !== false) {
                 $sem = $data[$map['semester']] ?? '1';
-                if (!isset($semesters[$sem])) {
+                if (! isset($semesters[$sem])) {
                     $semesters[$sem] = [
                         'semester' => $sem,
-                        'subjects' => []
+                        'subjects' => [],
                     ];
                 }
 
@@ -37,12 +37,13 @@ class CurriculumParser
                     'internal_marks' => (int) ($data[$map['internal']] ?? 0),
                     'external_marks' => (int) ($data[$map['external']] ?? 0),
                     'total_marks' => (int) ($data[$map['total']] ?? 0),
-                    'subject_type' => $this->inferType($data[$map['type']] ?? '', (int)($data[$map['P']] ?? 0)),
+                    'subject_type' => $this->inferType($data[$map['type']] ?? '', (int) ($data[$map['P']] ?? 0)),
                     'teacher' => trim($data[$map['teacher']] ?? ''),
                 ];
             }
             fclose($handle);
         }
+
         return array_values($semesters);
     }
 
@@ -51,12 +52,12 @@ class CurriculumParser
      */
     public function parseGtuPdf(UploadedFile $file): array
     {
-        $parser = new Parser();
+        $parser = new Parser;
         $pdf = $parser->parseFile($file->getRealPath());
         $text = $pdf->getText();
 
         $semesters = [];
-        $currentSemester = "1";
+        $currentSemester = '1';
 
         // More robust semester detection
         if (preg_match('/Semester\s*[:\-]?\s*(\d+)/i', $text, $semMatch)) {
@@ -81,7 +82,7 @@ class CurriculumParser
                     'external_marks' => (int) preg_replace('/[^\d]/', '', $m[7]),
                     'internal_marks' => (int) preg_replace('/[^\d]/', '', $m[8]),
                     'total_marks' => (int) preg_replace('/[^\d]/', '', $m[11]),
-                    'subject_type' => ((int)$m[5] > 0) ? 'Practical' : 'Theory',
+                    'subject_type' => ((int) $m[5] > 0) ? 'Practical' : 'Theory',
                 ];
             }
         }
@@ -100,13 +101,13 @@ class CurriculumParser
                         'external_marks' => 0,
                         'internal_marks' => 0,
                         'total_marks' => 0,
-                        'subject_type' => ((int)$m[5] > 0) ? 'Practical' : 'Theory',
+                        'subject_type' => ((int) $m[5] > 0) ? 'Practical' : 'Theory',
                     ];
                 }
             }
         }
 
-        if (!empty($subjects)) {
+        if (! empty($subjects)) {
             // Deduplicate by code
             $uniqueSubjects = [];
             foreach ($subjects as $s) {
@@ -114,7 +115,7 @@ class CurriculumParser
             }
             $semesters[] = [
                 'semester' => $currentSemester,
-                'subjects' => array_values($uniqueSubjects)
+                'subjects' => array_values($uniqueSubjects),
             ];
         }
 
@@ -126,30 +127,62 @@ class CurriculumParser
         $header = array_map('strtolower', $header);
         $res = [
             'name' => 0, 'code' => 1, 'type' => 2, 'L' => 3, 'T' => 4, 'P' => 5, 'C' => 6,
-            'internal' => 7, 'external' => 8, 'total' => 9, 'semester' => 10, 'teacher' => 11
+            'internal' => 7, 'external' => 8, 'total' => 9, 'semester' => 10, 'teacher' => 11,
         ];
         foreach ($header as $i => $h) {
-            if (str_contains($h, 'name')) $res['name'] = $i;
-            if (str_contains($h, 'code')) $res['code'] = $i;
-            if (str_contains($h, 'sem')) $res['semester'] = $i;
-            if ($h == 'l' || str_contains($h, 'lecture')) $res['L'] = $i;
-            if ($h == 't' || str_contains($h, 'tutorial')) $res['T'] = $i;
-            if ($h == 'p' || str_contains($h, 'practical')) $res['P'] = $i;
-            if ($h == 'c' || str_contains($h, 'credit')) $res['C'] = $i;
-            if (str_contains($h, 'internal') || str_contains($h, 'pa')) $res['internal'] = $i;
-            if (str_contains($h, 'external') || str_contains($h, 'ese')) $res['external'] = $i;
-            if (str_contains($h, 'total')) $res['total'] = $i;
-            if (str_contains($h, 'type')) $res['type'] = $i;
-            if (str_contains($h, 'teacher') || str_contains($h, 'faculty') || str_contains($h, 'prof')) $res['teacher'] = $i;
+            if (str_contains($h, 'name')) {
+                $res['name'] = $i;
+            }
+            if (str_contains($h, 'code')) {
+                $res['code'] = $i;
+            }
+            if (str_contains($h, 'sem')) {
+                $res['semester'] = $i;
+            }
+            if ($h == 'l' || str_contains($h, 'lecture')) {
+                $res['L'] = $i;
+            }
+            if ($h == 't' || str_contains($h, 'tutorial')) {
+                $res['T'] = $i;
+            }
+            if ($h == 'p' || str_contains($h, 'practical')) {
+                $res['P'] = $i;
+            }
+            if ($h == 'c' || str_contains($h, 'credit')) {
+                $res['C'] = $i;
+            }
+            if (str_contains($h, 'internal') || str_contains($h, 'pa')) {
+                $res['internal'] = $i;
+            }
+            if (str_contains($h, 'external') || str_contains($h, 'ese')) {
+                $res['external'] = $i;
+            }
+            if (str_contains($h, 'total')) {
+                $res['total'] = $i;
+            }
+            if (str_contains($h, 'type')) {
+                $res['type'] = $i;
+            }
+            if (str_contains($h, 'teacher') || str_contains($h, 'faculty') || str_contains($h, 'prof')) {
+                $res['teacher'] = $i;
+            }
         }
+
         return $res;
     }
 
     private function inferType(string $type, int $p): string
     {
-        if (str_contains(strtolower($type), 'lab') || str_contains(strtolower($type), 'practical') || $p > 0) return 'Practical';
-        if (str_contains(strtolower($type), 'project')) return 'Project';
-        if (str_contains(strtolower($type), 'elective')) return 'Elective';
+        if (str_contains(strtolower($type), 'lab') || str_contains(strtolower($type), 'practical') || $p > 0) {
+            return 'Practical';
+        }
+        if (str_contains(strtolower($type), 'project')) {
+            return 'Project';
+        }
+        if (str_contains(strtolower($type), 'elective')) {
+            return 'Elective';
+        }
+
         return 'Theory';
     }
 }

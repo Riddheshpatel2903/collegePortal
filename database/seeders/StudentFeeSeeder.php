@@ -26,7 +26,7 @@ class StudentFeeSeeder extends Seeder
                             ->where('fee_type', 'tuition')
                             ->first();
 
-                        if (!$structure) {
+                        if (! $structure) {
                             continue;
                         }
 
@@ -62,7 +62,7 @@ class StudentFeeSeeder extends Seeder
                                     'amount' => $studentFee->total_amount,
                                     'payment_date' => $studentFee->last_payment_date ?? now()->toDateString(),
                                     'payment_mode' => 'cash',
-                                    'receipt_number' => 'RCT-' . now()->format('Ymd') . '-' . str_pad((string) $student->id, 6, '0', STR_PAD_LEFT),
+                                    'receipt_number' => 'RCT-'.now()->format('Ymd').'-'.str_pad((string) $student->id, 6, '0', STR_PAD_LEFT),
                                     'remarks' => 'Offline payment received at college counter',
                                     'collected_by' => $adminId,
                                 ]
@@ -73,4 +73,3 @@ class StudentFeeSeeder extends Seeder
             });
     }
 }
-

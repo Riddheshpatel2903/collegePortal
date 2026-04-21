@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\StudentLeave;
 use App\Models\Student;
+use App\Models\StudentLeave;
 use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -14,7 +14,7 @@ class StudentLeaveFactory extends Factory
     public function definition(): array
     {
         $startDate = $this->faker->dateTimeBetween('-1 month', '+1 month');
-        $endDate = (clone $startDate)->modify('+' . $this->faker->numberBetween(1, 5) . ' days');
+        $endDate = (clone $startDate)->modify('+'.$this->faker->numberBetween(1, 5).' days');
         $status = $this->faker->randomElement(['pending', 'approved', 'rejected']);
 
         return [

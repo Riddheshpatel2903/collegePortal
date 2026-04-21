@@ -18,7 +18,7 @@ class AssignmentSeeder extends Seeder
 
         foreach ($subjects as $subject) {
             $teacherId = $teacherBySubject->get($subject->id);
-            if (!$teacherId) {
+            if (! $teacherId) {
                 continue;
             }
 
@@ -49,4 +49,3 @@ class AssignmentSeeder extends Seeder
         }
     }
 }
-

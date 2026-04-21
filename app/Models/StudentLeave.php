@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class StudentLeave extends Model
 {
@@ -20,14 +20,14 @@ class StudentLeave extends Model
         'status',
         'faculty_remark',
         'applied_at',
-        'reviewed_at'
+        'reviewed_at',
     ];
 
     protected $dates = [
         'start_date',
         'end_date',
         'applied_at',
-        'reviewed_at'
+        'reviewed_at',
     ];
 
     // 🔹 Relationship with Student

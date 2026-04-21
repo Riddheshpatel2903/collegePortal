@@ -10,6 +10,7 @@ class ReturnController extends Controller
     public function index()
     {
         $issues = LibraryIssue::query()->latest()->paginate(15);
+
         return view('librarian.returns.index', compact('issues'));
     }
 }

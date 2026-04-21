@@ -10,6 +10,7 @@ class ReservationsController extends Controller
     public function index()
     {
         $reservations = LibraryReservation::query()->latest()->paginate(15);
+
         return view('librarian.reservations.index', compact('reservations'));
     }
 }

@@ -3,13 +3,10 @@
 namespace App\Services\Timetable;
 
 use App\Services\PortalAccessService;
-use Illuminate\Support\Collection;
 
 class ScheduleStructureBuilder
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     /**
      * Calculate timetable structure based on curriculum analysis.
@@ -30,7 +27,7 @@ class ScheduleStructureBuilder
             'slots_per_day' => max(4, $slotsPerDay), // Minimum 4 slots per day
             'working_days_count' => $workingDaysCount,
             'total_capacity' => $slotsPerDay * $workingDaysCount,
-            'utilization' => $totalRequired > 0 ? ($totalRequired / ($slotsPerDay * $workingDaysCount)) : 0
+            'utilization' => $totalRequired > 0 ? ($totalRequired / ($slotsPerDay * $workingDaysCount)) : 0,
         ];
     }
 }

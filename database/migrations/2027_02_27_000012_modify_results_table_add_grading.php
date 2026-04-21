@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::dropIfExists('results');
-        
+
         Schema::create('results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('student_id')->constrained()->onDelete('cascade');
@@ -22,7 +22,7 @@ return new class extends Migration
             $table->boolean('promoted')->default(false);
             $table->date('result_declared_date')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['student_id', 'semester_id'], 'unique_student_semester_result');
         });
     }

@@ -11,7 +11,7 @@ class ResultController extends Controller
     public function index()
     {
         $student = Student::with(['user', 'course'])->where('user_id', auth()->id())->first();
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

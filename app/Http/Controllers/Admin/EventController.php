@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Event;
+use Illuminate\Http\Request;
 
 class EventController extends Controller
 {
     public function index()
     {
         $events = Event::latest('event_date')->paginate(20);
+
         return view('admin.events.index', compact('events'));
     }
 

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Department extends Model
 {
@@ -14,6 +14,7 @@ class Department extends Model
         'hod_id',
         'description',
     ];
+
     public function teachers()
     {
         return $this->hasMany(Teacher::class);

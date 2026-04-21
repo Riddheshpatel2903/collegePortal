@@ -2,10 +2,10 @@
 
 namespace Database\Factories;
 
-use App\Models\Result;
-use App\Models\Student;
-use App\Models\Semester;
 use App\Models\Course;
+use App\Models\Result;
+use App\Models\Semester;
+use App\Models\Student;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ResultFactory extends Factory

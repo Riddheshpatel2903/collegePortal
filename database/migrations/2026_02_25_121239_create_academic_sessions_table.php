@@ -18,7 +18,7 @@ return new class extends Migration
             $table->boolean('is_current')->default(false);
             $table->enum('status', ['upcoming', 'active', 'completed'])->default('upcoming');
             $table->timestamps();
-            
+
             // Ensure only one current session
             // Note: unique filter with where clause is used if DB supports it.
             // For general compatibility, we will handle uniqueness in the model/service.

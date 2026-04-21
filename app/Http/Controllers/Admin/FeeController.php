@@ -3,15 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\StudentFee;
 use App\Services\FeeService;
+use Illuminate\Http\Request;
 
 class FeeController extends Controller
 {
-    public function __construct(private FeeService $feeService)
-    {
-    }
+    public function __construct(private FeeService $feeService) {}
 
     public function index()
     {

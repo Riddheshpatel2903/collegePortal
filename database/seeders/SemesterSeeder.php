@@ -19,7 +19,7 @@ class SemesterSeeder extends Seeder
                     'course_id' => $course->id,
                     'name' => "Semester $i",
                 ], [
-                    'year' => ceil($i / 2)
+                    'year' => ceil($i / 2),
                 ]);
             }
         }

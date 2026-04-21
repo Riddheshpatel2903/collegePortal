@@ -75,7 +75,7 @@ class CourseSeeder extends Seeder
         DB::transaction(function () use ($courseMap, $session) {
             foreach ($courseMap as $departmentName => $courseNames) {
                 $department = Department::query()->where('name', $departmentName)->first();
-                if (!$department) {
+                if (! $department) {
                     continue;
                 }
 
@@ -119,4 +119,3 @@ class CourseSeeder extends Seeder
         });
     }
 }
-

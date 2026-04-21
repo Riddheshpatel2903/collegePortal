@@ -18,7 +18,7 @@ class FeeStructure extends Model
         'amount',
         'is_mandatory',
         'description',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

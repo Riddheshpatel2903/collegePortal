@@ -15,7 +15,7 @@ class SemesterSubject extends Model
         'credits',
         'subject_type',
         'is_mandatory',
-        'total_classes'
+        'total_classes',
     ];
 
     protected $casts = [

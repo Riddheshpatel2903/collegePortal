@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Student;
-use App\Models\Teacher;
 use App\Models\StudentLeave;
+use App\Models\Teacher;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class StudentLeaveSeeder extends Seeder
 {
@@ -47,7 +47,7 @@ class StudentLeaveSeeder extends Seeder
                     'student_id' => $student->id,
                     'approved_by' => $approvedBy,
                     'leave_type' => $leaveTypes[array_rand($leaveTypes)],
-                    'reason' => 'I need leave for ' . rand(1, 5) . ' days due to ' . ($i % 2 == 0 ? 'health issues.' : 'personal family commitments.'),
+                    'reason' => 'I need leave for '.rand(1, 5).' days due to '.($i % 2 == 0 ? 'health issues.' : 'personal family commitments.'),
                     'start_date' => $startDate,
                     'end_date' => $endDate,
                     'total_days' => $totalDays,

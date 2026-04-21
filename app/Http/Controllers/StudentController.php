@@ -1,24 +1,26 @@
 <?php
+
 // app/Http/Controllers/StudentController.php
 
 namespace App\Http\Controllers;
 
-use App\Models\Student;
-use App\Models\Department;
-use App\Models\Course;
 use App\Models\AcademicSession;
+use App\Models\Course;
+use App\Models\Department;
+use App\Models\Student;
 use App\Services\AttendanceService;
 use App\Services\ResultService;
 use App\Services\SemesterCalculationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class StudentController extends Controller
 {
     protected $attendanceService;
+
     protected $resultService;
+
     protected $semesterCalculationService;
 
     public function __construct(AttendanceService $attendanceService, ResultService $resultService, SemesterCalculationService $semesterCalculationService)
@@ -57,7 +59,7 @@ class StudentController extends Controller
         }
 
         $students = $query->latest()->paginate(15);
-        
+
         $departments = Department::all();
         $courses = Course::all();
 
@@ -96,7 +98,7 @@ class StudentController extends Controller
             'address' => 'required|string',
             'admission_date' => 'required|date',
             'admission_year' => 'required|integer',
-            'photo' => 'nullable|image|max:2048'
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         $course = Course::findOrFail((int) $validated['course_id']);
@@ -130,7 +132,7 @@ class StudentController extends Controller
             'currentSemester',
             'academicSession',
             'fees.feeStructure',
-            'results.semester'
+            'results.semester',
         ]);
 
         // Get attendance report
@@ -158,15 +160,15 @@ class StudentController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:students,email,' . $student->id,
+            'email' => 'required|email|unique:students,email,'.$student->id,
             'phone' => 'required|string|max:15',
             'department_id' => 'required|exists:departments,id',
             'course_id' => 'required|exists:courses,id',
-            'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,' . $student->id,
+            'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,'.$student->id,
             'date_of_birth' => 'required|date',
             'gender' => 'required|in:male,female,other',
             'address' => 'required|string',
-            'photo' => 'nullable|image|max:2048'
+            'photo' => 'nullable|image|max:2048',
         ]);
 
         // Handle photo upload
@@ -207,16 +209,16 @@ class StudentController extends Controller
     {
         $student = auth()->user()->student;
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 
         $student->load([
             'course',
             'currentSemester.semesterSubjects.subject',
-            'fees' => function($query) {
+            'fees' => function ($query) {
                 $query->where('status', '!=', 'paid')->latest();
-            }
+            },
         ]);
 
         // Calculate attendance percent
@@ -253,12 +255,12 @@ class StudentController extends Controller
 
         return view('student.dashboard', compact(
             'user',
-            'student', 
-            'attendancePercent', 
-            'pendingFees', 
-            'assignmentsDue', 
-            'subjectCount', 
-            'notices', 
+            'student',
+            'attendancePercent',
+            'pendingFees',
+            'assignmentsDue',
+            'subjectCount',
+            'notices',
             'events'
         ));
     }

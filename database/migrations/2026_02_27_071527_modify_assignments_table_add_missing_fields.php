@@ -12,25 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('assignments', function (Blueprint $table) {
-            if (!Schema::hasColumn('assignments', 'course_id')) {
+            if (! Schema::hasColumn('assignments', 'course_id')) {
                 $table->foreignId('course_id')->nullable()->after('subject_id')->constrained()->nullOnDelete();
             }
-            if (!Schema::hasColumn('assignments', 'total_marks')) {
+            if (! Schema::hasColumn('assignments', 'total_marks')) {
                 $table->integer('total_marks')->default(100)->after('description');
             }
-            if (!Schema::hasColumn('assignments', 'attachment_path')) {
+            if (! Schema::hasColumn('assignments', 'attachment_path')) {
                 $table->string('attachment_path')->nullable()->after('total_marks');
             }
-            if (!Schema::hasColumn('assignments', 'status')) {
+            if (! Schema::hasColumn('assignments', 'status')) {
                 $table->string('status')->default('published')->after('attachment_path');
             }
-            if (!Schema::hasColumn('assignments', 'allow_late_submission')) {
+            if (! Schema::hasColumn('assignments', 'allow_late_submission')) {
                 $table->boolean('allow_late_submission')->default(false)->after('status');
             }
-            if (!Schema::hasColumn('assignments', 'late_until')) {
+            if (! Schema::hasColumn('assignments', 'late_until')) {
                 $table->dateTime('late_until')->nullable()->after('allow_late_submission');
             }
-            if (!Schema::hasColumn('assignments', 'is_active')) {
+            if (! Schema::hasColumn('assignments', 'is_active')) {
                 $table->boolean('is_active')->default(true)->after('late_until');
             }
         });
@@ -50,7 +50,7 @@ return new class extends Migration
                 'status',
                 'allow_late_submission',
                 'late_until',
-                'is_active'
+                'is_active',
             ]);
         });
     }

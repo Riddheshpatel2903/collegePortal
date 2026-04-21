@@ -17,7 +17,7 @@ class Semester extends Model
         'start_date',
         'end_date',
         'is_current',
-        'status'
+        'status',
     ];
 
     protected $casts = [
@@ -50,8 +50,8 @@ class Semester extends Model
     public function subjects()
     {
         return $this->belongsToMany(Subject::class, 'semester_subjects')
-                    ->withPivot(['credits', 'subject_type', 'is_mandatory', 'total_classes'])
-                    ->withTimestamps();
+            ->withPivot(['credits', 'subject_type', 'is_mandatory', 'total_classes'])
+            ->withTimestamps();
     }
 
     public function studentFees()

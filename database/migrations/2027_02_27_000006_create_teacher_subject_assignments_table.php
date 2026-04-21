@@ -17,7 +17,7 @@ return new class extends Migration
             $table->date('assigned_date')->default(now());
             $table->boolean('is_active')->default(true);
             $table->timestamps();
-            
+
             // One teacher per subject per semester
             $table->unique(['teacher_id', 'semester_subject_id', 'semester_id'], 'unique_teacher_assignment');
         });

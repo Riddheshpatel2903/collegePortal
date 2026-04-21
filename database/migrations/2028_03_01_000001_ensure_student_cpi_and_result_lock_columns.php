@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (Schema::hasTable('students') && !Schema::hasColumn('students', 'cpi')) {
+        if (Schema::hasTable('students') && ! Schema::hasColumn('students', 'cpi')) {
             Schema::table('students', function (Blueprint $table) {
                 $afterColumn = Schema::hasColumn('students', 'cgpa')
                     ? 'cgpa'
@@ -19,10 +19,10 @@ return new class extends Migration
 
         if (Schema::hasTable('results')) {
             Schema::table('results', function (Blueprint $table) {
-                if (!Schema::hasColumn('results', 'locked_at')) {
+                if (! Schema::hasColumn('results', 'locked_at')) {
                     $table->timestamp('locked_at')->nullable()->after('result_declared_date');
                 }
-                if (!Schema::hasColumn('results', 'locked_by')) {
+                if (! Schema::hasColumn('results', 'locked_by')) {
                     $table->foreignId('locked_by')->nullable()->after('locked_at')->constrained('users')->nullOnDelete();
                 }
             });
@@ -49,4 +49,3 @@ return new class extends Migration
         }
     }
 };
-

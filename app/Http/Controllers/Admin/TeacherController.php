@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\StoreTeacherRequest;
+use App\Http\Requests\Admin\UpdateTeacherRequest;
+use App\Models\Department;
 use App\Models\Teacher;
 use App\Models\User;
-use App\Models\Department;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class TeacherController extends Controller
@@ -23,39 +25,34 @@ class TeacherController extends Controller
         }
 
         $teachers = $query->paginate(20)->withQueryString();
+
         return view('admin.teachers.index', compact('teachers'));
     }
 
     public function create()
     {
         $departments = Department::all();
+
         return view('admin.teachers.create', compact('departments'));
     }
 
-    public function store(Request $request)
+    public function store(StoreTeacherRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|min:6',
-            'department_id' => 'required|exists:departments,id',
-            'phone' => 'nullable|digits:10',
-            'qualification' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
             'role' => 'teacher',
             'status' => 'active',
         ]);
 
         Teacher::create([
             'user_id' => $user->id,
-            'department_id' => $request->department_id,
-            'qualification' => $request->qualification,
-            'phone' => $request->phone,
+            'department_id' => $validated['department_id'],
+            'qualification' => $validated['qualification'] ?? null,
+            'phone' => $validated['phone'] ?? null,
         ]);
 
         return redirect()->route('admin.teachers.index')
@@ -69,26 +66,21 @@ class TeacherController extends Controller
 
         return view('admin.teachers.edit', compact('teacher', 'departments'));
     }
-    public function update(Request $request, Teacher $teacher)
+
+    public function update(UpdateTeacherRequest $request, Teacher $teacher)
     {
-        $request->validate([
-            'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
-            'email' => 'required|email|unique:users,email,' . $teacher->user_id,
-            'department_id' => 'required|exists:departments,id',
-            'phone' => 'nullable|digits:10',
-            'qualification' => 'nullable|string|max:255',
-        ]);
+        $validated = $request->validated();
 
         $teacher->user->update([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name' => $validated['name'],
+            'email' => $validated['email'],
         ]);
 
-        $teacher->update($request->only([
-            'department_id',
-            'qualification',
-            'phone'
-        ]));
+        $teacher->update([
+            'department_id' => $validated['department_id'],
+            'qualification' => $validated['qualification'] ?? null,
+            'phone' => $validated['phone'] ?? null,
+        ]);
 
         return redirect()->route('admin.teachers.index')
             ->with('success', 'Teacher updated successfully.');

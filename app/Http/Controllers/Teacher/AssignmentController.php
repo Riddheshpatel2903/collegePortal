@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Subject;
 use App\Models\TeacherSubjectAssignment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AssignmentController extends Controller
@@ -19,7 +19,7 @@ class AssignmentController extends Controller
     {
         $teacher = auth()->user()->teacher;
 
-        if (!$teacher) {
+        if (! $teacher) {
             return redirect()->route('teacher.dashboard')->with('error', 'Teacher profile not found.');
         }
 
@@ -39,7 +39,7 @@ class AssignmentController extends Controller
     {
         $teacher = auth()->user()->teacher;
 
-        if (!$teacher) {
+        if (! $teacher) {
             return redirect()->route('teacher.dashboard')->with('error', 'Teacher profile not found.');
         }
 
@@ -95,7 +95,7 @@ class AssignmentController extends Controller
         ]);
 
         return redirect()->route('teacher.assignments.index')
-            ->with('success', 'Assignment created and ' . ($request->status == 'published' ? 'published' : 'saved as draft') . '.');
+            ->with('success', 'Assignment created and '.($request->status == 'published' ? 'published' : 'saved as draft').'.');
     }
 
     /**
@@ -246,7 +246,8 @@ class AssignmentController extends Controller
             ->get();
 
         return $subjects->map(function (Subject $subject) {
-            $subject->semester_label = 'Semester ' . (int) $subject->semester_sequence;
+            $subject->semester_label = 'Semester '.(int) $subject->semester_sequence;
+
             return $subject;
         });
     }

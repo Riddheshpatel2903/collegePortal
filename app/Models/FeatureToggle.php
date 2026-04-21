@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class FeatureToggle extends Model
 {
     protected $primaryKey = 'feature_key';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -19,4 +21,3 @@ class FeatureToggle extends Model
         'enabled' => 'boolean',
     ];
 }
-

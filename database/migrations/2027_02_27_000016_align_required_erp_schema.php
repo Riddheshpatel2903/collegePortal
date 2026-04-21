@@ -10,22 +10,22 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('departments', function (Blueprint $table) {
-            if (!Schema::hasColumn('departments', 'description')) {
+            if (! Schema::hasColumn('departments', 'description')) {
                 $table->text('description')->nullable()->after('name');
             }
-            if (!Schema::hasColumn('departments', 'hod_id')) {
+            if (! Schema::hasColumn('departments', 'hod_id')) {
                 $table->foreignId('hod_id')->nullable()->after('name')->constrained('users')->nullOnDelete();
             }
         });
 
         Schema::table('teacher_subject_assignments', function (Blueprint $table) {
-            if (!Schema::hasColumn('teacher_subject_assignments', 'subject_id')) {
+            if (! Schema::hasColumn('teacher_subject_assignments', 'subject_id')) {
                 $table->foreignId('subject_id')->nullable()->after('teacher_id')->constrained()->nullOnDelete();
             }
         });
 
         Schema::table('notices', function (Blueprint $table) {
-            if (!Schema::hasColumn('notices', 'posted_by')) {
+            if (! Schema::hasColumn('notices', 'posted_by')) {
                 $table->foreignId('posted_by')->nullable()->after('content')->constrained('users')->nullOnDelete();
             }
         });
@@ -52,7 +52,7 @@ return new class extends Migration
         }
 
         Schema::table('fee_structures', function (Blueprint $table) {
-            if (!Schema::hasColumn('fee_structures', 'semester_sequence')) {
+            if (! Schema::hasColumn('fee_structures', 'semester_sequence')) {
                 $table->integer('semester_sequence')->nullable()->after('course_id');
             }
         });
@@ -62,10 +62,10 @@ return new class extends Migration
         }
 
         Schema::table('semesters', function (Blueprint $table) {
-            if (!Schema::hasColumn('semesters', 'sequence')) {
+            if (! Schema::hasColumn('semesters', 'sequence')) {
                 $table->integer('sequence')->nullable()->after('academic_session_id');
             }
-            if (!Schema::hasColumn('semesters', 'is_active')) {
+            if (! Schema::hasColumn('semesters', 'is_active')) {
                 $table->boolean('is_active')->default(false)->after('is_current');
             }
         });
@@ -75,7 +75,7 @@ return new class extends Migration
             DB::statement("UPDATE semesters SET is_active = CASE WHEN status = 'active' THEN 1 ELSE 0 END");
         }
 
-        if (!Schema::hasTable('attendance_records')) {
+        if (! Schema::hasTable('attendance_records')) {
             Schema::create('attendance_records', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('attendance_session_id')->constrained()->onDelete('cascade');

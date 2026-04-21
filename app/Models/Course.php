@@ -16,7 +16,7 @@ class Course extends Model
         'duration_years',
         'semesters_per_year',
         'description',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

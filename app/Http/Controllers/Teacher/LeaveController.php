@@ -8,9 +8,7 @@ use Illuminate\Http\Request;
 
 class LeaveController extends Controller
 {
-    public function __construct(private LeaveWorkflowService $leaveWorkflowService)
-    {
-    }
+    public function __construct(private LeaveWorkflowService $leaveWorkflowService) {}
 
     public function index()
     {

@@ -13,10 +13,9 @@ it('allows authenticated user to list students via API', function () {
     $response = $this->json('GET', '/api/v1/students', [], ['Authorization' => "Bearer {$token}"]);
 
     $response->assertStatus(200)
-        ->assertJson(fn (AssertableJson $json) =>
-            $json->where('status', 'success')
-                ->has('data.data', 3)
-                ->etc()
+        ->assertJson(fn (AssertableJson $json) => $json->where('status', 'success')
+            ->has('data.data', 3)
+            ->etc()
         );
 });
 

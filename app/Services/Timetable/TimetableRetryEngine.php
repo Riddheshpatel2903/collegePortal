@@ -7,7 +7,7 @@ use RuntimeException;
 class TimetableRetryEngine
 {
     /**
-     * @param callable(int):mixed $callback
+     * @param  callable(int):mixed  $callback
      */
     public function run(int $maxAttempts, callable $callback): mixed
     {

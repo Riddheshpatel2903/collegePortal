@@ -34,4 +34,3 @@ class RolePagePermission extends Model
         return $this->belongsTo(PortalPage::class, 'page_id');
     }
 }
-

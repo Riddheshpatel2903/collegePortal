@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Assignment extends Model
 {
@@ -25,12 +25,12 @@ class Assignment extends Model
         'status',
         'allow_late_submission',
         'late_until',
-        'is_active'
+        'is_active',
     ];
 
     protected $dates = [
         'due_date',
-        'late_until'
+        'late_until',
     ];
 
     // ==========================
@@ -73,7 +73,7 @@ class Assignment extends Model
 
     public function isSubmissionAllowed()
     {
-        if (!$this->isLate()) {
+        if (! $this->isLate()) {
             return true;
         }
 

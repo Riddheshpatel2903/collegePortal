@@ -20,7 +20,7 @@ class AttendanceSeeder extends Seeder
         foreach ($assignments as $assignment) {
             $subject = $assignment->subject;
             $course = $subject?->course;
-            if (!$subject || !$course) {
+            if (! $subject || ! $course) {
                 continue;
             }
 
@@ -51,7 +51,7 @@ class AttendanceSeeder extends Seeder
                     'start_time' => '09:00:00',
                     'end_time' => '10:00:00',
                     'session_type' => rand(1, 10) > 8 ? 'practical' : 'lecture',
-                    'topic' => 'Session topic ' . rand(1, 500),
+                    'topic' => 'Session topic '.rand(1, 500),
                     'is_completed' => true,
                 ]);
 
@@ -72,4 +72,3 @@ class AttendanceSeeder extends Seeder
         }
     }
 }
-

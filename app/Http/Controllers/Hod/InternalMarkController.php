@@ -26,4 +26,3 @@ class InternalMarkController extends Controller
         return view('hod.internal-marks.index', compact('results'));
     }
 }
-

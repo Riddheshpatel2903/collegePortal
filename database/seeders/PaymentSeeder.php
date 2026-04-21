@@ -20,6 +20,7 @@ class PaymentSeeder extends Seeder
 
                     if ($scenario === 'unpaid') {
                         $updates[$fee->id] = ['paid_amount' => 0, 'status' => now()->gt($fee->due_date) ? 'overdue' : 'pending'];
+
                         continue;
                     }
 
@@ -30,7 +31,7 @@ class PaymentSeeder extends Seeder
                     $payments[] = [
                         'student_fee_id' => $fee->id,
                         'student_id' => $fee->student_id,
-                        'receipt_number' => 'RCT-' . now()->format('Ymd-His') . '-' . strtoupper(\Illuminate\Support\Str::random(6)),
+                        'receipt_number' => 'RCT-'.now()->format('Ymd-His').'-'.strtoupper(\Illuminate\Support\Str::random(6)),
                         'amount' => $amount,
                         'payment_date' => now()->subDays(rand(0, 90))->toDateString(),
                         'payment_mode' => fake()->randomElement(['cash', 'card', 'upi', 'netbanking']),
@@ -47,7 +48,7 @@ class PaymentSeeder extends Seeder
                     ];
                 }
 
-                if (!empty($payments)) {
+                if (! empty($payments)) {
                     DB::table('payments')->insert($payments);
                 }
 

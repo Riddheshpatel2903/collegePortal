@@ -4,8 +4,6 @@ namespace Database\Factories;
 
 use App\Models\AttendanceSession;
 use App\Models\Subject;
-use App\Models\Semester;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AttendanceSessionFactory extends Factory
@@ -15,6 +13,7 @@ class AttendanceSessionFactory extends Factory
     public function definition(): array
     {
         $subject = Subject::inRandomOrder()->first() ?? Subject::factory()->create();
+
         return [
             'subject_id' => $subject->id,
             'semester_id' => $subject->semester_id,

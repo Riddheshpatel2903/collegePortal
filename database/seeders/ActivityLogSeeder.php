@@ -9,7 +9,6 @@ use App\Models\Schedule;
 use App\Models\Student;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class ActivityLogSeeder extends Seeder
 {
@@ -79,4 +78,3 @@ class ActivityLogSeeder extends Seeder
         }
     }
 }
-

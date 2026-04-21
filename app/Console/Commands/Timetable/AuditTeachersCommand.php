@@ -3,7 +3,6 @@
 namespace App\Console\Commands\Timetable;
 
 use App\Models\Subject;
-use App\Models\Teacher;
 use App\Models\TeacherSubjectAssignment;
 use Illuminate\Console\Command;
 
@@ -29,16 +28,17 @@ class AuditTeachersCommand extends Command
 
         if ($subjects->isEmpty()) {
             $this->warn('No subjects found. Add subjects first via the Admin panel.');
+
             return self::FAILURE;
         }
 
         $assignedSubjectIds = TeacherSubjectAssignment::query()
             ->pluck('subject_id')
-            ->map(fn($id) => (int) $id)
+            ->map(fn ($id) => (int) $id)
             ->unique();
 
         $unassigned = $subjects->filter(
-            fn($s) => !$assignedSubjectIds->contains((int) $s->id)
+            fn ($s) => ! $assignedSubjectIds->contains((int) $s->id)
         );
 
         $this->newLine();
@@ -46,6 +46,7 @@ class AuditTeachersCommand extends Command
             ['Status', 'Subject', 'Course', 'Semester', 'Weekly Hours'],
             $subjects->map(function ($s) use ($assignedSubjectIds) {
                 $assigned = $assignedSubjectIds->contains((int) $s->id);
+
                 return [
                     $assigned ? '✅ Assigned' : '❌ Unassigned',
                     $s->name,
@@ -53,22 +54,24 @@ class AuditTeachersCommand extends Command
                     $s->semester_sequence ?? '—',
                     $s->weekly_hours ?? ($s->credits ?? '—'),
                 ];
-            })->when($this->option('unassigned'), fn($rows) => $rows->filter(fn($r) => str_starts_with($r[0], '❌')))
-              ->values()
-              ->toArray()
+            })->when($this->option('unassigned'), fn ($rows) => $rows->filter(fn ($r) => str_starts_with($r[0], '❌')))
+                ->values()
+                ->toArray()
         );
 
         $this->newLine();
-        $total    = $subjects->count();
+        $total = $subjects->count();
         $assigned = $total - $unassigned->count();
         $this->info("Summary: {$assigned}/{$total} subjects have teacher assignments.");
 
         if ($unassigned->isNotEmpty()) {
             $this->warn("{$unassigned->count()} subject(s) need teacher assignment before generating a timetable.");
+
             return self::FAILURE;
         }
 
         $this->info('All subjects are assigned. You are ready to generate a timetable.');
+
         return self::SUCCESS;
     }
 }

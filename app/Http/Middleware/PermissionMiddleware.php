@@ -4,13 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class PermissionMiddleware
- * 
+ *
  * Validates that the authenticated user possesses a specific granular RBAC permission.
  * Acts as the second layer (Gated Actions) in the security hierarchy.
  */
@@ -18,11 +17,6 @@ class PermissionMiddleware
 {
     /**
      * Handle an incoming request.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @param  string  $permission
-     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function handle(Request $request, Closure $next, string $permission): Response
     {
@@ -34,18 +28,18 @@ class PermissionMiddleware
         $hasPermission = $user->hasPermission($permission);
 
         // 2. Debug Strategy & Decision
-        if (!$hasPermission) {
+        if (! $hasPermission) {
             Log::info('PermissionCheck Denied', [
-                'user_id'    => $user->id,
-                'role'       => $user->role,
+                'user_id' => $user->id,
+                'role' => $user->role,
                 'permission' => $permission,
-                'path'       => $request->getPathInfo()
+                'path' => $request->getPathInfo(),
             ]);
 
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Restricted: You lack the '{$permission}' permission."
+                    'message' => "Restricted: You lack the '{$permission}' permission.",
                 ], 403);
             }
 
@@ -55,4 +49,3 @@ class PermissionMiddleware
         return $next($request);
     }
 }
-

@@ -3,10 +3,10 @@
 namespace Database\Factories;
 
 use App\Models\Assignment;
-use App\Models\Teacher;
-use App\Models\Subject;
 use App\Models\Course;
 use App\Models\Semester;
+use App\Models\Subject;
+use App\Models\Teacher;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AssignmentFactory extends Factory
@@ -16,6 +16,7 @@ class AssignmentFactory extends Factory
     public function definition(): array
     {
         $dueDate = $this->faker->dateTimeBetween('now', '+1 month');
+
         return [
             'teacher_id' => Teacher::inRandomOrder()->first()?->id ?? Teacher::factory(),
             'subject_id' => Subject::inRandomOrder()->first()?->id ?? Subject::factory(),

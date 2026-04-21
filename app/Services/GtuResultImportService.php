@@ -38,12 +38,14 @@ class GtuResultImportService
                 $enrollment = strtoupper(trim((string) ($row['gtu_enrollment_no'] ?? '')));
                 if ($enrollment === '') {
                     $summary['not_found']++;
+
                     continue;
                 }
 
                 $student = Student::query()->where('gtu_enrollment_no', $enrollment)->first();
-                if (!$student) {
+                if (! $student) {
                     $summary['not_found']++;
+
                     continue;
                 }
                 $summary['matched']++;
@@ -93,7 +95,7 @@ class GtuResultImportService
     private function parseCsv(UploadedFile $file): Collection
     {
         $handle = fopen($file->getRealPath(), 'r');
-        if (!$handle) {
+        if (! $handle) {
             throw new RuntimeException('Could not read CSV file.');
         }
 
@@ -118,7 +120,7 @@ class GtuResultImportService
     private function parseXlsx(UploadedFile $file): Collection
     {
         // Minimal XLSX parser: reads first worksheet and shared strings.
-        $zip = new \ZipArchive();
+        $zip = new \ZipArchive;
         if ($zip->open($file->getRealPath()) !== true) {
             throw new RuntimeException('Could not open XLSX file.');
         }
@@ -141,7 +143,7 @@ class GtuResultImportService
         }
 
         $sx = simplexml_load_string($sheetXml);
-        if (!$sx) {
+        if (! $sx) {
             throw new RuntimeException('Could not parse XLSX worksheet.');
         }
 
@@ -164,13 +166,15 @@ class GtuResultImportService
         }
 
         $header = collect($rows[0])->map(fn ($h) => $this->normalizeHeader((string) $h))->all();
+
         return collect(array_slice($rows, 1))
-            ->filter(fn ($line) => !empty(array_filter($line, fn ($v) => $v !== null && $v !== '')))
+            ->filter(fn ($line) => ! empty(array_filter($line, fn ($v) => $v !== null && $v !== '')))
             ->map(function ($line) use ($header) {
                 $row = [];
                 foreach ($header as $i => $column) {
                     $row[$column] = $line[$i] ?? null;
                 }
+
                 return $this->normalizeRow($row);
             })
             ->values();
@@ -223,4 +227,3 @@ class GtuResultImportService
         ];
     }
 }
-

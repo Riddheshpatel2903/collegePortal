@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Cache;
-
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -55,6 +54,7 @@ class User extends Authenticatable
     {
         return $this->hasOne(Student::class);
     }
+
     public function teacher()
     {
         return $this->hasOne(Teacher::class);
@@ -82,11 +82,11 @@ class User extends Authenticatable
 
     public function createProfileByRole()
     {
-        if ($this->role === 'student' && !$this->student) {
+        if ($this->role === 'student' && ! $this->student) {
             $this->student()->create([]);
         }
 
-        if ($this->role === 'teacher' && !$this->teacher) {
+        if ($this->role === 'teacher' && ! $this->teacher) {
             $this->teacher()->create([]);
         }
     }
@@ -115,6 +115,7 @@ class User extends Authenticatable
         if (is_array($role)) {
             return in_array($this->role, $role);
         }
+
         return $this->role === $role;
     }
 
@@ -158,18 +159,18 @@ class User extends Authenticatable
         // if the permissions tables haven't been created yet, we can't
         // perform a query; assume checks are disabled so the app remains
         // usable until migrations are run.
-        if (!
-            \Illuminate\Support\Facades\Schema::hasTable('roles') ||
-            !\Illuminate\Support\Facades\Schema::hasTable('permissions') ||
-            !\Illuminate\Support\Facades\Schema::hasTable('role_permissions')
+        if (! \Illuminate\Support\Facades\Schema::hasTable('roles') ||
+            ! \Illuminate\Support\Facades\Schema::hasTable('permissions') ||
+            ! \Illuminate\Support\Facades\Schema::hasTable('role_permissions')
         ) {
             return true;
         }
 
         $cacheKey = "user.permission.{$this->id}.{$permissionKey}";
+
         return Cache::remember($cacheKey, 300, function () use ($permissionKey) {
             $role = Role::query()->where('name', strtolower((string) $this->role))->first();
-            if (!$role) {
+            if (! $role) {
                 return false;
             }
 
@@ -182,4 +183,3 @@ class User extends Authenticatable
         return app(\App\Services\PortalAccessService::class)->canViewPage($routeName, $this);
     }
 }
-

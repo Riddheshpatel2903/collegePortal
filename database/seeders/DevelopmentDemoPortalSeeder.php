@@ -29,7 +29,6 @@ use RuntimeException;
 
 class DevelopmentDemoPortalSeeder extends Seeder
 {
-
     public function run(): void
     {
         DB::transaction(function () {
@@ -196,7 +195,7 @@ class DevelopmentDemoPortalSeeder extends Seeder
             $user = User::query()->updateOrCreate(
                 ['email' => "{$prefix}.teacher{$i}@college.test"],
                 [
-                    'name' => strtoupper($prefix) . " Teacher {$i}",
+                    'name' => strtoupper($prefix)." Teacher {$i}",
                     'password' => Hash::make('password'),
                     'role' => 'teacher',
                     'status' => $status,
@@ -208,7 +207,7 @@ class DevelopmentDemoPortalSeeder extends Seeder
                 [
                     'department_id' => $departmentId,
                     'qualification' => 'M.Tech',
-                    'phone' => '99999' . str_pad((string) $i, 5, '0', STR_PAD_LEFT),
+                    'phone' => '99999'.str_pad((string) $i, 5, '0', STR_PAD_LEFT),
                     'max_lectures_per_day' => 6,
                 ]
             );
@@ -225,7 +224,7 @@ class DevelopmentDemoPortalSeeder extends Seeder
             ->where('email', 'like', "{$prefix}.teacher%@college.test")
             ->get(['id', 'email'])
             ->each(function (User $user) use ($maxIndex) {
-                if (!preg_match('/teacher(\d+)@college\.test$/', $user->email, $matches)) {
+                if (! preg_match('/teacher(\d+)@college\.test$/', $user->email, $matches)) {
                     return;
                 }
 
@@ -244,7 +243,7 @@ class DevelopmentDemoPortalSeeder extends Seeder
             $user = User::query()->updateOrCreate(
                 ['email' => "{$prefix}.student{$year}@college.test"],
                 [
-                    'name' => strtoupper($prefix) . " Student Y{$year}",
+                    'name' => strtoupper($prefix)." Student Y{$year}",
                     'password' => Hash::make('password'),
                     'role' => 'student',
                     'status' => 'active',
@@ -260,10 +259,10 @@ class DevelopmentDemoPortalSeeder extends Seeder
                     'current_year' => $year,
                     'current_semester_id' => $semester->id,
                     'current_semester_number' => $semesterNumber,
-                    'roll_number' => strtoupper($prefix) . '-Y' . $year . '-001',
-                    'registration_number' => strtoupper($prefix) . '-REG-' . $year,
-                    'gtu_enrollment_no' => strtoupper($prefix) . '-ENR-' . $year,
-                    'phone' => '88888' . str_pad((string) $year, 5, '0', STR_PAD_LEFT),
+                    'roll_number' => strtoupper($prefix).'-Y'.$year.'-001',
+                    'registration_number' => strtoupper($prefix).'-REG-'.$year,
+                    'gtu_enrollment_no' => strtoupper($prefix).'-ENR-'.$year,
+                    'phone' => '88888'.str_pad((string) $year, 5, '0', STR_PAD_LEFT),
                     'admission_year' => now()->year,
                     'admission_date' => now()->toDateString(),
                     'date_of_birth' => now()->subYears(18 + $year)->toDateString(),
@@ -389,14 +388,14 @@ class DevelopmentDemoPortalSeeder extends Seeder
 
             if ($paidAmount > 0) {
                 Payment::query()->updateOrCreate(
-                    ['receipt_number' => 'DEMO-RCT-' . $course->id . '-' . $student->id],
+                    ['receipt_number' => 'DEMO-RCT-'.$course->id.'-'.$student->id],
                     [
                         'student_fee_id' => $studentFee->id,
                         'student_id' => $student->id,
                         'amount' => $paidAmount,
                         'payment_date' => now()->toDateString(),
                         'payment_mode' => 'upi',
-                        'transaction_id' => 'DEMO-TXN-' . $student->id,
+                        'transaction_id' => 'DEMO-TXN-'.$student->id,
                         'remarks' => 'Demo payment',
                         'collected_by' => $collectorUserId,
                     ]
@@ -494,12 +493,12 @@ class DevelopmentDemoPortalSeeder extends Seeder
         $timetableRows = Timetable::query()
             ->where('course_id', $course->id)
             ->whereIn('semester_number', $oddSemesters)
-            ->whereIn('day', config('timetable.working_days', ['monday','tuesday','wednesday','thursday','friday']))
+            ->whereIn('day', config('timetable.working_days', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']))
             ->get();
 
         foreach ($timetableRows as $row) {
             $slot = $slotBlocks[(int) $row->slot_number - 1] ?? null;
-            if (!$slot) {
+            if (! $slot) {
                 continue;
             }
             Schedule::query()->create([
@@ -508,8 +507,8 @@ class DevelopmentDemoPortalSeeder extends Seeder
                 'teacher_id' => $row->teacher_id,
                 'classroom_id' => $row->classroom_id,
                 'day_of_week' => $row->day,
-                'start_time' => $slot[0] . ':00',
-                'end_time' => $slot[1] . ':00',
+                'start_time' => $slot[0].':00',
+                'end_time' => $slot[1].':00',
             ]);
         }
     }

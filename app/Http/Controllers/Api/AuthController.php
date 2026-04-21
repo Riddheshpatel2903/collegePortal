@@ -25,18 +25,19 @@ class AuthController extends Controller
 
         $user = User::where('email', $request->email)->first();
 
-        if (!$user || !Hash::check($request->password, $user->password)) {
+        if (! $user || ! Hash::check($request->password, $user->password)) {
             return $this->error('Invalid login details', 401);
         }
 
         $token = $user->createToken('api-token')->plainTextToken;
 
-        return $this->success([ 'token' => $token, 'user' => $user ], 'Logged in');
+        return $this->success(['token' => $token, 'user' => $user], 'Logged in');
     }
 
     public function logout(Request $request)
     {
         $request->user()?->tokens()->delete();
+
         return $this->success([], 'Logged out');
     }
 

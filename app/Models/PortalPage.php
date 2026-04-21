@@ -19,4 +19,3 @@ class PortalPage extends Model
         return $this->hasMany(RolePagePermission::class, 'page_id');
     }
 }
-

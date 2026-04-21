@@ -14,11 +14,10 @@ class CourseFactory extends Factory
     {
         return [
             'department_id' => Department::query()->inRandomOrder()->value('id') ?? Department::factory(),
-            'name' => 'B.E. ' . $this->faker->words(2, true),
+            'name' => 'B.E. '.$this->faker->words(2, true),
             'duration_years' => 4,
             'semesters_per_year' => 2,
             'is_active' => true,
         ];
     }
 }
-

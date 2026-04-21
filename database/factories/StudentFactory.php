@@ -2,9 +2,9 @@
 
 namespace Database\Factories;
 
+use App\Models\Course;
 use App\Models\Student;
 use App\Models\User;
-use App\Models\Course;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Facades\Hash;
 
@@ -26,9 +26,9 @@ class StudentFactory extends Factory
             'department_id' => $course?->department_id,
             'course_id' => $courseId,
             'current_year' => $year,
-            'roll_number' => 'STU' . $this->faker->unique()->numberBetween(100000, 999999),
-            'gtu_enrollment_no' => '21' . $this->faker->unique()->numerify('01201######'),
-            'registration_number' => 'REG' . $this->faker->unique()->numerify('######'),
+            'roll_number' => 'STU'.$this->faker->unique()->numberBetween(100000, 999999),
+            'gtu_enrollment_no' => '21'.$this->faker->unique()->numerify('01201######'),
+            'registration_number' => 'REG'.$this->faker->unique()->numerify('######'),
             'admission_date' => $this->faker->date('Y-m-d', '-1 year'),
             'admission_year' => $this->faker->numberBetween(2022, 2025),
             'phone' => $this->faker->phoneNumber(),

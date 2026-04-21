@@ -11,9 +11,7 @@ use Illuminate\Validation\Rule;
 
 class LeaveController extends Controller
 {
-    public function __construct(private LeaveWorkflowService $leaveWorkflowService)
-    {
-    }
+    public function __construct(private LeaveWorkflowService $leaveWorkflowService) {}
 
     public function index(Request $request)
     {
@@ -45,6 +43,7 @@ class LeaveController extends Controller
     {
         $this->ensureLeaveIsInHodDepartment($leave);
         $this->leaveWorkflowService->approve($leave, auth()->user());
+
         return back()->with('success', 'Leave forwarded/approved successfully.');
     }
 
@@ -52,6 +51,7 @@ class LeaveController extends Controller
     {
         $this->ensureLeaveIsInHodDepartment($leave);
         $this->leaveWorkflowService->reject($leave, auth()->user(), $request->input('approval_remarks'));
+
         return back()->with('success', 'Leave rejected successfully.');
     }
 

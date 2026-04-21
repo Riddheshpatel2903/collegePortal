@@ -1,15 +1,11 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Auth\AdminLoginController;
-use App\Http\Controllers\{
-    StudentController,
-    FeeController,
-    AttendanceController,
-    ResultController,
-    DashboardController
-};
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FeeController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ResultController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +22,6 @@ Route::get('/', function () {
 Route::get('/admin', [AdminLoginController::class, 'create'])->name('admin.login');
 Route::post('/admin', [AdminLoginController::class, 'store'])->name('admin.login.submit');
 
-
 /*
 |--------------------------------------------------------------------------
 | Dashboard Redirect (After Login)
@@ -34,7 +29,6 @@ Route::post('/admin', [AdminLoginController::class, 'store'])->name('admin.login
 */
 
 Route::middleware(['auth', 'verified'])->get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +46,6 @@ Route::middleware(['auth', 'page.access'])->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-
 
     /*
     |--------------------------------------------------------------------------
@@ -242,7 +235,6 @@ Route::middleware(['auth', 'page.access'])->group(function () {
         });
     });
 
-
     /*
     |--------------------------------------------------------------------------
     | Student Routes
@@ -319,7 +311,7 @@ Route::middleware(['auth', 'page.access'])->group(function () {
     Route::get('/results/view/{result}', [ResultController::class, 'show'])->name('results.show');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 // Global Fallback Route for 404
 Route::fallback(function () {

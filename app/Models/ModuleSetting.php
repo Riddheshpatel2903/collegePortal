@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class ModuleSetting extends Model
 {
     protected $primaryKey = 'module_key';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -19,4 +21,3 @@ class ModuleSetting extends Model
         'enabled' => 'boolean',
     ];
 }
-

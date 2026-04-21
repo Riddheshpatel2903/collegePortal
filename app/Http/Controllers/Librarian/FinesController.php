@@ -10,6 +10,7 @@ class FinesController extends Controller
     public function index()
     {
         $fines = LibraryFine::query()->latest()->paginate(15);
+
         return view('librarian.fines.index', compact('fines'));
     }
 }

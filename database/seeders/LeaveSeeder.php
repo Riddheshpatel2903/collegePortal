@@ -42,7 +42,7 @@ class LeaveSeeder extends Seeder
 
         if ($status !== 'pending') {
             $stage = 'closed';
-            $approvedBy = !empty($hodApproverIds) ? $hodApproverIds[array_rand($hodApproverIds)] : $adminId;
+            $approvedBy = ! empty($hodApproverIds) ? $hodApproverIds[array_rand($hodApproverIds)] : $adminId;
             $approvedAt = now()->subDays(random_int(0, 20));
             $remarks = $status === 'approved' ? 'Approved after review.' : 'Rejected due to academic schedule.';
         }
@@ -64,4 +64,3 @@ class LeaveSeeder extends Seeder
         ]);
     }
 }
-

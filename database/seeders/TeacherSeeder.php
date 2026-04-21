@@ -49,4 +49,3 @@ class TeacherSeeder extends Seeder
         });
     }
 }
-

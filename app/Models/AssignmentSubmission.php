@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class AssignmentSubmission extends Model
 {
@@ -16,11 +16,11 @@ class AssignmentSubmission extends Model
         'submitted_at',
         'marks_obtained',
         'feedback',
-        'status'
+        'status',
     ];
 
     protected $dates = [
-        'submitted_at'
+        'submitted_at',
     ];
 
     // ==========================

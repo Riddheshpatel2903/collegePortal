@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Department;
+use Illuminate\Http\Request;
 
 class DepartmentController extends Controller
 {
@@ -17,6 +17,7 @@ class DepartmentController extends Controller
                 ->orWhere('description', 'like', "%{$search}%");
         }
         $departments = $query->orderBy('name')->paginate(20)->withQueryString();
+
         return view('admin.departments.index', compact('departments'));
     }
 
@@ -29,7 +30,7 @@ class DepartmentController extends Controller
     {
         $request->validate([
             'name' => 'required|unique:departments,name',
-            'description' => 'nullable'
+            'description' => 'nullable',
         ]);
 
         Department::create($request->only('name', 'description'));
@@ -46,8 +47,8 @@ class DepartmentController extends Controller
     public function update(Request $request, Department $department)
     {
         $request->validate([
-            'name' => 'required|unique:departments,name,' . $department->id,
-            'description' => 'nullable'
+            'name' => 'required|unique:departments,name,'.$department->id,
+            'description' => 'nullable',
         ]);
 
         $department->update($request->only('name', 'description'));

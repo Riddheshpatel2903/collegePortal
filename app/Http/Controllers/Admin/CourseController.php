@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Course;
 use App\Models\Department;
+use Illuminate\Http\Request;
 
 class CourseController extends Controller
 {
@@ -18,12 +18,14 @@ class CourseController extends Controller
                 ->orWhereHas('department', fn ($q) => $q->where('name', 'like', "%{$search}%"));
         }
         $courses = $query->orderBy('name')->paginate(20)->withQueryString();
+
         return view('admin.courses.index', compact('courses'));
     }
 
     public function create()
     {
         $departments = Department::all();
+
         return view('admin.courses.create', compact('departments'));
     }
 
@@ -47,6 +49,7 @@ class CourseController extends Controller
     public function edit(Course $course)
     {
         $departments = Department::all();
+
         return view('admin.courses.edit', compact('course', 'departments'));
     }
 

@@ -2,9 +2,9 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 class StudentFee extends Model
 {
@@ -18,7 +18,7 @@ class StudentFee extends Model
         'paid_amount',
         'status',
         'due_date',
-        'last_payment_date'
+        'last_payment_date',
     ];
 
     protected $casts = [
@@ -69,7 +69,7 @@ class StudentFee extends Model
     public function scopeOverdue($query)
     {
         return $query->where('status', '!=', 'paid')
-                     ->where('due_date', '<', now());
+            ->where('due_date', '<', now());
     }
 
     // Methods

@@ -9,17 +9,18 @@ use App\Models\Semester;
 use App\Models\Subject;
 use App\Models\TeacherAvailability;
 use App\Models\TeacherSubjectAssignment;
+use App\Services\PortalAccessService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use RuntimeException;
-use App\Services\PortalAccessService;
 
 class TimetableGeneratorService
 {
     // the hardcoded defaults are retained solely for migration/seeding or
     // configuration bootstrap, but most methods will use the access service.
     private const DAYS = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+
     private const SLOT_BLOCKS = [
         ['09:00', '10:00'],
         ['10:00', '11:00'],
@@ -28,12 +29,12 @@ class TimetableGeneratorService
         ['14:00', '15:00'],
         ['15:00', '16:00'],
     ];
+
     private const SUBJECTS_PER_SEMESTER = 8;
+
     private ?array $subjectSchema = null;
 
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function generate(array $payload): array
     {
@@ -43,9 +44,9 @@ class TimetableGeneratorService
         $course = Course::findOrFail((int) $payload['course_id']);
         $academicYear = (int) $payload['academic_year'];
         $clearExisting = (bool) ($payload['clear_existing'] ?? false);
-        $subjectIds = collect($payload['subject_ids'] ?? [])->map(fn($id) => (int) $id)->filter()->values();
+        $subjectIds = collect($payload['subject_ids'] ?? [])->map(fn ($id) => (int) $id)->filter()->values();
         $subjectTeacherMap = collect($payload['subject_teacher_map'] ?? [])
-            ->mapWithKeys(fn($teacherId, $subjectId) => [(int) $subjectId => (int) $teacherId]);
+            ->mapWithKeys(fn ($teacherId, $subjectId) => [(int) $subjectId => (int) $teacherId]);
 
         [$fromSemester, $toSemester] = $this->semesterRangeForYear($course, $academicYear);
         $targetSemesters = $this->resolveTargetSemesters($course, $academicYear, $payload['semester_id'] ?? null);
@@ -54,14 +55,14 @@ class TimetableGeneratorService
         if ($semesterNumbers->isEmpty()) {
             $semesterNumbers = collect(range($fromSemester, $toSemester));
             $targetSemesters = $semesterNumbers
-                ->map(fn(int $number) => (object) ['id' => null, 'semester_number' => $number])
+                ->map(fn (int $number) => (object) ['id' => null, 'semester_number' => $number])
                 ->values();
         }
 
         $subjectsQuery = Subject::query()
             ->where('course_id', $course->id)
             ->whereIn('semester_sequence', $semesterNumbers)
-            ->when($subjectIds->isNotEmpty(), fn($q) => $q->whereIn('id', $subjectIds));
+            ->when($subjectIds->isNotEmpty(), fn ($q) => $q->whereIn('id', $subjectIds));
 
         if ($this->hasSubjectColumn('weekly_hours')) {
             $subjectsQuery->orderByDesc('weekly_hours');
@@ -96,7 +97,7 @@ class TimetableGeneratorService
             ->get()
             ->groupBy('teacher_id');
 
-        return DB::transaction(function () use ($payload, $clearExisting, $semesterIds, $targetSemesters, $course, $academicYear, $fromSemester, $toSemester, $subjects, $assignments, $subjectTeacherMap, $rooms, $availabilities) {
+        return DB::transaction(function () use ($payload, $clearExisting, $targetSemesters, $course, $academicYear, $fromSemester, $toSemester, $subjects, $assignments, $subjectTeacherMap, $rooms, $availabilities) {
             if ($clearExisting) {
                 $this->classScheduleQuery($course, $academicYear)->delete();
             }
@@ -116,8 +117,9 @@ class TimetableGeneratorService
 
             foreach ($subjects as $subject) {
                 $teacherId = (int) ($subjectTeacherMap->get($subject->id) ?: optional($assignments->get($subject->id)?->first())->teacher_id);
-                if (!$teacherId) {
+                if (! $teacherId) {
                     $failures[] = "Subject {$subject->name}: no active teacher assignment.";
+
                     continue;
                 }
 
@@ -147,7 +149,7 @@ class TimetableGeneratorService
                         $availabilities->get($teacherId, collect())
                     );
 
-                    if (!$candidate) {
+                    if (! $candidate) {
                         $failures[] = "Subject {$subject->name}: unable to place remaining {$remaining} hour(s) without conflicts.";
                         break;
                     }
@@ -173,8 +175,8 @@ class TimetableGeneratorService
                 }
             }
 
-            if (!empty($failures)) {
-                throw new RuntimeException("Timetable generation failed:\n- " . implode("\n- ", $failures));
+            if (! empty($failures)) {
+                throw new RuntimeException("Timetable generation failed:\n- ".implode("\n- ", $failures));
             }
 
             return [
@@ -211,6 +213,7 @@ class TimetableGeneratorService
         $semestersPerYear = max(1, (int) $course->semesters_per_year);
         $from = (($year - 1) * $semestersPerYear) + 1;
         $to = $year * $semestersPerYear;
+
         return [$from, $to];
     }
 
@@ -256,7 +259,7 @@ class TimetableGeneratorService
         Collection $teacherAvailabilities
     ): ?array {
         $dayOrder = collect($this->days())
-            ->sortBy(fn($day) => $state['subject_day_count'][$subject->id][$day] ?? 0)
+            ->sortBy(fn ($day) => $state['subject_day_count'][$subject->id][$day] ?? 0)
             ->values();
 
         foreach ($dayOrder as $day) {
@@ -267,11 +270,11 @@ class TimetableGeneratorService
                     continue;
                 }
 
-                if (!$this->teacherBlocksAvailable($teacherId, $day, $blocks, $teacherAvailabilities, $state)) {
+                if (! $this->teacherBlocksAvailable($teacherId, $day, $blocks, $teacherAvailabilities, $state)) {
                     continue;
                 }
 
-                if (!$this->semesterBlocksAvailable($semesterKey, $day, $blocks, $state)) {
+                if (! $this->semesterBlocksAvailable($semesterKey, $day, $blocks, $state)) {
                     continue;
                 }
 
@@ -307,10 +310,10 @@ class TimetableGeneratorService
             $isAvailable = $teacherAvailabilities
                 ->where('day_of_week', $day)
                 ->contains(function ($availability) use ($start, $end) {
-                    return $availability->start_time <= $start . ':00' && $availability->end_time >= $end . ':00';
+                    return $availability->start_time <= $start.':00' && $availability->end_time >= $end.':00';
                 });
 
-            if (!$isAvailable) {
+            if (! $isAvailable) {
                 return false;
             }
         }
@@ -325,6 +328,7 @@ class TimetableGeneratorService
                 return false;
             }
         }
+
         return true;
     }
 
@@ -335,6 +339,7 @@ class TimetableGeneratorService
                 return false;
             }
         }
+
         return true;
     }
 
@@ -371,10 +376,11 @@ class TimetableGeneratorService
         $indexes = [];
         foreach ($this->slotBlocks() as $i => $block) {
             [$bStart, $bEnd] = $block;
-            if ($start < $bEnd . ':00' && $end > $bStart . ':00') {
+            if ($start < $bEnd.':00' && $end > $bStart.':00') {
                 $indexes[] = $i;
             }
         }
+
         return $indexes;
     }
 
@@ -393,7 +399,7 @@ class TimetableGeneratorService
 
     private function assertSemesterSubjectLimit(Collection $subjects, Collection $semesterNumbers): void
     {
-        $grouped = $subjects->groupBy(fn($subject) => (int) $subject->semester_sequence);
+        $grouped = $subjects->groupBy(fn ($subject) => (int) $subject->semester_sequence);
 
         foreach ($semesterNumbers as $semesterNumber) {
             $count = $grouped->get((int) $semesterNumber, collect())->count();
@@ -413,7 +419,7 @@ class TimetableGeneratorService
     private function slotBlocks(): array
     {
         return $this->accessService->timeSlots()
-            ->map(fn($s) => explode('-', $s))
+            ->map(fn ($s) => explode('-', $s))
             ->toArray();
     }
 }

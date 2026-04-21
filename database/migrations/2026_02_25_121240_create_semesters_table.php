@@ -19,7 +19,7 @@ return new class extends Migration
             $table->boolean('is_current')->default(false);
             $table->enum('status', ['upcoming', 'active', 'completed'])->default('upcoming');
             $table->timestamps();
-            
+
             // Unique semester per course per session
             $table->unique(['course_id', 'academic_session_id', 'semester_number'], 'unique_semester');
         });

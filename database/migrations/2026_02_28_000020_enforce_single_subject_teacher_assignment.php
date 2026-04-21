@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('teacher_subject_assignments')) {
+        if (! Schema::hasTable('teacher_subject_assignments')) {
             return;
         }
 
@@ -26,18 +26,19 @@ return new class extends Migration
         $deleteIds = [];
         foreach ($rows as $row) {
             $subjectId = (int) $row->subject_id;
-            if (!isset($keepBySubject[$subjectId])) {
+            if (! isset($keepBySubject[$subjectId])) {
                 $keepBySubject[$subjectId] = (int) $row->id;
+
                 continue;
             }
             $deleteIds[] = (int) $row->id;
         }
 
-        if (!empty($deleteIds)) {
+        if (! empty($deleteIds)) {
             DB::table('teacher_subject_assignments')->whereIn('id', $deleteIds)->delete();
         }
 
-        if (!$this->indexExists('teacher_subject_assignments', 'tsa_subject_unique')) {
+        if (! $this->indexExists('teacher_subject_assignments', 'tsa_subject_unique')) {
             Schema::table('teacher_subject_assignments', function (Blueprint $table) {
                 $table->unique('subject_id', 'tsa_subject_unique');
             });
@@ -46,7 +47,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (!Schema::hasTable('teacher_subject_assignments')) {
+        if (! Schema::hasTable('teacher_subject_assignments')) {
             return;
         }
 
@@ -68,12 +69,14 @@ return new class extends Migration
                     return true;
                 }
             }
+
             return false;
         }
 
         if ($driver === 'mysql') {
             $rows = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$indexName]);
-            return !empty($rows);
+
+            return ! empty($rows);
         }
 
         return false;

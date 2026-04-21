@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasColumn('students', 'gtu_enrollment_no')) {
+        if (! Schema::hasColumn('students', 'gtu_enrollment_no')) {
             Schema::table('students', function (Blueprint $table) {
                 $table->string('gtu_enrollment_no')->nullable()->after('roll_number');
             });
@@ -25,23 +25,23 @@ return new class extends Migration
             ->orderBy('id')
             ->chunkById(200, function ($rows) {
                 foreach ($rows as $row) {
-                    if (!empty($row->gtu_enrollment_no)) {
+                    if (! empty($row->gtu_enrollment_no)) {
                         continue;
                     }
 
                     $registrationNumber = property_exists($row, 'registration_number') ? $row->registration_number : null;
-                    $base = $registrationNumber ?: ($row->roll_number ?: ('GTU' . str_pad((string) $row->id, 6, '0', STR_PAD_LEFT)));
+                    $base = $registrationNumber ?: ($row->roll_number ?: ('GTU'.str_pad((string) $row->id, 6, '0', STR_PAD_LEFT)));
                     $candidate = strtoupper(preg_replace('/\s+/', '', (string) $base));
                     $suffix = 0;
                     while (
                         DB::table('students')
-                            ->where('gtu_enrollment_no', $candidate . ($suffix ? "-{$suffix}" : ''))
+                            ->where('gtu_enrollment_no', $candidate.($suffix ? "-{$suffix}" : ''))
                             ->where('id', '!=', $row->id)
                             ->exists()
                     ) {
                         $suffix++;
                     }
-                    $value = $candidate . ($suffix ? "-{$suffix}" : '');
+                    $value = $candidate.($suffix ? "-{$suffix}" : '');
 
                     DB::table('students')->where('id', $row->id)->update(['gtu_enrollment_no' => $value]);
                 }
@@ -52,7 +52,7 @@ return new class extends Migration
             DB::statement('ALTER TABLE students MODIFY gtu_enrollment_no VARCHAR(255) NOT NULL');
         }
 
-        if (!$this->indexExists('students', 'students_gtu_enrollment_no_unique')) {
+        if (! $this->indexExists('students', 'students_gtu_enrollment_no_unique')) {
             Schema::table('students', function (Blueprint $table) {
                 $table->unique('gtu_enrollment_no', 'students_gtu_enrollment_no_unique');
             });
@@ -61,7 +61,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        if (!Schema::hasColumn('students', 'gtu_enrollment_no')) {
+        if (! Schema::hasColumn('students', 'gtu_enrollment_no')) {
             return;
         }
 
@@ -87,12 +87,14 @@ return new class extends Migration
                     return true;
                 }
             }
+
             return false;
         }
 
         if ($driver === 'mysql') {
             $rows = DB::select("SHOW INDEX FROM {$table} WHERE Key_name = ?", [$indexName]);
-            return !empty($rows);
+
+            return ! empty($rows);
         }
 
         return false;

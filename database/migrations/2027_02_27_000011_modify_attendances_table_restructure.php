@@ -11,7 +11,7 @@ return new class extends Migration
         // AI suggested dropping attendances if it exists to restructure
         Schema::dropIfExists('attendances');
         Schema::dropIfExists('attendance_records');
-        
+
         Schema::create('attendances', function (Blueprint $table) {
             $table->id();
             $table->foreignId('attendance_session_id')->constrained()->onDelete('cascade');
@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status', ['present', 'absent', 'late', 'excused'])->default('present');
             $table->text('remarks')->nullable();
             $table->timestamps();
-            
+
             $table->unique(['attendance_session_id', 'student_id'], 'unique_student_attendance');
         });
     }

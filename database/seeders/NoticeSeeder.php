@@ -38,11 +38,11 @@ class NoticeSeeder extends Seeder
         foreach ($departments as $department) {
             Notice::updateOrCreate(
                 [
-                    'title' => $department->name . ' Department Review',
+                    'title' => $department->name.' Department Review',
                     'department_id' => $department->id,
                 ],
                 [
-                    'content' => 'Internal review and audit meeting for ' . $department->name . '.',
+                    'content' => 'Internal review and audit meeting for '.$department->name.'.',
                     'posted_by' => $department->hod_id ?? $admin?->id,
                     'target_role' => 'teacher',
                     'notice_for' => 'teachers',

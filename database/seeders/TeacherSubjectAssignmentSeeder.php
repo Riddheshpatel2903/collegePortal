@@ -3,9 +3,9 @@
 namespace Database\Seeders;
 
 use App\Models\AcademicSession;
+use App\Models\SemesterSubject;
 use App\Models\Teacher;
 use App\Models\TeacherSubjectAssignment;
-use App\Models\SemesterSubject;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -25,7 +25,7 @@ class TeacherSubjectAssignmentSeeder extends Seeder
         DB::transaction(function () use ($semesterSubjects, $sessionId) {
             foreach ($semesterSubjects as $semesterSubject) {
                 $departmentId = (int) ($semesterSubject->subject?->course?->department_id ?? 0);
-                if (!$departmentId) {
+                if (! $departmentId) {
                     continue;
                 }
 
@@ -34,7 +34,7 @@ class TeacherSubjectAssignmentSeeder extends Seeder
                     ->inRandomOrder()
                     ->value('id');
 
-                if (!$teacherId) {
+                if (! $teacherId) {
                     continue;
                 }
 
@@ -53,4 +53,3 @@ class TeacherSubjectAssignmentSeeder extends Seeder
         });
     }
 }
-

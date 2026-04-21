@@ -20,7 +20,7 @@ class ResultSubject extends Model
         'grade_point',
         'credits',
         'is_backlog',
-        'subject_status'
+        'subject_status',
     ];
 
     protected $casts = [
@@ -94,6 +94,7 @@ class ResultSubject extends Model
                 $resultSubject->grade_point = 0;
                 $resultSubject->is_backlog = true;
                 $resultSubject->subject_status = 'fail';
+
                 return;
             }
 

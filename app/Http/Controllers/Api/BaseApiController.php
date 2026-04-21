@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\Request;
 
 abstract class BaseApiController extends Controller
 {
     use ApiResponseTrait;
 
     abstract protected function modelClass(): string;
+
     protected function withRelations(): array
     {
         return [];
@@ -27,7 +28,7 @@ abstract class BaseApiController extends Controller
         }
 
         $data = $query->with($this->withRelations())
-            ->select($this->modelClass()::query()->getModel()->getTable() . '.*')
+            ->select($this->modelClass()::query()->getModel()->getTable().'.*')
             ->paginate($request->input('per_page', 15));
 
         return $this->success($data);
@@ -37,6 +38,7 @@ abstract class BaseApiController extends Controller
     {
         try {
             $item = $this->modelClass()::with($this->withRelations())->findOrFail($id);
+
             return $this->success($item);
         } catch (ModelNotFoundException $e) {
             return $this->error('Resource not found', 404);
@@ -78,6 +80,7 @@ abstract class BaseApiController extends Controller
 
             $validated = method_exists($request, 'validated') ? $request->validated() : $request->all();
             $model->update($validated);
+
             return $this->success($model, 'Updated');
         } catch (ModelNotFoundException $e) {
             return $this->error('Resource not found', 404);
@@ -89,6 +92,7 @@ abstract class BaseApiController extends Controller
         try {
             $model = $this->modelClass()::findOrFail($id);
             $model->delete();
+
             return $this->success(null, 'Deleted');
         } catch (ModelNotFoundException $e) {
             return $this->error('Resource not found', 404);

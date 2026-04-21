@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Teacher;
 
 use App\Http\Controllers\Controller;
 use App\Models\Result;
-use App\Models\ResultSubject;
 use App\Models\Student;
 use App\Models\TeacherSubjectAssignment;
 use App\Services\ResultService;
@@ -12,33 +11,31 @@ use Illuminate\Http\Request;
 
 class ResultController extends Controller
 {
-    public function __construct(private ResultService $resultService)
-    {
-    }
+    public function __construct(private ResultService $resultService) {}
 
     public function index()
     {
         $teacher = auth()->user()->teacher;
-        abort_if(!$teacher, 403, 'Teacher profile not found.');
+        abort_if(! $teacher, 403, 'Teacher profile not found.');
 
         $assignments = TeacherSubjectAssignment::with(['subject.course'])
             ->where('teacher_id', $teacher->id)
             ->where('is_active', true)
             ->get();
 
-        $semesterNumbers = $assignments->map(fn($a) => (int) ($a->subject?->semester_sequence ?? 0))
+        $semesterNumbers = $assignments->map(fn ($a) => (int) ($a->subject?->semester_sequence ?? 0))
             ->filter()
             ->unique()
             ->sort()
             ->values();
 
-        $semesters = $semesterNumbers->map(fn($no) => (object) [
+        $semesters = $semesterNumbers->map(fn ($no) => (object) [
             'id' => $no,
             'name' => "Semester {$no}",
             'course' => (object) ['name' => 'Derived'],
         ])->values();
 
-        $subjects = $assignments->map(fn($a) => (object) [
+        $subjects = $assignments->map(fn ($a) => (object) [
             'id' => $a->subject_id,
             'name' => $a->subject?->name ?? 'Subject',
             'semester_id' => (int) ($a->subject?->semester_sequence ?? 1),
@@ -55,13 +52,13 @@ class ResultController extends Controller
         ]);
 
         $teacher = auth()->user()->teacher;
-        abort_if(!$teacher, 403, 'Teacher profile not found.');
+        abort_if(! $teacher, 403, 'Teacher profile not found.');
         $semesterId = (int) $request->semester_id;
         $academicYear = (string) $request->academic_year;
 
         $assignments = TeacherSubjectAssignment::with('subject.course')
             ->where('teacher_id', $teacher->id)
-            ->whereHas('subject', fn($q) => $q->where('semester_sequence', $semesterId))
+            ->whereHas('subject', fn ($q) => $q->where('semester_sequence', $semesterId))
             ->where('is_active', true)
             ->get();
 
@@ -70,11 +67,11 @@ class ResultController extends Controller
                 'subjects' => [],
                 'students' => [],
                 'marks' => [],
-                'message' => 'No assigned subjects found for this semester.'
+                'message' => 'No assigned subjects found for this semester.',
             ]);
         }
 
-        $subjects = $assignments->map(fn($a) => [
+        $subjects = $assignments->map(fn ($a) => [
             'id' => $a->subject_id,
             'name' => $a->subject?->name ?? 'Subject',
         ])->values();
@@ -89,7 +86,7 @@ class ResultController extends Controller
         });
 
         $students = $studentsQuery->get()
-            ->map(fn($s) => [
+            ->map(fn ($s) => [
                 'id' => $s->id,
                 'name' => $s->user?->name ?? 'N/A',
                 'roll' => $s->roll_number ?? '',
@@ -139,7 +136,7 @@ class ResultController extends Controller
 
         foreach ($request->marks as $studentId => $subjects) {
             $student = Student::find($studentId);
-            if (!$student) {
+            if (! $student) {
                 continue;
             }
 
@@ -188,7 +185,7 @@ class ResultController extends Controller
     public function search(Request $request)
     {
         $teacher = auth()->user()->teacher;
-        abort_if(!$teacher, 403, 'Teacher profile not found.');
+        abort_if(! $teacher, 403, 'Teacher profile not found.');
         $courseIds = TeacherSubjectAssignment::query()
             ->where('teacher_id', $teacher->id)
             ->where('is_active', true)
@@ -204,7 +201,7 @@ class ResultController extends Controller
             ->with(['student.user', 'student.course'])
             ->whereIn('course_id', $courseIds)
             ->searchStudent((string) $request->input('search'))
-            ->when($request->filled('semester_number'), fn($q) => $q->where('semester_number', (int) $request->semester_number))
+            ->when($request->filled('semester_number'), fn ($q) => $q->where('semester_number', (int) $request->semester_number))
             ->orderByDesc('semester_number')
             ->orderByDesc('id')
             ->paginate(20)

@@ -22,11 +22,12 @@ class AttendanceController extends Controller
 
         $subjects = $assignments->map(function ($assignment) {
             $subject = $assignment->subject;
+
             return (object) [
                 'id' => $assignment->subject_id,
                 'name' => $subject?->name ?? 'Subject',
                 'semester_id' => (int) ($subject?->semester_sequence ?? 1),
-                'semester' => (object) ['name' => 'Semester ' . ((int) ($subject?->semester_sequence ?? 1))],
+                'semester' => (object) ['name' => 'Semester '.((int) ($subject?->semester_sequence ?? 1))],
             ];
         })->values();
 
@@ -34,7 +35,7 @@ class AttendanceController extends Controller
         foreach ($assignments as $assignment) {
             $subject = $assignment->subject;
             $course = $subject?->course;
-            if (!$subject || !$course) {
+            if (! $subject || ! $course) {
                 continue;
             }
 
@@ -45,12 +46,12 @@ class AttendanceController extends Controller
                 ->where('current_year', $academicYear)
                 ->get()
                 ->each(function ($s) use (&$studentsBySemester, $semesterNumber) {
-            $studentsBySemester[$semesterNumber][] = [
-                'id' => $s->id,
-                'name' => $s->user->name ?? 'N/A',
-                'roll' => $s->roll_number ?? '',
-            ];
-        });
+                    $studentsBySemester[$semesterNumber][] = [
+                        'id' => $s->id,
+                        'name' => $s->user->name ?? 'N/A',
+                        'roll' => $s->roll_number ?? '',
+                    ];
+                });
         }
 
         $studentsBySemesterJson = json_encode($studentsBySemester);

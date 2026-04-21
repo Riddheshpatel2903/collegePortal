@@ -22,10 +22,12 @@ class SubjectController extends Controller
         $subjects->getCollection()->transform(function ($subject) {
             $assignment = $subject->teacherAssignments->first();
             $subject->setRelation('teacher', $assignment?->teacher);
+
             return $subject;
         });
 
         $courses = Course::all();
+
         return view('admin.subjects.index', compact('subjects', 'courses'));
     }
 
@@ -188,6 +190,7 @@ class SubjectController extends Controller
     public function destroy(Subject $subject)
     {
         $subject->delete();
+
         return redirect()->route('admin.subjects.index')->with('success', 'Subject deleted successfully.');
     }
 
@@ -200,9 +203,9 @@ class SubjectController extends Controller
         ]);
 
         $courseId = $request->integer('course_id');
-        
+
         try {
-            $semesters = $request->type === 'pdf' 
+            $semesters = $request->type === 'pdf'
                 ? $parser->parseGtuPdf($request->file('file'))
                 : $parser->parseCsv($request->file('file'));
 
@@ -214,14 +217,14 @@ class SubjectController extends Controller
             DB::transaction(function () use ($semesters, $courseId, &$count) {
                 foreach ($semesters as $semData) {
                     $semesterNumber = (int) $semData['semester'];
-                    
+
                     foreach ($semData['subjects'] as $s) {
                         // Find teacher if provided (CSV only for now)
                         $teacherIdFound = null;
                         $teacherName = $s['teacher'] ?? null;
-                        if (!empty($teacherName)) {
+                        if (! empty($teacherName)) {
                             $teacher = Teacher::whereHas('user', function ($q) use ($teacherName) {
-                                $q->where('name', 'like', '%' . $teacherName . '%');
+                                $q->where('name', 'like', '%'.$teacherName.'%');
                             })->first();
                             if ($teacher) {
                                 $teacherIdFound = $teacher->id;
@@ -237,30 +240,30 @@ class SubjectController extends Controller
                                 'name' => $s['subject_name'],
                                 'semester_number' => $semesterNumber,
                                 'semester_sequence' => $semesterNumber,
-                                'lecture_hours' => (int)$s['lecture_hours'],
-                                'tutorial_hours' => (int)$s['tutorial_hours'],
-                                'practical_hours' => (int)$s['practical_hours'],
-                                'credits' => (int)$s['credits'],
-                                'internal_marks' => (int)$s['internal_marks'],
-                                'external_marks' => (int)$s['external_marks'],
-                                'total_marks' => (int)$s['total_marks'],
+                                'lecture_hours' => (int) $s['lecture_hours'],
+                                'tutorial_hours' => (int) $s['tutorial_hours'],
+                                'practical_hours' => (int) $s['practical_hours'],
+                                'credits' => (int) $s['credits'],
+                                'internal_marks' => (int) $s['internal_marks'],
+                                'external_marks' => (int) $s['external_marks'],
+                                'total_marks' => (int) $s['total_marks'],
                                 'type' => $s['subject_type'],
-                                'weekly_hours' => (int)$s['lecture_hours'] + (int)$s['tutorial_hours'] + (int)$s['practical_hours'],
-                                'is_lab' => (int)$s['practical_hours'] > 0,
+                                'weekly_hours' => (int) $s['lecture_hours'] + (int) $s['tutorial_hours'] + (int) $s['practical_hours'],
+                                'is_lab' => (int) $s['practical_hours'] > 0,
                                 'teacher_id' => $teacherIdFound,
                             ]
                         );
-                        
+
                         // Link to semester if exists
                         $semester = Semester::where('course_id', $courseId)
                             ->where('semester_number', $semesterNumber)
                             ->first();
-                            
+
                         $semesterSubjectId = null;
                         if ($semester) {
                             $ss = SemesterSubject::updateOrCreate(
                                 ['semester_id' => $semester->id, 'subject_id' => $subject->id],
-                                ['credits' => (int)$s['credits'], 'subject_type' => 'core', 'is_mandatory' => true]
+                                ['credits' => (int) $s['credits'], 'subject_type' => 'core', 'is_mandatory' => true]
                             );
                             $semesterSubjectId = $ss->id;
                         }
@@ -286,7 +289,7 @@ class SubjectController extends Controller
 
             return back()->with('success', "Curriculum imported successfully. Added/Updated {$count} subjects.");
         } catch (\Throwable $e) {
-            return back()->with('error', 'Import failed: ' . $e->getMessage());
+            return back()->with('error', 'Import failed: '.$e->getMessage());
         }
     }
 
@@ -327,9 +330,10 @@ class SubjectController extends Controller
                 SemesterSubject::query()->delete();
                 Subject::query()->delete();
             });
+
             return back()->with('success', 'All subjects and assignments have been deleted.');
         } catch (\Throwable $e) {
-            return back()->with('error', 'Failed to delete subjects: ' . $e->getMessage());
+            return back()->with('error', 'Failed to delete subjects: '.$e->getMessage());
         }
     }
 }

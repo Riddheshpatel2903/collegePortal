@@ -29,7 +29,7 @@ class TimetableSeeder extends Seeder
         if (Classroom::query()->count() < 20) {
             for ($i = 1; $i <= 20; $i++) {
                 Classroom::query()->firstOrCreate(
-                    ['name' => 'CR-' . str_pad((string) $i, 3, '0', STR_PAD_LEFT)],
+                    ['name' => 'CR-'.str_pad((string) $i, 3, '0', STR_PAD_LEFT)],
                     ['capacity' => random_int(60, 90)]
                 );
             }
@@ -48,9 +48,9 @@ class TimetableSeeder extends Seeder
             $classBusy = [];
 
             $days = config('timetable.working_days', []);
-        $slots = config('timetable.slot_blocks', []);
+            $slots = config('timetable.slot_blocks', []);
 
-        foreach ($courses as $course) {
+            foreach ($courses as $course) {
                 for ($year = 1; $year <= 4; $year++) {
                     $semesterNo = (($year - 1) * 2) + $phaseIndex;
                     $semester = Semester::query()
@@ -68,7 +68,7 @@ class TimetableSeeder extends Seeder
 
                     foreach ($assignments as $assignment) {
                         $subject = $assignment->subject;
-                        if (!$subject || !$assignment->teacher_id) {
+                        if (! $subject || ! $assignment->teacher_id) {
                             continue;
                         }
 
@@ -91,14 +91,14 @@ class TimetableSeeder extends Seeder
                                 $roomId = null;
                                 foreach ($roomIds as $rid) {
                                     $roomKey = "{$rid}-{$day}-{$slotIdx}";
-                                    if (!($roomBusy[$roomKey] ?? false)) {
+                                    if (! ($roomBusy[$roomKey] ?? false)) {
                                         $roomId = $rid;
                                         $roomBusy[$roomKey] = true;
                                         break;
                                     }
                                 }
 
-                                if (!$roomId) {
+                                if (! $roomId) {
                                     continue;
                                 }
 
@@ -123,4 +123,3 @@ class TimetableSeeder extends Seeder
         });
     }
 }
-

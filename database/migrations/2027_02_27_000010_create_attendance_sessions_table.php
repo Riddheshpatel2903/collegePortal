@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('topic')->nullable();
             $table->boolean('is_completed')->default(false);
             $table->timestamps();
-            
+
             $table->index(['semester_subject_id', 'date']);
         });
     }

@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Accountant;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-
 use App\Models\StudentFee;
 
 class DashboardController extends Controller
@@ -18,18 +16,18 @@ class DashboardController extends Controller
 
         // prepare monthly revenue for chart
         $monthly = StudentFee::selectRaw("DATE_FORMAT(created_at, '%Y-%m') as month")
-                        ->selectRaw('SUM(paid_amount) as revenue')
-                        ->groupBy('month')
-                        ->orderBy('month')
-                        ->get();
+            ->selectRaw('SUM(paid_amount) as revenue')
+            ->groupBy('month')
+            ->orderBy('month')
+            ->get();
 
         $revenueLabels = $monthly->pluck('month')->toArray();
-        $revenueData   = $monthly->pluck('revenue')->toArray();
+        $revenueData = $monthly->pluck('revenue')->toArray();
 
-        $thisMonthRevenue = !empty($revenueData) ? end($revenueData) : 0;
+        $thisMonthRevenue = ! empty($revenueData) ? end($revenueData) : 0;
 
-        $collectionLabels = ['Collected','Pending'];
-        $collectionData   = [(float)$totalCollected, (float)$totalPending];
+        $collectionLabels = ['Collected', 'Pending'];
+        $collectionData = [(float) $totalCollected, (float) $totalPending];
 
         return view('accountant.dashboard', compact(
             'totalExpected',

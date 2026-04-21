@@ -37,6 +37,7 @@ class SemesterCalculationService
     public function yearFromSemester(Course $course, int $semesterNumber): int
     {
         $this->validateSemesterWithinCourse($course, $semesterNumber);
+
         return (int) ceil($semesterNumber / 2);
     }
 
@@ -58,7 +59,7 @@ class SemesterCalculationService
     public function currentSemesterForStudent(Student $student): int
     {
         $course = $student->course;
-        if (!$course) {
+        if (! $course) {
             return 1;
         }
 

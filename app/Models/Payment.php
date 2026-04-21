@@ -19,7 +19,7 @@ class Payment extends Model
         'payment_mode',
         'transaction_id',
         'remarks',
-        'collected_by'
+        'collected_by',
     ];
 
     protected $casts = [
@@ -50,7 +50,7 @@ class Payment extends Model
 
         static::creating(function ($payment) {
             if (empty($payment->receipt_number)) {
-                $payment->receipt_number = 'RCT-' . now()->format('Ymd-His') . '-' . Str::upper(Str::random(6));
+                $payment->receipt_number = 'RCT-'.now()->format('Ymd-His').'-'.Str::upper(Str::random(6));
             }
         });
     }

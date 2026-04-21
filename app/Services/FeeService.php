@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\Student;
 use App\Models\FeeStructure;
+use App\Models\Student;
 use App\Models\StudentFee;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -26,7 +26,7 @@ class FeeService
                 ->where('fee_structure_id', $feeStructure->id)
                 ->first();
 
-            if (!$existingFee) {
+            if (! $existingFee) {
                 $studentFee = StudentFee::create([
                     'student_id' => $student->id,
                     'academic_year' => $yearNumber,
@@ -75,7 +75,7 @@ class FeeService
                 'payment_mode' => $paymentData['payment_mode'],
                 'transaction_id' => $paymentData['transaction_id'] ?? null,
                 'remarks' => $paymentData['remarks'] ?? null,
-                'collected_by' => $paymentData['collected_by'] ?? \Illuminate\Support\Facades\Auth::id()
+                'collected_by' => $paymentData['collected_by'] ?? \Illuminate\Support\Facades\Auth::id(),
             ]);
 
             // Update student fee

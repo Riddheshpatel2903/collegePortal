@@ -8,9 +8,7 @@ use Illuminate\Validation\ValidationException;
 
 class ScheduleService
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function create(array $payload): Schedule
     {
@@ -25,6 +23,7 @@ class ScheduleService
 
         return DB::transaction(function () use ($schedule, $payload) {
             $schedule->update($payload);
+
             return $schedule->refresh();
         });
     }
@@ -91,7 +90,7 @@ class ScheduleService
     {
         $start = substr((string) $payload['start_time'], 0, 5);
         $end = substr((string) $payload['end_time'], 0, 5);
-        
+
         $courseId = null;
         $semesterType = null;
 
@@ -107,10 +106,11 @@ class ScheduleService
 
         $isAllowed = $timeSlots->contains(function ($slot) use ($start, $end) {
             [$s, $e] = explode('-', $slot);
+
             return $s === $start && $e === $end;
         });
 
-        if (!$isAllowed) {
+        if (! $isAllowed) {
             throw ValidationException::withMessages([
                 'start_time' => 'Slot must match one configured timetable block.',
             ]);

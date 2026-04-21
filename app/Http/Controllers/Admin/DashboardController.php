@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Course;
+use App\Models\Event;
+use App\Models\Notice;
+use App\Models\Payment;
 use App\Models\Student;
 use App\Models\Teacher;
-use App\Models\Course;
-use App\Models\Payment;
-use App\Models\Notice;
-use App\Models\Event;
 
 class DashboardController extends Controller
 {

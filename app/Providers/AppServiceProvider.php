@@ -46,8 +46,6 @@ class AppServiceProvider extends ServiceProvider
             $view->with('portalAccess', app(PortalAccessService::class));
         });
 
-
-
         if (
             Schema::hasTable('roles')
             && Schema::hasTable('pages')

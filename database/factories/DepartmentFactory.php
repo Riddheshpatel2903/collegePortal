@@ -12,10 +12,9 @@ class DepartmentFactory extends Factory
     public function definition(): array
     {
         return [
-            'name' => $this->faker->unique()->company() . ' Department',
+            'name' => $this->faker->unique()->company().' Department',
             'description' => $this->faker->sentence(12),
             'hod_id' => null,
         ];
     }
 }
-

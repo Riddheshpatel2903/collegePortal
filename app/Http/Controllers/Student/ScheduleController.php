@@ -13,13 +13,12 @@ class ScheduleController extends Controller
     public function __construct(
         private TimetableRepository $repository,
         private PortalAccessService $accessService
-    ) {
-    }
+    ) {}
 
     public function index()
     {
         $student = auth()->user()->student;
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

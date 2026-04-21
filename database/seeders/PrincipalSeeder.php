@@ -22,4 +22,3 @@ class PrincipalSeeder extends Seeder
         );
     }
 }
-

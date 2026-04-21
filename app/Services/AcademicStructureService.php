@@ -8,9 +8,7 @@ use App\Models\Student;
 
 class AcademicStructureService
 {
-    public function __construct(private SemesterCalculationService $semesterCalculationService)
-    {
-    }
+    public function __construct(private SemesterCalculationService $semesterCalculationService) {}
 
     public function totalSemesters(Course $course): int
     {

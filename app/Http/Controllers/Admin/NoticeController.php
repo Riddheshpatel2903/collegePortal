@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Notice;
+use Illuminate\Http\Request;
 
 class NoticeController extends Controller
 {
     public function index()
     {
         $notices = Notice::with('user')->latest()->paginate(20);
+
         return view('admin.notices.index', compact('notices'));
     }
 
@@ -24,7 +25,7 @@ class NoticeController extends Controller
         $request->validate([
             'title' => 'required',
             'content' => 'required',
-            'target_role' => 'required|in:all,student,teacher,hod'
+            'target_role' => 'required|in:all,student,teacher,hod',
         ]);
 
         Notice::create([

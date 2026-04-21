@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Controllers/AttendanceController.php
 
 namespace App\Http\Controllers;
@@ -25,7 +26,7 @@ class AttendanceController extends Controller
     {
         $teacher = auth()->user()->teacher;
 
-        if (!$teacher) {
+        if (! $teacher) {
             abort(403, 'Teacher profile not found.');
         }
 
@@ -44,9 +45,9 @@ class AttendanceController extends Controller
     public function getStudents(Request $request)
     {
         $semesterSubjectId = $request->semester_subject_id;
-        
+
         $semesterSubject = SemesterSubject::with('semester')->findOrFail($semesterSubjectId);
-        
+
         $students = Student::where('current_semester_id', $semesterSubject->semester_id)
             ->where('student_status', 'active')
             ->orderBy('roll_number')
@@ -67,7 +68,7 @@ class AttendanceController extends Controller
             'end_time' => 'nullable',
             'session_type' => 'required|in:lecture,practical,tutorial',
             'topic' => 'nullable|string',
-            'attendance' => 'required|array'
+            'attendance' => 'required|array',
         ]);
 
         $teacher = auth()->user()->teacher;
@@ -80,7 +81,7 @@ class AttendanceController extends Controller
             'start_time' => $validated['start_time'],
             'end_time' => $validated['end_time'],
             'session_type' => $validated['session_type'],
-            'topic' => $validated['topic']
+            'topic' => $validated['topic'],
         ]);
 
         // Mark attendance
@@ -131,7 +132,7 @@ class AttendanceController extends Controller
     {
         $student = auth()->user()->student;
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

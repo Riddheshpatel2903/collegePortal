@@ -1,20 +1,20 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\StudentApiController;
-use App\Http\Controllers\API\TeacherApiController;
+use App\Http\Controllers\API\AssignmentApiController;
+use App\Http\Controllers\API\AttendanceApiController;
 use App\Http\Controllers\API\CourseApiController;
 use App\Http\Controllers\API\DepartmentApiController;
-use App\Http\Controllers\API\SubjectApiController;
-use App\Http\Controllers\API\SemesterApiController;
-use App\Http\Controllers\API\AttendanceApiController;
-use App\Http\Controllers\API\ResultApiController;
-use App\Http\Controllers\API\AssignmentApiController;
-use App\Http\Controllers\API\NoticeApiController;
-use App\Http\Controllers\API\TimetableApiController;
-use App\Http\Controllers\API\FeeApiController;
 use App\Http\Controllers\API\EventApiController;
+use App\Http\Controllers\API\FeeApiController;
 use App\Http\Controllers\API\HolidayApiController;
+use App\Http\Controllers\API\NoticeApiController;
+use App\Http\Controllers\API\ResultApiController;
+use App\Http\Controllers\API\SemesterApiController;
+use App\Http\Controllers\API\StudentApiController;
+use App\Http\Controllers\API\SubjectApiController;
+use App\Http\Controllers\API\TeacherApiController;
+use App\Http\Controllers\API\TimetableApiController;
+use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::post('login', [\App\Http\Controllers\API\AuthController::class, 'login']);

@@ -24,7 +24,7 @@ class TimetableRepository
         return Teacher::query()
             ->with('user:id,name')
             ->where('department_id', $departmentId)
-            ->when(!empty($onlyTeacherIds), fn ($q) => $q->whereIn('id', $onlyTeacherIds))
+            ->when(! empty($onlyTeacherIds), fn ($q) => $q->whereIn('id', $onlyTeacherIds))
             ->orderBy('id')
             ->get();
     }
@@ -140,7 +140,7 @@ class TimetableRepository
                 ->orderBy('id')
                 ->first();
 
-            if (!$room) {
+            if (! $room) {
                 $room = Classroom::query()
                     ->where('type', 'lecture')
                     ->where('course_id', $courseId)
@@ -149,7 +149,7 @@ class TimetableRepository
                     ->first();
             }
 
-            if (!$room) {
+            if (! $room) {
                 continue;
             }
 
@@ -179,10 +179,11 @@ class TimetableRepository
                 $room->year_number = null;
                 $room->save();
                 $count++;
+
                 continue;
             }
 
-            $name = "LAB-{$courseId}-" . str_pad((string) ($count + 1), 2, '0', STR_PAD_LEFT);
+            $name = "LAB-{$courseId}-".str_pad((string) ($count + 1), 2, '0', STR_PAD_LEFT);
             Classroom::query()->create([
                 'name' => $name,
                 'type' => 'lab',
@@ -203,7 +204,7 @@ class TimetableRepository
 
         foreach ($slots as $slot) {
             foreach ($days as $day) {
-                if (!$this->hasRoomConflict($roomId, $day, [$slot], $semesterType)) {
+                if (! $this->hasRoomConflict($roomId, $day, [$slot], $semesterType)) {
                     $count++;
                 }
             }
@@ -218,7 +219,7 @@ class TimetableRepository
             ->where('type', 'lecture')
             ->whereNull('course_id')
             ->whereNull('year_number')
-            ->when(!empty($excludeRoomIds), fn ($q) => $q->whereNotIn('id', $excludeRoomIds))
+            ->when(! empty($excludeRoomIds), fn ($q) => $q->whereNotIn('id', $excludeRoomIds))
             ->orderBy('id')
             ->get();
 
@@ -364,6 +365,7 @@ class TimetableRepository
     public function saveTimetableRow(Timetable $row): Timetable
     {
         $row->save();
+
         return $row->refresh()->load(['subject', 'teacher.user', 'classroom']);
     }
 
@@ -384,7 +386,7 @@ class TimetableRepository
             ->where('day', $day)
             ->whereIn('slot_number', $slotNumbers)
             ->whereRaw('MOD(semester_number, 2) = ?', [$this->semesterParity($semesterType)])
-            ->when(!empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
+            ->when(! empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
             ->exists();
     }
 
@@ -402,7 +404,7 @@ class TimetableRepository
             ->where('day', $day)
             ->whereIn('slot_number', $slotNumbers)
             ->whereRaw('MOD(semester_number, 2) = ?', [$this->semesterParity($semesterType)])
-            ->when(!empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
+            ->when(! empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
             ->exists();
     }
 
@@ -418,7 +420,7 @@ class TimetableRepository
             ->where('day', $day)
             ->whereIn('slot_number', $slotNumbers)
             ->whereRaw('MOD(semester_number, 2) = ?', [$this->semesterParity($semesterType)])
-            ->when(!empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
+            ->when(! empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
             ->exists();
     }
 
@@ -432,14 +434,14 @@ class TimetableRepository
             ->where('teacher_id', $teacherId)
             ->where('day', $day)
             ->whereRaw('MOD(semester_number, 2) = ?', [$this->semesterParity($semesterType)])
-            ->when(!empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
+            ->when(! empty($ignoreIds), fn ($q) => $q->whereNotIn('id', $ignoreIds))
             ->count();
     }
 
     public function teacherAvailabilities(array $teacherIds): EloquentCollection
     {
         if (empty($teacherIds)) {
-            return new EloquentCollection();
+            return new EloquentCollection;
         }
 
         return TeacherAvailability::query()

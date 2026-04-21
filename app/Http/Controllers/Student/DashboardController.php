@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $user = auth()->user();
         $student = Student::with(['user', 'course', 'fees', 'results'])->where('user_id', $user->id)->first();
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

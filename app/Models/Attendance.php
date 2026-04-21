@@ -15,7 +15,7 @@ class Attendance extends Model
         'attendance_session_id',
         'student_id',
         'status',
-        'remarks'
+        'remarks',
     ];
 
     // Relationships

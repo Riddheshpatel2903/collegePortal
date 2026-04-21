@@ -9,13 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class CheckModuleEnabled
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function handle(Request $request, Closure $next, string $moduleKey): Response
     {
-        if (!$this->accessService->moduleEnabled($moduleKey, true)) {
+        if (! $this->accessService->moduleEnabled($moduleKey, true)) {
             if ($request->expectsJson()) {
                 return response()->json(['message' => 'Module is disabled by administrator.'], 403);
             }
@@ -25,4 +23,3 @@ class CheckModuleEnabled
         return $next($request);
     }
 }
-

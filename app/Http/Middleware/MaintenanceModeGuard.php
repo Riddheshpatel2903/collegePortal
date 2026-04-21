@@ -9,13 +9,11 @@ use Symfony\Component\HttpFoundation\Response;
 
 class MaintenanceModeGuard
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function handle(Request $request, Closure $next): Response
     {
-        if (!$this->accessService->featureEnabled('maintenance_mode', false)) {
+        if (! $this->accessService->featureEnabled('maintenance_mode', false)) {
             return $next($request);
         }
 
@@ -34,4 +32,3 @@ class MaintenanceModeGuard
         abort(503, 'Portal is in maintenance mode. Only admin access is allowed.');
     }
 }
-

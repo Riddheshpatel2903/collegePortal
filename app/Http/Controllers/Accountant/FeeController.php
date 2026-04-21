@@ -3,16 +3,14 @@
 namespace App\Http\Controllers\Accountant;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Student;
 use App\Models\StudentFee;
 use App\Services\FeeService;
+use Illuminate\Http\Request;
 
 class FeeController extends Controller
 {
-    public function __construct(private FeeService $feeService)
-    {
-    }
+    public function __construct(private FeeService $feeService) {}
 
     protected function ensureAllStudentsHaveFeeEntries(): void
     {
@@ -22,7 +20,7 @@ class FeeController extends Controller
 
         /** @var Student $student */
         foreach ($studentsWithoutFees as $student) {
-            if (!($student instanceof Student)) {
+            if (! ($student instanceof Student)) {
                 continue;
             }
 
@@ -66,7 +64,7 @@ class FeeController extends Controller
     public function update(Request $request, StudentFee $fee)
     {
         $request->validate([
-            'payment_amount' => 'required|numeric|min:0.1|max:' . ($fee->total_amount - $fee->paid_amount),
+            'payment_amount' => 'required|numeric|min:0.1|max:'.($fee->total_amount - $fee->paid_amount),
             'receipt_number' => 'nullable|string|max:50|unique:payments,receipt_number',
             'remarks' => 'nullable|string|max:255',
         ]);
@@ -85,7 +83,7 @@ class FeeController extends Controller
         }
 
         return redirect()->route('accountant.fees.index')
-            ->with('success', 'Payment recorded for ' . ($fee->student->user->name ?? 'student') . '.');
+            ->with('success', 'Payment recorded for '.($fee->student->user->name ?? 'student').'.');
     }
 
     public function assign(Student $student)

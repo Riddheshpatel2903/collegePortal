@@ -11,8 +11,7 @@ class ResultService
 {
     public function __construct(
         protected PromotionService $promotionService
-    ) {
-    }
+    ) {}
 
     /**
      * Calculate SGPA for a semester
@@ -72,13 +71,13 @@ class ResultService
             $result = Result::firstOrCreate(
                 [
                     'student_id' => $student->id,
-                    'semester_number' => $semesterNumber
+                    'semester_number' => $semesterNumber,
                 ],
                 [
                     'course_id' => $student->course_id,
                     'academic_year' => $student->current_year,
                     'result_status' => 'pending',
-                    'promoted' => false
+                    'promoted' => false,
                 ]
             );
 
@@ -88,7 +87,7 @@ class ResultService
             // Process each subject
             foreach ($subjectMarks as $subjectId => $marks) {
                 $subject = \App\Models\Subject::find($subjectId);
-                if (!$subject) {
+                if (! $subject) {
                     continue;
                 }
 
@@ -96,13 +95,13 @@ class ResultService
                     [
                         'result_id' => $result->id,
                         'subject_id' => $subjectId,
-                        'student_id' => $student->id
+                        'student_id' => $student->id,
                     ],
                     [
                         'internal_marks' => $marks['internal'],
                         'external_marks' => $marks['external'],
                         'max_marks' => $marks['max_marks'] ?? 100,
-                        'credits' => $subject->credits
+                        'credits' => $subject->credits,
                     ]
                 );
 
@@ -122,7 +121,7 @@ class ResultService
                 'backlog_subjects' => $backlogCount,
                 'total_credits_earned' => $totalCredits,
                 'result_status' => $publish ? ($backlogCount > 0 ? 'fail' : 'pass') : 'pending',
-                'result_declared_date' => $publish ? now() : null
+                'result_declared_date' => $publish ? now() : null,
             ]);
 
             // Calculate and update CGPA

@@ -20,7 +20,7 @@ class StudentObserver
     public function created(Student $student)
     {
         // Year-based academic initialization
-        if (!$student->current_year) {
+        if (! $student->current_year) {
             $student->update([
                 'current_year' => 1,
                 'academic_status' => 'active',

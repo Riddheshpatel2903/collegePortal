@@ -36,11 +36,10 @@ class HolidaySeeder extends Seeder
                 ['date' => $date],
                 [
                     'is_recurring' => false,
-                    'description' => $name . ' holiday',
+                    'description' => $name.' holiday',
                     'name' => $name,
                 ]
             );
         }
     }
 }
-

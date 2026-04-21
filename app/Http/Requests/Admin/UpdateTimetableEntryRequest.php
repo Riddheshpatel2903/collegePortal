@@ -22,4 +22,3 @@ class UpdateTimetableEntryRequest extends FormRequest
         ];
     }
 }
-

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\ResultSubject;
 use App\Models\Result;
+use App\Models\ResultSubject;
 use App\Models\Subject;
 use Illuminate\Database\Eloquent\Factories\Factory;
 

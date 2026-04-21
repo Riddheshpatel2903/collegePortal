@@ -14,7 +14,7 @@ class DashboardController extends Controller
     public function index()
     {
         $department = Department::where('hod_id', auth()->id())->first();
-        abort_unless((bool)$department, 403, 'HOD department mapping not found.');
+        abort_unless((bool) $department, 403, 'HOD department mapping not found.');
 
         $teacherIds = Teacher::where('department_id', $department->id)->pluck('id');
         $studentIds = Student::where('department_id', $department->id)->pluck('id');

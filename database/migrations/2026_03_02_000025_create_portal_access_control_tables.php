@@ -8,7 +8,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('roles')) {
+        if (! Schema::hasTable('roles')) {
             Schema::create('roles', function (Blueprint $table) {
                 $table->id();
                 $table->string('name')->unique();
@@ -16,7 +16,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('pages')) {
+        if (! Schema::hasTable('pages')) {
             Schema::create('pages', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -26,7 +26,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('role_page_permissions')) {
+        if (! Schema::hasTable('role_page_permissions')) {
             Schema::create('role_page_permissions', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
@@ -37,7 +37,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('feature_toggles')) {
+        if (! Schema::hasTable('feature_toggles')) {
             Schema::create('feature_toggles', function (Blueprint $table) {
                 $table->string('feature_key')->primary();
                 $table->boolean('enabled')->default(true);
@@ -45,7 +45,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('module_settings')) {
+        if (! Schema::hasTable('module_settings')) {
             Schema::create('module_settings', function (Blueprint $table) {
                 $table->string('module_key')->primary();
                 $table->boolean('enabled')->default(true);
@@ -53,7 +53,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('system_settings')) {
+        if (! Schema::hasTable('system_settings')) {
             Schema::create('system_settings', function (Blueprint $table) {
                 $table->string('setting_key')->primary();
                 $table->text('setting_value')->nullable();
@@ -72,4 +72,3 @@ return new class extends Migration
         Schema::dropIfExists('roles');
     }
 };
-

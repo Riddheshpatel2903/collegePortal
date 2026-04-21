@@ -79,4 +79,3 @@ class InternalMarksSeeder extends Seeder
         });
     }
 }
-

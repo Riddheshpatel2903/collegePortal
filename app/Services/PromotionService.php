@@ -6,14 +6,12 @@ use App\Models\Student;
 
 class PromotionService
 {
-    public function __construct(private SemesterCalculationService $semesterCalculationService)
-    {
-    }
+    public function __construct(private SemesterCalculationService $semesterCalculationService) {}
 
     public function promoteAtYearEnd(Student $student, bool $passedAllSubjects): bool
     {
         $course = $student->course;
-        if (!$course) {
+        if (! $course) {
             return false;
         }
 
@@ -31,6 +29,7 @@ class PromotionService
             ]);
 
             app(FeeService::class)->applyYearFeeToStudent($student, $nextYear);
+
             return true;
         }
 

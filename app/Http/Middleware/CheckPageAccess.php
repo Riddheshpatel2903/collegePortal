@@ -2,25 +2,25 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\PortalAccessService;
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use Illuminate\Support\Str;
-use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CheckPageAccess
- * 
- * The ultimate gatekeeper for the College Portal. 
+ *
+ * The ultimate gatekeeper for the College Portal.
  * Orchestrates a unified security flow: User Integrity -> Action Mapping -> ALP Validation.
  */
 class CheckPageAccess
 {
     /**
      * Handle an incoming request.
-     * 
-     * Flow: 
+     *
+     * Flow:
      * 1. Identity Check (Is user active? Valid role?)
      * 2. Context Extraction (Route name, namespace safety)
      * 3. Action Mapping (CRUD Translation)
@@ -33,7 +33,7 @@ class CheckPageAccess
         $routeName = $route ? $route->getName() : null;
 
         // Requirement: This middleware focuses on Page + Action validation for named routes.
-        if (!$routeName) {
+        if (! $routeName) {
             return $next($request);
         }
 
@@ -42,14 +42,14 @@ class CheckPageAccess
         // 1. Granular Action Mapping
         // Prevents privilege escalation by ensuring standard CRUD routes check specific columns.
         $actionMap = [
-            '.create'  => 'can_create',
-            '.store'   => 'can_create',
-            '.edit'    => 'can_edit',
-            '.update'  => 'can_edit',
+            '.create' => 'can_create',
+            '.store' => 'can_create',
+            '.edit' => 'can_edit',
+            '.update' => 'can_edit',
             '.destroy' => 'can_delete',
-            '.show'    => 'can_view',
-            '.index'   => 'can_view',
-            '.export'  => 'can_export',
+            '.show' => 'can_view',
+            '.index' => 'can_view',
+            '.export' => 'can_export',
         ];
 
         $targetAction = 'can_view';
@@ -59,7 +59,7 @@ class CheckPageAccess
             if (Str::endsWith($routeName, $suffix)) {
                 $targetAction = $action;
                 // Collapse to the module's primary identifier for permission lookup
-                $permissionRoute = Str::beforeLast($routeName, '.') . '.index';
+                $permissionRoute = Str::beforeLast($routeName, '.').'.index';
                 break;
             }
         }
@@ -68,22 +68,22 @@ class CheckPageAccess
         $hasAccess = $accessService->hasPageContentAccess($permissionRoute, $targetAction, $user);
 
         // 3. Predictable Debug Strategy
-        if (config('app.debug') || !$hasAccess) {
+        if (config('app.debug') || ! $hasAccess) {
             Log::info('CheckPageAccess Unified Trace', [
-                'user'     => $user->id,
-                'role'     => $user->role,
-                'intent'   => $routeName,
+                'user' => $user->id,
+                'role' => $user->role,
+                'intent' => $routeName,
                 'resolved' => $permissionRoute,
-                'action'   => $targetAction,
-                'verdict'  => $hasAccess ? 'ALLOWED' : 'DENIED'
+                'action' => $targetAction,
+                'verdict' => $hasAccess ? 'ALLOWED' : 'DENIED',
             ]);
         }
 
-        if (!$hasAccess) {
+        if (! $hasAccess) {
             $message = config('app.debug')
                 ? "Unified Flow Block: Missing '{$targetAction}' for '{$permissionRoute}'"
-                : "Security Restricted: You lack the necessary permissions for this module.";
-            
+                : 'Security Restricted: You lack the necessary permissions for this module.';
+
             abort(403, $message);
         }
 

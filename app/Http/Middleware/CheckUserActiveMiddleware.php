@@ -4,12 +4,12 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class CheckUserActiveMiddleware
- * 
+ *
  * Ensures that the user is both authenticated and has an 'active' status.
  * This is the first layer of the project's security hierarchy.
  */
@@ -23,16 +23,16 @@ class CheckUserActiveMiddleware
         $user = auth()->user();
 
         // Standardised status check across the entire portal.
-        if (!$user || $user->status !== 'active') {
+        if (! $user || $user->status !== 'active') {
             Log::warning('Security Check: User not authenticated or inactive', [
                 'user_id' => $user->id ?? 'guest',
-                'path'    => $request->getPathInfo()
+                'path' => $request->getPathInfo(),
             ]);
 
             if ($request->expectsJson() || $request->is('api/*')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Unauthorized: Your account is inactive or session is invalid.'
+                    'message' => 'Unauthorized: Your account is inactive or session is invalid.',
                 ], 403);
             }
 

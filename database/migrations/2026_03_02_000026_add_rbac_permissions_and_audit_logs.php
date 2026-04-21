@@ -9,7 +9,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        if (!Schema::hasTable('permissions')) {
+        if (! Schema::hasTable('permissions')) {
             Schema::create('permissions', function (Blueprint $table) {
                 $table->id();
                 $table->string('key')->unique();
@@ -18,7 +18,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('role_permissions')) {
+        if (! Schema::hasTable('role_permissions')) {
             Schema::create('role_permissions', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
@@ -28,7 +28,7 @@ return new class extends Migration
             });
         }
 
-        if (!Schema::hasTable('audit_logs')) {
+        if (! Schema::hasTable('audit_logs')) {
             Schema::create('audit_logs', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('user_id')->nullable()->constrained('users')->nullOnDelete();
@@ -61,4 +61,3 @@ return new class extends Migration
         Schema::dropIfExists('permissions');
     }
 };
-

@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Semester;
-use App\Models\Course;
 use App\Models\AcademicSession;
+use App\Models\Course;
+use App\Models\Semester;
 use App\Services\SemesterCalculationService;
+use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 
 class SemesterController extends Controller
 {
-    public function __construct(private SemesterCalculationService $semesterCalculationService)
-    {
-    }
+    public function __construct(private SemesterCalculationService $semesterCalculationService) {}
 
     public function index()
     {
@@ -22,6 +20,7 @@ class SemesterController extends Controller
             ->orderByDesc('academic_session_id')
             ->orderBy('semester_number')
             ->paginate(20);
+
         return view('admin.semesters.index', compact('semesters'));
     }
 
@@ -49,7 +48,7 @@ class SemesterController extends Controller
 
         $course = Course::findOrFail($request->input('course_id'));
         $maxSemester = $this->semesterCalculationService->totalSemesters($course);
-        $baseRules['semester_number'][] = 'max:' . $maxSemester;
+        $baseRules['semester_number'][] = 'max:'.$maxSemester;
         $baseRules['semester_number'][] = Rule::unique('semesters', 'semester_number')
             ->where(fn ($q) => $q
                 ->where('course_id', $request->input('course_id'))
@@ -57,7 +56,7 @@ class SemesterController extends Controller
 
         $validated = $request->validate($baseRules);
 
-        if (!empty($validated['is_current'])) {
+        if (! empty($validated['is_current'])) {
             Semester::query()
                 ->where('course_id', $validated['course_id'])
                 ->where('academic_session_id', $validated['academic_session_id'])

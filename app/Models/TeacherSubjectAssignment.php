@@ -16,7 +16,7 @@ class TeacherSubjectAssignment extends Model
         'semester_id',
         'academic_session_id',
         'assigned_date',
-        'is_active'
+        'is_active',
     ];
 
     protected $casts = [

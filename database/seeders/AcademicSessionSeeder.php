@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\AcademicSession;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class AcademicSessionSeeder extends Seeder
 {
@@ -16,7 +16,7 @@ class AcademicSessionSeeder extends Seeder
             'session_start_date' => Carbon::create(2025, 7, 1),
             'session_end_date' => Carbon::create(2026, 6, 30),
             'is_current' => true,
-            'status' => 'active'
+            'status' => 'active',
         ]);
 
         AcademicSession::updateOrCreate(['name' => '2024-2025'], [
@@ -25,7 +25,7 @@ class AcademicSessionSeeder extends Seeder
             'session_start_date' => Carbon::create(2024, 7, 1),
             'session_end_date' => Carbon::create(2025, 6, 30),
             'is_current' => false,
-            'status' => 'completed'
+            'status' => 'completed',
         ]);
 
         AcademicSession::updateOrCreate(['name' => '2026-2027'], [
@@ -34,7 +34,7 @@ class AcademicSessionSeeder extends Seeder
             'session_start_date' => Carbon::create(2026, 7, 1),
             'session_end_date' => Carbon::create(2027, 6, 30),
             'is_current' => false,
-            'status' => 'upcoming'
+            'status' => 'upcoming',
         ]);
     }
 }

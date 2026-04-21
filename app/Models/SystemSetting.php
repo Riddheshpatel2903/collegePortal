@@ -7,7 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class SystemSetting extends Model
 {
     protected $primaryKey = 'setting_key';
+
     protected $keyType = 'string';
+
     public $incrementing = false;
 
     protected $fillable = [
@@ -15,4 +17,3 @@ class SystemSetting extends Model
         'setting_value',
     ];
 }
-

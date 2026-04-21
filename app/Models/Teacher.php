@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Teacher extends Model
 {
@@ -16,6 +16,7 @@ class Teacher extends Model
         'qualification',
         'phone',
     ];
+
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -41,6 +42,7 @@ class Teacher extends Model
     {
         return $this->hasMany(TeacherSubjectAssignment::class);
     }
+
     public function approvedLeaves()
     {
         return $this->hasMany(Leave::class, 'approved_by');

@@ -1,59 +1,82 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# College Management Portal (ERP)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive, multi-role Enterprise Resource Planning (ERP) system designed for colleges and universities. Built with **Laravel 11**, this platform streamlines academic administration, financial tracking, and faculty-student collaboration.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 🚀 Key Modules & Features
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 🏛️ Admin Panel (Super Administration)
+*   **Academic Lifecycle**: Manage Sessions, Departments, Courses, and Semesters.
+*   **Infrastructure**: Classroom inventory and auto-assignment.
+*   **User Management**: Full CRUD for Students, Teachers, HODs, Accountants, and Librarians.
+*   **Automated Timetables**: Smart engine for generating clash-free schedules.
+*   **System Controls**: Toggle modules (Fees, Library, Leave) and manage granular role-based permissions.
+*   **Fees & Metrics**: Financial overview with real-time collection statistics.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### 🎓 HOD Module (Departmental Head)
+*   **Faculty Oversight**: Assign teachers to specific subjects/semesters.
+*   **Workflow Approval**: Manage leave requests for department staff and students.
+*   **Departmental Notices**: Broadcast critical updates to specific courses.
+*   **Internal Marks**: Validation and monitoring of departmental academic performance.
 
-## Learning Laravel
+### 👨‍🏫 Teacher Module
+*   **Attendance Tracking**: Advanced session-based marking with historical audits.
+*   **Result Management**: Grading engine with result lock/unlock security features.
+*   **Assignment Hub**: Create, distribute, and grade student submissions.
+*   **Leave Management**: Dedicated workspace to request and track personal leaves.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### 🧑‍🎓 Student Module
+*   **Smart Dashboard**: Real-time overview of current attendance and upcoming assignments.
+*   **Financial Workspace**: Track fee due dates, paid history, and balance.
+*   **Academic Portal**: View semester results, download notices, and access class schedules.
+*   **Leave Application**: Digital submission of leave requests to HODs.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### 💰 Accountant & 📚 Librarian
+*   **Accountant**: Dedicated fee collection ledger and payment history verification.
+*   **Librarian**: Book inventory, automated fine calculation, and issue/return tracking.
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ Technology Stack
+*   **Backend**: PHP 8.2+ (Laravel 11)
+*   **Database**: MySQL 8.0 / MariaDB
+*   **Frontend**: Tailwind CSS, Vanilla JS, Blade Templates
+*   **Architecture**: Service-Layer pattern with thin controllers and dedicated domain logic.
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+## 📦 Installation & Setup
 
-## Contributing
+1.  **Clone & Install Dependencies**:
+    ```bash
+    composer install
+    npm install && npm run build
+    ```
+2.  **Configuration**:
+    ```bash
+    cp .env.example .env
+    php artisan key:generate
+    ```
+3.  **Database Migration**:
+    ```bash
+    php artisan migrate:fresh --seed
+    ```
+4.  **Launch**:
+    ```bash
+    php artisan serve
+    ```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 🔑 Default Credentials
+*   **Admin**: `admin@college.edu` / `password`
+*   **Standard Password**: All seeded accounts use `password`.
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 📂 Project Structure
+*   `app/Services`: Contains complex business logic (Promotion, Fee, Schedule, Leave).
+*   `app/Models/Observers`: Handles automated tasks like student registration side-effects.
+*   `resources/views`: Clean, modern UI partitioned by user role.
 
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+---
+*Created as a comprehensive ERP solution for institutional efficiency.*

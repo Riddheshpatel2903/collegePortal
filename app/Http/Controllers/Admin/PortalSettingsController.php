@@ -10,9 +10,7 @@ use Illuminate\Validation\Rule;
 
 class PortalSettingsController extends Controller
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function index()
     {
@@ -86,12 +84,13 @@ class PortalSettingsController extends Controller
 
         return back()->with('success', 'Module settings updated.');
     }
+
     public function updateSmartSettings(Request $request)
     {
         $validated = $request->validate([
             'teacher_max_lectures_per_day' => ['required', 'integer', 'min:1', 'max:12'],
             'working_days' => ['nullable', 'array'],
-            'working_days.*' => ['string', 'in:' . implode(',', config('timetable.days', []))],
+            'working_days.*' => ['string', 'in:'.implode(',', config('timetable.days', []))],
         ]);
 
         $this->accessService->updateSettings([
@@ -125,14 +124,14 @@ class PortalSettingsController extends Controller
         }
 
         // if checkbox wasn't sent, it means 0
-        if (!$request->has('enable_notifications')) {
+        if (! $request->has('enable_notifications')) {
             $settingsToUpdate['enable_notifications'] = '0';
         }
-        if (!$request->has('maintenance_mode')) {
+        if (! $request->has('maintenance_mode')) {
             $settingsToUpdate['maintenance_mode'] = '0';
         }
 
-        if (!empty($settingsToUpdate)) {
+        if (! empty($settingsToUpdate)) {
             $this->accessService->updateSettings($settingsToUpdate);
         }
 
@@ -177,6 +176,7 @@ class PortalSettingsController extends Controller
             if (request()->ajax() || request()->wantsJson()) {
                 return response()->json(['success' => false, 'message' => 'System roles cannot be deleted.'], 403);
             }
+
             return back()->with('error', 'System roles cannot be deleted.');
         }
 

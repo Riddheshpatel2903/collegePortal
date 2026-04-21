@@ -15,6 +15,7 @@ class TimetableService
     public function updateEntry(Timetable $entry, array $data)
     {
         $entry->update($data);
+
         return $entry;
     }
 }

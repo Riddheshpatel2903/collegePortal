@@ -2,8 +2,8 @@
 
 namespace App\Services;
 
-use App\Models\AttendanceSession;
 use App\Models\Attendance;
+use App\Models\AttendanceSession;
 use App\Models\SemesterSubject;
 use App\Models\Student;
 use Illuminate\Support\Facades\DB;
@@ -30,11 +30,11 @@ class AttendanceService
                 $attendance = Attendance::updateOrCreate(
                     [
                         'attendance_session_id' => $session->id,
-                        'student_id' => $studentId
+                        'student_id' => $studentId,
                     ],
                     [
                         'status' => $status['status'],
-                        'remarks' => $status['remarks'] ?? null
+                        'remarks' => $status['remarks'] ?? null,
                     ]
                 );
 
@@ -63,7 +63,7 @@ class AttendanceService
         $attendedSessions = Attendance::where('student_id', $student->id)
             ->whereHas('attendanceSession', function ($query) use ($semesterSubject) {
                 $query->where('semester_subject_id', $semesterSubject->id)
-                      ->where('is_completed', true);
+                    ->where('is_completed', true);
             })
             ->where('status', 'present')
             ->count();
@@ -91,7 +91,7 @@ class AttendanceService
                         $query->where('semester_subject_id', $semesterSubject->id);
                     })
                     ->where('status', 'present')
-                    ->count()
+                    ->count(),
             ];
         }
 

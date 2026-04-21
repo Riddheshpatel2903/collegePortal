@@ -91,4 +91,3 @@ class SubjectSeeder extends Seeder
         };
     }
 }
-

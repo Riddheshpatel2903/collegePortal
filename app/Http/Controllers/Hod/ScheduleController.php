@@ -3,32 +3,19 @@
 namespace App\Http\Controllers\Hod;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Hod\GenerateTimetableRequest;
-use App\Http\Requests\Hod\UpdateTimetableSlotRequest;
-use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Department;
-use App\Models\Schedule;
-use App\Models\Semester;
-use App\Models\Subject;
 use App\Models\Teacher;
 use App\Models\TeacherAvailability;
-use App\Models\TeacherSubjectAssignment;
-use App\Services\ScheduleService;
-use App\Services\Timetable\TimetableGeneratorService;
-use App\Services\TeacherAssignmentService;
-use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use App\Services\PortalAccessService;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
 
 class ScheduleController extends Controller
 {
     public function __construct(
         private \App\Services\Timetable\AutoTimetableService $service,
         private PortalAccessService $accessService,
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {
@@ -96,7 +83,7 @@ class ScheduleController extends Controller
         try {
             $this->service->updateSlot($entry, $validated);
         } catch (\Throwable $exception) {
-            return back()->withErrors(['entry_' . $entry->id => $exception->getMessage()])->withInput();
+            return back()->withErrors(['entry_'.$entry->id => $exception->getMessage()])->withInput();
         }
 
         return back()->with('success', 'Timetable slot updated successfully.');
@@ -121,8 +108,8 @@ class ScheduleController extends Controller
         TeacherAvailability::create([
             'teacher_id' => $teacher->id,
             'day_of_week' => $validated['day_of_week'],
-            'start_time' => $validated['start_time'] . ':00',
-            'end_time' => $validated['end_time'] . ':00',
+            'start_time' => $validated['start_time'].':00',
+            'end_time' => $validated['end_time'].':00',
         ]);
 
         return back()->with('success', 'Teacher availability updated.');
@@ -137,6 +124,7 @@ class ScheduleController extends Controller
             ->firstOrFail();
 
         $availability->delete();
+
         return back()->with('success', 'Availability removed successfully.');
     }
 }

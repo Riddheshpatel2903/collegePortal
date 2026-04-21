@@ -3,18 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\Course;
 use App\Models\Role;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
 use App\Services\SemesterCalculationService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
-    public function __construct(private SemesterCalculationService $semesterCalculationService)
-    {
-    }
+    public function __construct(private SemesterCalculationService $semesterCalculationService) {}
+
     private function ensureDefaultRoles(): void
     {
         $roles = collect(config('portal_access.roles', []))
@@ -36,8 +35,8 @@ class UserController extends Controller
             $searchTerm = $request->search;
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'like', "%{$searchTerm}%")
-                  ->orWhere('email', 'like', "%{$searchTerm}%")
-                  ->orWhere('id', 'like', "%{$searchTerm}%");
+                    ->orWhere('email', 'like', "%{$searchTerm}%")
+                    ->orWhere('id', 'like', "%{$searchTerm}%");
             });
         }
 
@@ -57,6 +56,7 @@ class UserController extends Controller
         $courses = \App\Models\Course::all();
         $departments = \App\Models\Department::all();
         $roles = Role::query()->orderBy('name')->get();
+
         return view('admin.users.create', compact('courses', 'departments', 'roles'));
     }
 
@@ -131,6 +131,7 @@ class UserController extends Controller
         $courses = \App\Models\Course::all();
         $departments = \App\Models\Department::all();
         $roles = Role::query()->orderBy('name')->get();
+
         return view('admin.users.edit', compact('user', 'courses', 'departments', 'roles'));
     }
 
@@ -140,14 +141,14 @@ class UserController extends Controller
         $roleName = str_replace(' ', '_', strtolower((string) $request->input('role')));
         $rules = [
             'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'email' => 'required|email|unique:users,email,'.$user->id,
             'phone' => 'nullable|digits:10',
             'role' => ['required', 'string', 'max:50', 'regex:/^[a-zA-Z0-9_ ]+$/'],
         ];
 
         if ($roleName === 'student') {
-            $rules['roll_number'] = 'required|unique:students,roll_number,' . ($user->student->id ?? 'NULL');
-            $rules['gtu_enrollment_no'] = 'required|string|max:50|unique:students,gtu_enrollment_no,' . ($user->student->id ?? 'NULL');
+            $rules['roll_number'] = 'required|unique:students,roll_number,'.($user->student->id ?? 'NULL');
+            $rules['gtu_enrollment_no'] = 'required|string|max:50|unique:students,gtu_enrollment_no,'.($user->student->id ?? 'NULL');
             $rules['semester_number'] = 'required|integer|min:1|max:20';
             $rules['course_id'] = 'required|exists:courses,id';
         }

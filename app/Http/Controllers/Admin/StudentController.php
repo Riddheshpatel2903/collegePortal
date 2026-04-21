@@ -3,21 +3,20 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Student;
-use App\Models\User;
+use App\Http\Requests\Admin\StoreStudentRequest;
+use App\Http\Requests\Admin\UpdateStudentRequest;
 use App\Models\Course;
 use App\Models\Department;
+use App\Models\Student;
+use App\Models\User;
 use App\Services\SemesterCalculationService;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Hash;
 
 class StudentController extends Controller
 {
-    public function __construct(private SemesterCalculationService $semesterCalculationService)
-    {
-    }
+    public function __construct(private SemesterCalculationService $semesterCalculationService) {}
 
     public function index()
     {
@@ -39,7 +38,7 @@ class StudentController extends Controller
      */
     public function getSemestersByDepartment(Request $request)
     {
-        if (!$request->ajax() && !$request->wantsJson() && $request->header('X-Requested-With') !== 'XMLHttpRequest') {
+        if (! $request->ajax() && ! $request->wantsJson() && $request->header('X-Requested-With') !== 'XMLHttpRequest') {
             return response()->json(['error' => 'Unauthorized'], 403);
         }
 
@@ -49,7 +48,7 @@ class StudentController extends Controller
             })
             ->max('duration_years') ?? 4;
 
-        $years = collect(range(1, (int) $maxDuration))->map(fn($year) => [
+        $years = collect(range(1, (int) $maxDuration))->map(fn ($year) => [
             'id' => $year,
             'name' => "Year {$year}",
         ])->values();
@@ -57,14 +56,13 @@ class StudentController extends Controller
         return response()->json($years);
     }
 
-
     /**
      * Fetch students via AJAX for performance
      */
     public function fetchStudents(Request $request)
     {
         // Relaxing the strict check to allow for different request configurations
-        if (!$request->ajax() && $request->header('X-Requested-With') !== 'XMLHttpRequest' && !$request->wantsJson()) {
+        if (! $request->ajax() && $request->header('X-Requested-With') !== 'XMLHttpRequest' && ! $request->wantsJson()) {
             // Keep it for security but maybe log it?
             // \Log::warning('Non-AJAX access to fetchStudents');
         }
@@ -99,12 +97,12 @@ class StudentController extends Controller
             ->paginate(20);
 
         $studentsGrouped = $students->groupBy(function ($student) {
-            return 'Year ' . ($student->current_year ?: 1);
+            return 'Year '.($student->current_year ?: 1);
         });
 
         $view = view('admin.students.partials.table', [
             'studentsGrouped' => $studentsGrouped,
-            'studentsPaginated' => $students
+            'studentsPaginated' => $students,
         ])->render();
 
         return response($view);
@@ -121,25 +119,14 @@ class StudentController extends Controller
     public function create()
     {
         $courses = Course::all();
+
         return view('admin.students.create', compact('courses'));
     }
 
-    public function store(Request $request)
+    public function store(StoreStudentRequest $request)
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
-                'email' => 'required|email|unique:users,email',
-                'password' => 'required|min:6',
-                'roll_number' => 'required|unique:students,roll_number',
-                'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no',
-                'course_id' => 'required|exists:courses,id',
-                'current_year' => 'nullable|integer|min:1|max:10',
-                'admission_year' => 'nullable|integer|min:2000|max:2100',
-                'phone' => 'nullable|digits:10',
-                'address' => 'nullable|string|max:1000',
-            ]);
-            $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? 1));
+            $validated = $request->validated();
 
             DB::transaction(function () use ($validated) {
                 $user = User::create([
@@ -163,7 +150,7 @@ class StudentController extends Controller
                     'academic_status' => 'active',
                 ]);
             });
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (\Exception $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['errors' => $e->errors()], 422);
             }
@@ -186,24 +173,14 @@ class StudentController extends Controller
     {
         $student->load('user');
         $courses = Course::all();
+
         return view('admin.students.edit', compact('student', 'courses'));
     }
 
-    public function update(Request $request, Student $student)
+    public function update(UpdateStudentRequest $request, Student $student)
     {
         try {
-            $validated = $request->validate([
-                'name' => 'required|string|regex:/^[a-zA-Z\s.]+$/|max:255',
-                'email' => 'required|email|unique:users,email,' . $student->user_id,
-                'roll_number' => 'required|unique:students,roll_number,' . $student->id,
-                'gtu_enrollment_no' => 'required|string|max:50|unique:students,gtu_enrollment_no,' . $student->id,
-                'course_id' => 'required|exists:courses,id',
-                'current_year' => 'nullable|integer|min:1|max:10',
-                'admission_year' => 'nullable|integer|min:2000|max:2100',
-                'phone' => 'nullable|digits:10',
-                'address' => 'nullable|string|max:1000',
-            ]);
-            $this->validateYearWithinCourse((int) $validated['course_id'], (int) ($validated['current_year'] ?? $student->current_year ?? 1));
+            $validated = $request->validated();
 
             DB::transaction(function () use ($validated, $request, $student) {
                 $student->user->update([
@@ -222,7 +199,7 @@ class StudentController extends Controller
                     'is_active' => $request->has('is_active') ? true : false,
                 ]);
             });
-        } catch (\Illuminate\Validation\ValidationException $e) {
+        } catch (\Exception $e) {
             if ($request->ajax() || $request->wantsJson()) {
                 return response()->json(['errors' => $e->errors()], 422);
             }
@@ -240,19 +217,9 @@ class StudentController extends Controller
             ->with('success', 'Student updated successfully.');
     }
 
-    private function validateYearWithinCourse(int $courseId, int $currentYear): void
-    {
-        $course = Course::findOrFail($courseId);
-        if ($currentYear < 1 || $currentYear > (int) $course->duration_years) {
-            throw ValidationException::withMessages([
-                'current_year' => "Current year must be between 1 and {$course->duration_years} for {$course->name}.",
-            ]);
-        }
-    }
-
     public function toggleStatus(Request $request, Student $student)
     {
-        $student->update(['is_active' => !$student->is_active]);
+        $student->update(['is_active' => ! $student->is_active]);
 
         $status = $student->is_active ? 'activated' : 'deactivated';
 

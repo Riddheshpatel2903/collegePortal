@@ -14,8 +14,7 @@ class TimetableConflictValidator
     public function __construct(
         private TimetableRepository $repository,
         private PortalAccessService $accessService
-    ) {
-    }
+    ) {}
 
     public function canPlaceForGeneration(
         int $courseId,
@@ -38,11 +37,13 @@ class TimetableConflictValidator
             if (($state['teacher'][$teacherId][$day][$slot] ?? false) === true) {
                 return false;
             }
-            
+
             $classData = $state['class'][$classKey][$day][$slot] ?? [];
             if ($subjectSection === null) {
                 // COMMON subject
-                if (!empty($classData)) return false;
+                if (! empty($classData)) {
+                    return false;
+                }
             } else {
                 // Section-specific subject
                 if (($classData[$subjectSection] ?? false) || ($classData['COMMON'] ?? false)) {
@@ -61,7 +62,7 @@ class TimetableConflictValidator
             return false;
         }
 
-        if (!$this->teacherAvailableForSlots($teacherId, $day, $slots, $teacherAvailabilityByTeacher)) {
+        if (! $this->teacherAvailableForSlots($teacherId, $day, $slots, $teacherAvailabilityByTeacher)) {
             return false;
         }
 
@@ -90,7 +91,7 @@ class TimetableConflictValidator
             throw ValidationException::withMessages(['classroom_id' => 'Classroom is already occupied in the selected slot.']);
         }
 
-        if (!$this->teacherAvailableForSlots($teacherId, $day, $slots, $teacherAvailabilityByTeacher)) {
+        if (! $this->teacherAvailableForSlots($teacherId, $day, $slots, $teacherAvailabilityByTeacher)) {
             throw ValidationException::withMessages(['teacher_id' => 'Teacher is unavailable for one or more selected slot(s).']);
         }
 
@@ -110,8 +111,9 @@ class TimetableConflictValidator
         $availability = $teacherAvailabilityByTeacher[$teacherId][$day] ?? collect();
 
         if ($availability instanceof Collection) {
-            if ($availability->isEmpty())
+            if ($availability->isEmpty()) {
                 return true;
+            }
         } elseif (empty($availability)) {
             return true;
         }
@@ -124,10 +126,11 @@ class TimetableConflictValidator
                 // Remove seconds if present for comparison
                 $start = substr((string) $row->start_time, 0, 5);
                 $end = substr((string) $row->end_time, 0, 5);
+
                 return $start <= $slotStart && $end >= $slotEnd;
             });
 
-            if (!$allowed) {
+            if (! $allowed) {
                 return false;
             }
         }
@@ -145,7 +148,7 @@ class TimetableConflictValidator
         $idx = $slotNumber - 1;
         $slotString = $timeSlots->get($idx);
 
-        if (!$slotString) {
+        if (! $slotString) {
             return self::$slotRangeCache[$slotNumber] = ['09:00', '10:00'];
         }
 
@@ -159,6 +162,7 @@ class TimetableConflictValidator
         if (preg_match('/[ \-]([A-Z])(?:\s|$)/i', $name, $matches)) {
             return strtoupper($matches[1]);
         }
+
         return null;
     }
 
@@ -167,4 +171,3 @@ class TimetableConflictValidator
         return "{$courseId}-{$year}";
     }
 }
-

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
 use App\Models\Course;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class AssignmentController extends Controller
@@ -19,7 +19,7 @@ class AssignmentController extends Controller
         $user = auth()->user();
         $student = $user->student()->with(['course', 'currentSemester'])->first();
 
-        if (!$student) {
+        if (! $student) {
             return view('student.assignments.index', ['assignments' => collect()]);
         }
 
@@ -37,7 +37,7 @@ class AssignmentController extends Controller
             ->with([
                 'submissions' => function ($query) use ($student) {
                     $query->where('student_id', $student->id);
-                }
+                },
             ])
             ->latest('due_date')
             ->paginate(12);
@@ -68,7 +68,7 @@ class AssignmentController extends Controller
         }
 
         // Check if submission is allowed (deadline)
-        if (!$assignment->isSubmissionAllowed()) {
+        if (! $assignment->isSubmissionAllowed()) {
             return back()->with('error', 'The deadline for this assignment has passed.');
         }
 
@@ -85,7 +85,7 @@ class AssignmentController extends Controller
         ]);
 
         return redirect()->route('student.assignments.index')
-            ->with('success', 'Assignment submitted successfully' . ($status == 'late' ? ' (Late Submission).' : '.'));
+            ->with('success', 'Assignment submitted successfully'.($status == 'late' ? ' (Late Submission).' : '.'));
     }
 
     /**
@@ -111,7 +111,7 @@ class AssignmentController extends Controller
         }
 
         // Check if submission is allowed (deadline)
-        if (!$assignment->isSubmissionAllowed()) {
+        if (! $assignment->isSubmissionAllowed()) {
             return back()->with('error', 'The deadline for this assignment has passed.');
         }
 

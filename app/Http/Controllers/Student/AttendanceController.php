@@ -13,7 +13,7 @@ class AttendanceController extends Controller
     {
         $student = Student::where('user_id', auth()->id())->first();
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 
@@ -48,7 +48,7 @@ class AttendanceController extends Controller
         $calendarData = [];
         foreach ($records as $record) {
             $date = optional($record->attendanceSession?->date)->format('Y-m-d');
-            if (!$date) {
+            if (! $date) {
                 continue;
             }
             $calendarData[$date][] = [

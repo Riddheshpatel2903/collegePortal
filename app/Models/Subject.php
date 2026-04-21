@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Subject extends Model
 {
@@ -34,6 +34,7 @@ class Subject extends Model
     protected $casts = [
         'is_lab' => 'boolean',
     ];
+
     public function course()
     {
         return $this->belongsTo(Course::class);
@@ -63,6 +64,7 @@ class Subject extends Model
     {
         return $this->hasMany(Assignment::class);
     }
+
     public function resultSubjects()
     {
         return $this->hasMany(ResultSubject::class);
@@ -77,16 +79,16 @@ class Subject extends Model
     {
         // Fallback to legacy weekly_hours if LTP not set
         $lectureSum = ($this->lecture_hours ?: 0) + ($this->tutorial_hours ?: 0);
-        if ($lectureSum === 0 && $this->weekly_hours > 0 && !$this->is_lab) {
+        if ($lectureSum === 0 && $this->weekly_hours > 0 && ! $this->is_lab) {
             $lectureSum = $this->weekly_hours;
         }
 
         $labSlots = 0;
         if ($this->practical_hours > 0) {
-            // Usually GTU practical hours are the total hours, 
+            // Usually GTU practical hours are the total hours,
             // but we need to know how many slots that translates to.
             // If practical_hours = 4 and lab_duration = 2, it means 2 sessions.
-            $labSlots = $this->practical_hours; 
+            $labSlots = $this->practical_hours;
         } elseif ($this->is_lab && $this->weekly_hours > 0) {
             $labSlots = $this->weekly_hours;
         }

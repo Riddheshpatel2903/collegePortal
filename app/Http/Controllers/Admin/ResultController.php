@@ -14,8 +14,7 @@ class ResultController extends Controller
     public function __construct(
         private GtuResultImportService $importService,
         private ResultService $resultService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {
@@ -52,7 +51,7 @@ class ResultController extends Controller
     public function lock(Result $result)
     {
         $this->resultService->lockResult($result, (int) auth()->id());
+
         return back()->with('success', 'Result locked successfully.');
     }
 }
-

@@ -2,10 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
-use Illuminate\Database\Seeder;
 use App\Models\Result;
 use App\Models\SemesterSubject;
+use Illuminate\Database\Seeder;
 
 class ResultSubjectSeeder extends Seeder
 {
@@ -23,11 +22,11 @@ class ResultSubjectSeeder extends Seeder
 
             foreach ($semesterSubjects as $semesterSubject) {
                 $subject = $semesterSubject->subject;
-                if (!$subject) {
+                if (! $subject) {
                     continue;
                 }
 
-                if (!$result->subjects()->where('subject_id', $subject->id)->exists()) {
+                if (! $result->subjects()->where('subject_id', $subject->id)->exists()) {
                     $result->subjects()->create([
                         'subject_id' => $subject->id,
                         'semester_subject_id' => $semesterSubject->id,

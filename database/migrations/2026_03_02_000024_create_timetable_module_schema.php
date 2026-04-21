@@ -10,25 +10,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('teachers', function (Blueprint $table) {
-            if (!Schema::hasColumn('teachers', 'max_lectures_per_day')) {
+            if (! Schema::hasColumn('teachers', 'max_lectures_per_day')) {
                 $table->unsignedTinyInteger('max_lectures_per_day')->default(6)->after('department_id');
             }
         });
 
         Schema::table('subjects', function (Blueprint $table) {
-            if (!Schema::hasColumn('subjects', 'semester_number')) {
+            if (! Schema::hasColumn('subjects', 'semester_number')) {
                 $table->unsignedTinyInteger('semester_number')->nullable()->after('course_id');
             }
-            if (!Schema::hasColumn('subjects', 'type')) {
+            if (! Schema::hasColumn('subjects', 'type')) {
                 $table->enum('type', ['lecture', 'lab'])->default('lecture')->after('name');
             }
-            if (!Schema::hasColumn('subjects', 'hours_per_week')) {
+            if (! Schema::hasColumn('subjects', 'hours_per_week')) {
                 $table->unsignedTinyInteger('hours_per_week')->default(4)->after('type');
             }
-            if (!Schema::hasColumn('subjects', 'teacher_id')) {
+            if (! Schema::hasColumn('subjects', 'teacher_id')) {
                 $table->foreignId('teacher_id')->nullable()->after('hours_per_week')->constrained('teachers')->nullOnDelete();
             }
-            if (!Schema::hasColumn('subjects', 'lab_duration')) {
+            if (! Schema::hasColumn('subjects', 'lab_duration')) {
                 $table->unsignedTinyInteger('lab_duration')->nullable()->after('teacher_id');
             }
         });
@@ -47,18 +47,18 @@ return new class extends Migration
         }
 
         Schema::table('classrooms', function (Blueprint $table) {
-            if (!Schema::hasColumn('classrooms', 'type')) {
+            if (! Schema::hasColumn('classrooms', 'type')) {
                 $table->enum('type', ['lecture', 'lab'])->default('lecture')->after('name');
             }
-            if (!Schema::hasColumn('classrooms', 'course_id')) {
+            if (! Schema::hasColumn('classrooms', 'course_id')) {
                 $table->foreignId('course_id')->nullable()->after('type')->constrained('courses')->nullOnDelete();
             }
-            if (!Schema::hasColumn('classrooms', 'year_number')) {
+            if (! Schema::hasColumn('classrooms', 'year_number')) {
                 $table->unsignedTinyInteger('year_number')->nullable()->after('course_id');
             }
         });
 
-        if (!Schema::hasTable('timetable')) {
+        if (! Schema::hasTable('timetable')) {
             Schema::create('timetable', function (Blueprint $table) {
                 $table->id();
                 $table->foreignId('course_id')->constrained('courses')->cascadeOnDelete();
@@ -86,4 +86,3 @@ return new class extends Migration
         }
     }
 };
-

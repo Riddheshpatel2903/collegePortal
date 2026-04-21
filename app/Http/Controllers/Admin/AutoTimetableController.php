@@ -14,8 +14,7 @@ class AutoTimetableController extends Controller
 {
     public function __construct(
         private AutoTimetableService $service
-    ) {
-    }
+    ) {}
 
     public function index(Request $request)
     {
@@ -64,11 +63,9 @@ class AutoTimetableController extends Controller
         try {
             $this->service->updateSlot($entry, $request->validated());
         } catch (\Throwable $exception) {
-            return back()->withErrors(['entry_' . $entry->id => $exception->getMessage()])->withInput();
+            return back()->withErrors(['entry_'.$entry->id => $exception->getMessage()])->withInput();
         }
 
         return back()->with('success', 'Timetable slot updated successfully.');
     }
-
 }
-

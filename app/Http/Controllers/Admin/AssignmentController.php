@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Assignment;
 use App\Models\AssignmentSubmission;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 
@@ -50,7 +50,7 @@ class AssignmentController extends Controller
         $assignment = Assignment::findOrFail($id);
         $assignment->update([
             'status' => 'closed',
-            'is_active' => false
+            'is_active' => false,
         ]);
 
         return back()->with('success', 'Assignment marked as closed.');
@@ -69,7 +69,7 @@ class AssignmentController extends Controller
         $assignment->update([
             'due_date' => $request->new_due_date,
             'status' => 'published',
-            'is_active' => true
+            'is_active' => true,
         ]);
 
         return back()->with('success', 'Deadline extended successfully.');

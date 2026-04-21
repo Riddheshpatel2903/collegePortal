@@ -21,7 +21,7 @@ class AttendanceSession extends Model
         'end_time',
         'session_type',
         'topic',
-        'is_completed'
+        'is_completed',
     ];
 
     protected $casts = [

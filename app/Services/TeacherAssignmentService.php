@@ -34,7 +34,7 @@ class TeacherAssignmentService
 
         foreach ($subjectIds as $subjectId) {
             $teacherId = (int) ($subjectTeacherMap[$subjectId] ?? 0);
-            if (!$teacherId || !$teacherIds->contains($teacherId)) {
+            if (! $teacherId || ! $teacherIds->contains($teacherId)) {
                 $subjectName = $subjects->firstWhere('id', $subjectId)?->name ?? "ID {$subjectId}";
                 throw ValidationException::withMessages([
                     "subject_teacher_map.{$subjectId}" => "Please select a valid department teacher for subject {$subjectName}.",
@@ -62,6 +62,7 @@ class TeacherAssignmentService
     public function semesterCountsForCourseYear(Course $course, int $academicYear): Collection
     {
         $subjects = $this->subjectsForCourseYear($course, $academicYear);
+
         return $subjects
             ->groupBy(fn ($subject) => (int) $subject->semester_sequence)
             ->map(fn (Collection $rows, int $semester) => [

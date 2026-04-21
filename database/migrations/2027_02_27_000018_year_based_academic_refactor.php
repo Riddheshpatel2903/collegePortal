@@ -48,7 +48,7 @@ return new class extends Migration
         }
 
         Schema::table('students', function (Blueprint $table) {
-            if (!Schema::hasColumn('students', 'current_year')) {
+            if (! Schema::hasColumn('students', 'current_year')) {
                 $table->unsignedTinyInteger('current_year')->default(1)->after('admission_year');
             }
         });
@@ -58,7 +58,7 @@ return new class extends Migration
         }
 
         Schema::table('fee_structures', function (Blueprint $table) {
-            if (!Schema::hasColumn('fee_structures', 'year_number')) {
+            if (! Schema::hasColumn('fee_structures', 'year_number')) {
                 $table->unsignedTinyInteger('year_number')->default(1)->after('course_id');
             }
         });
@@ -68,13 +68,13 @@ return new class extends Migration
         }
 
         Schema::table('student_fees', function (Blueprint $table) {
-            if (!Schema::hasColumn('student_fees', 'academic_year')) {
+            if (! Schema::hasColumn('student_fees', 'academic_year')) {
                 $table->unsignedTinyInteger('academic_year')->default(1)->after('student_id');
             }
         });
 
         $driver = DB::getDriverName();
-        
+
         if (Schema::hasTable('semesters') && $driver !== 'sqlite') {
             DB::statement('
                 UPDATE student_fees sf
@@ -84,13 +84,13 @@ return new class extends Migration
         }
 
         Schema::table('results', function (Blueprint $table) {
-            if (!Schema::hasColumn('results', 'course_id')) {
+            if (! Schema::hasColumn('results', 'course_id')) {
                 $table->foreignId('course_id')->nullable()->after('student_id')->constrained()->nullOnDelete();
             }
-            if (!Schema::hasColumn('results', 'academic_year')) {
+            if (! Schema::hasColumn('results', 'academic_year')) {
                 $table->unsignedTinyInteger('academic_year')->default(1)->after('course_id');
             }
-            if (!Schema::hasColumn('results', 'semester_number')) {
+            if (! Schema::hasColumn('results', 'semester_number')) {
                 $table->unsignedTinyInteger('semester_number')->default(1)->after('academic_year');
             }
         });
@@ -107,10 +107,10 @@ return new class extends Migration
         }
 
         Schema::table('assignments', function (Blueprint $table) {
-            if (!Schema::hasColumn('assignments', 'academic_year')) {
+            if (! Schema::hasColumn('assignments', 'academic_year')) {
                 $table->unsignedTinyInteger('academic_year')->default(1)->after('course_id');
             }
-            if (!Schema::hasColumn('assignments', 'semester_number')) {
+            if (! Schema::hasColumn('assignments', 'semester_number')) {
                 $table->unsignedTinyInteger('semester_number')->default(1)->after('academic_year');
             }
         });
@@ -125,16 +125,16 @@ return new class extends Migration
         }
 
         Schema::table('attendance_sessions', function (Blueprint $table) {
-            if (!Schema::hasColumn('attendance_sessions', 'course_id')) {
+            if (! Schema::hasColumn('attendance_sessions', 'course_id')) {
                 $table->foreignId('course_id')->nullable()->after('teacher_id')->constrained()->nullOnDelete();
             }
-            if (!Schema::hasColumn('attendance_sessions', 'subject_id')) {
+            if (! Schema::hasColumn('attendance_sessions', 'subject_id')) {
                 $table->foreignId('subject_id')->nullable()->after('course_id')->constrained()->nullOnDelete();
             }
-            if (!Schema::hasColumn('attendance_sessions', 'academic_year')) {
+            if (! Schema::hasColumn('attendance_sessions', 'academic_year')) {
                 $table->unsignedTinyInteger('academic_year')->default(1)->after('subject_id');
             }
-            if (!Schema::hasColumn('attendance_sessions', 'semester_number')) {
+            if (! Schema::hasColumn('attendance_sessions', 'semester_number')) {
                 $table->unsignedTinyInteger('semester_number')->default(1)->after('academic_year');
             }
         });
@@ -152,7 +152,7 @@ return new class extends Migration
         }
 
         Schema::table('result_subjects', function (Blueprint $table) {
-            if (!Schema::hasColumn('result_subjects', 'subject_id')) {
+            if (! Schema::hasColumn('result_subjects', 'subject_id')) {
                 $table->foreignId('subject_id')->nullable()->after('result_id')->constrained()->nullOnDelete();
             }
         });

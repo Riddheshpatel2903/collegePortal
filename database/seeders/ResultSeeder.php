@@ -34,7 +34,7 @@ class ResultSeeder extends Seeder
                                 ->where('semester_number', $semesterNo)
                                 ->first();
 
-                            if (!$semester) {
+                            if (! $semester) {
                                 continue;
                             }
 
@@ -72,7 +72,7 @@ class ResultSeeder extends Seeder
 
                             foreach ($semesterSubjects as $semesterSubject) {
                                 $subject = $semesterSubject->subject;
-                                if (!$subject) {
+                                if (! $subject) {
                                     continue;
                                 }
 
@@ -140,4 +140,3 @@ class ResultSeeder extends Seeder
             });
     }
 }
-

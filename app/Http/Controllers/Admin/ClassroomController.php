@@ -37,7 +37,7 @@ class ClassroomController extends Controller
                     'year' => $year,
                     'lecture_hours' => max($oddLecture, $evenLecture),
                     'lab_hours' => max($oddLab, $evenLab),
-                    'assigned_rooms' => $assignedRooms
+                    'assigned_rooms' => $assignedRooms,
                 ];
             }
         }
@@ -61,7 +61,7 @@ class ClassroomController extends Controller
     public function update(Request $request, Classroom $classroom)
     {
         $validated = $request->validate([
-            'name' => 'required|string|max:255|unique:classrooms,name,' . $classroom->id,
+            'name' => 'required|string|max:255|unique:classrooms,name,'.$classroom->id,
             'type' => 'required|in:lecture,lab',
             'capacity' => 'required|integer|min:1',
         ]);
@@ -74,6 +74,7 @@ class ClassroomController extends Controller
     public function destroy(Classroom $classroom)
     {
         $classroom->delete();
+
         return back()->with('success', 'Classroom deleted successfully.');
     }
 
@@ -102,7 +103,7 @@ class ClassroomController extends Controller
             'year_number' => $validated['year_number'],
         ]);
 
-        return back()->with('success', 'Room assigned to ' . Course::find($validated['course_id'])->name . ' Year ' . $validated['year_number']);
+        return back()->with('success', 'Room assigned to '.Course::find($validated['course_id'])->name.' Year '.$validated['year_number']);
     }
 
     public function unassign(Classroom $classroom)

@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Fee;
 use App\Models\Student;
+use Illuminate\Database\Seeder;
 
 class FeeSeeder extends Seeder
 {

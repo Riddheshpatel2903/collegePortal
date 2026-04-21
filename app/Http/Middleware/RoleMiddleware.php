@@ -2,15 +2,15 @@
 
 namespace App\Http\Middleware;
 
+use App\Services\PortalAccessService;
 use Closure;
 use Illuminate\Http\Request;
-use Symfony\Component\HttpFoundation\Response;
-use App\Services\PortalAccessService;
 use Illuminate\Support\Facades\Log;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class RoleMiddleware
- * 
+ *
  * Validates that the authenticated user possesses one of the required roles.
  * Acts as the first layer in the security hierarchy.
  */
@@ -20,7 +20,6 @@ class RoleMiddleware
      * Handle an incoming request.
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  string  ...$roles
      */
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
@@ -29,27 +28,27 @@ class RoleMiddleware
         // 1. Normalise and Process Roles
         $allowedRoles = collect($roles)
             ->filter()
-            ->map(fn ($role) => strtolower(trim((string)$role)))
+            ->map(fn ($role) => strtolower(trim((string) $role)))
             ->values()
             ->all();
 
         // Allow automatic inheritance for Super Admins
-        if (in_array(PortalAccessService::ROLE_ADMIN, $allowedRoles, true) && 
-            !in_array(PortalAccessService::ROLE_SUPER_ADMIN, $allowedRoles, true)) {
+        if (in_array(PortalAccessService::ROLE_ADMIN, $allowedRoles, true) &&
+            ! in_array(PortalAccessService::ROLE_SUPER_ADMIN, $allowedRoles, true)) {
             $allowedRoles[] = PortalAccessService::ROLE_SUPER_ADMIN;
         }
 
         // 2. Validation Decision
-        $userRole = strtolower((string)$user->role);
-        $hasRole = !empty($allowedRoles) && in_array($userRole, $allowedRoles, true);
+        $userRole = strtolower((string) $user->role);
+        $hasRole = ! empty($allowedRoles) && in_array($userRole, $allowedRoles, true);
 
         // 3. Debug Strategy & Decision
-        if (!$hasRole) {
+        if (! $hasRole) {
             Log::info('RoleCheck Failure: Insufficient Role permissions', [
-                'user_id'  => $user->id,
-                'user_role'=> $userRole,
+                'user_id' => $user->id,
+                'user_role' => $userRole,
                 'required' => $allowedRoles,
-                'path'     => $request->getPathInfo()
+                'path' => $request->getPathInfo(),
             ]);
 
             abort(403, 'Access Restricted: Your role does not have permission for this section.');

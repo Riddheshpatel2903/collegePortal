@@ -94,7 +94,7 @@ return [
     'settings' => [
         'teacher_max_lectures_per_day' => '6',
         // working days stored as json string, default to all configured days
-        'default_working_days' => json_encode(config('timetable.days', ['monday','tuesday','wednesday','thursday','friday'])),
+        'default_working_days' => json_encode(config('timetable.days', ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'])),
         // how many slots to consider per day
         'default_slots_per_day' => (string) count(config('timetable.slot_blocks', [])),
     ],

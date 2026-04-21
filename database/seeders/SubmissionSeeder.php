@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\AssignmentSubmission;
 use App\Models\Assignment;
+use App\Models\AssignmentSubmission;
 use App\Models\Student;
-use Illuminate\Database\Seeder;
 use Carbon\Carbon;
-use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Seeder;
 
 class SubmissionSeeder extends Seeder
 {
@@ -21,13 +20,15 @@ class SubmissionSeeder extends Seeder
                 ->where('current_year', $academicYear)
                 ->get();
 
-            if ($students->isEmpty())
+            if ($students->isEmpty()) {
                 continue;
+            }
 
             $submissionRate = rand(60, 95) / 100;
             $count = (int) ($students->count() * $submissionRate);
-            if ($count === 0)
+            if ($count === 0) {
                 continue;
+            }
 
             $studentsToSubmit = $students->random($count);
             $submissions = [];
@@ -64,7 +65,7 @@ class SubmissionSeeder extends Seeder
                 }
             }
 
-            if (!empty($submissions)) {
+            if (! empty($submissions)) {
                 $this->batchUpsert($submissions);
             }
         }

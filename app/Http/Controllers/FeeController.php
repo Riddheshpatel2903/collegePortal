@@ -1,11 +1,12 @@
 <?php
+
 // app/Http/Controllers/FeeController.php
 
 namespace App\Http\Controllers;
 
-use App\Models\StudentFee;
-use App\Models\Student;
 use App\Models\Payment;
+use App\Models\Student;
+use App\Models\StudentFee;
 use App\Services\FeeService;
 use Illuminate\Http\Request;
 
@@ -76,7 +77,7 @@ class FeeController extends Controller
     {
         $student = auth()->user()->student;
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

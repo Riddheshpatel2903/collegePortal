@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\PortalAccessService;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Services\PortalAccessService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,16 +12,14 @@ use Illuminate\View\View;
 
 class ProfileController extends Controller
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     /**
      * Display the user's profile form.
      */
     public function edit(Request $request): View
     {
-        if ($request->user()?->role === 'student' && !$this->accessService->featureEnabled('student_profile_edit_enabled', true)) {
+        if ($request->user()?->role === 'student' && ! $this->accessService->featureEnabled('student_profile_edit_enabled', true)) {
             abort(403, 'Student profile editing is disabled.');
         }
 
@@ -35,7 +33,7 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        if ($request->user()?->role === 'student' && !$this->accessService->featureEnabled('student_profile_edit_enabled', true)) {
+        if ($request->user()?->role === 'student' && ! $this->accessService->featureEnabled('student_profile_edit_enabled', true)) {
             abort(403, 'Student profile editing is disabled.');
         }
 

@@ -11,6 +11,7 @@ class HolidayController extends Controller
     public function index()
     {
         $holidays = Holiday::orderBy('date', 'asc')->paginate(20);
+
         return view('admin.holidays.index', compact('holidays'));
     }
 
@@ -32,7 +33,7 @@ class HolidayController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'date' => 'required|date|unique:holidays,date,' . $holiday->id,
+            'date' => 'required|date|unique:holidays,date,'.$holiday->id,
             'description' => 'nullable|string',
             'is_recurring' => 'boolean',
         ]);
@@ -45,6 +46,7 @@ class HolidayController extends Controller
     public function destroy(Holiday $holiday)
     {
         $holiday->delete();
+
         return redirect()->back()->with('success', 'Holiday deleted successfully.');
     }
 
@@ -60,13 +62,15 @@ class HolidayController extends Controller
 
         $count = 0;
         while (($row = fgetcsv($handle)) !== false) {
-            if (count($row) < 2) continue;
+            if (count($row) < 2) {
+                continue;
+            }
 
             $holidayData = [
                 'name' => $row[0],
                 'date' => date('Y-m-d', strtotime($row[1])),
                 'description' => $row[2] ?? null,
-                'is_recurring' => isset($row[3]) ? (bool)$row[3] : false,
+                'is_recurring' => isset($row[3]) ? (bool) $row[3] : false,
             ];
 
             Holiday::updateOrCreate(

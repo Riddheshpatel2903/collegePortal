@@ -9,14 +9,12 @@ use Illuminate\Validation\ValidationException;
 
 class LeaveWorkflowService
 {
-    public function __construct(private PortalAccessService $accessService)
-    {
-    }
+    public function __construct(private PortalAccessService $accessService) {}
 
     public function submit(Leave $leave, User $actor): Leave
     {
         $role = $actor->role;
-        if (!in_array($role, ['student', 'teacher', 'hod'], true)) {
+        if (! in_array($role, ['student', 'teacher', 'hod'], true)) {
             throw ValidationException::withMessages(['leave' => 'Only student, teacher or HOD can apply leave.']);
         }
 
@@ -30,6 +28,7 @@ class LeaveWorkflowService
                 'approved_at' => $autoApproval ? now() : null,
                 'approval_remarks' => $autoApproval ? 'Auto-approved by system setting.' : null,
             ]);
+
             return $leave;
         });
     }
@@ -39,6 +38,7 @@ class LeaveWorkflowService
         return DB::transaction(function () use ($leave, $approver) {
             if ($leave->requested_by_role === 'hod') {
                 $this->authorizeRole($approver, 'admin');
+
                 return $this->close($leave, $approver, 'approved');
             }
 
@@ -49,17 +49,19 @@ class LeaveWorkflowService
                     'approved_by' => $approver->id,
                     'approval_remarks' => 'Forwarded by HOD',
                 ]);
+
                 return $leave->refresh();
             }
 
             $this->authorizeRole($approver, 'admin');
+
             return $this->close($leave, $approver, 'approved');
         });
     }
 
     public function reject(Leave $leave, User $approver, ?string $remarks = null): Leave
     {
-        if (!in_array($approver->role, ['hod', 'admin'], true)) {
+        if (! in_array($approver->role, ['hod', 'admin'], true)) {
             throw ValidationException::withMessages(['leave' => 'Only HOD/Admin can reject leave.']);
         }
 

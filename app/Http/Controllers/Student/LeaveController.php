@@ -3,17 +3,15 @@
 namespace App\Http\Controllers\Student;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Leave;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Auth;
 use App\Services\LeaveWorkflowService;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LeaveController extends Controller
 {
-    public function __construct(private LeaveWorkflowService $leaveWorkflowService)
-    {
-    }
+    public function __construct(private LeaveWorkflowService $leaveWorkflowService) {}
 
     /**
      * Display leave application form and student's leave history.

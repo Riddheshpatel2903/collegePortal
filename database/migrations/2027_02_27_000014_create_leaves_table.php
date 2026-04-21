@@ -9,7 +9,7 @@ return new class extends Migration
     public function up()
     {
         Schema::dropIfExists('leaves');
-        
+
         Schema::create('leaves', function (Blueprint $table) {
             $table->id();
             $table->morphs('leaveable'); // Student or Teacher

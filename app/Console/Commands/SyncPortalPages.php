@@ -2,12 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-
-use Illuminate\Support\Facades\Route;
 use App\Models\PortalPage;
 use App\Models\Role;
 use App\Models\RolePagePermission;
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 class SyncPortalPages extends Command
@@ -35,12 +34,12 @@ class SyncPortalPages extends Command
 
         $routes = collect(Route::getRoutes())->filter(function ($route) {
             $name = $route->getName();
-            if (!$name) {
+            if (! $name) {
                 return false;
             }
 
             // Only care about GET routes that are mostly pages.
-            if (!in_array('GET', $route->methods())) {
+            if (! in_array('GET', $route->methods())) {
                 return false;
             }
 
@@ -52,16 +51,17 @@ class SyncPortalPages extends Command
             // We want main portal routes. E.g. admin.*, student.*, teacher.*, hod.*, accountant.*
             if (Str::startsWith($name, ['admin.', 'student.', 'teacher.', 'hod.', 'accountant.'])) {
                 // Only sync the index endpoints to represent the unified module on the UI
-                if (!Str::endsWith($name, '.index')) {
+                if (! Str::endsWith($name, '.index')) {
                     return false;
                 }
+
                 return true;
             }
 
             return false;
         });
 
-        $this->info("Found " . $routes->count() . " eligible routes for page registration.");
+        $this->info('Found '.$routes->count().' eligible routes for page registration.');
 
         $roles = Role::pluck('id', 'name');
         $added = 0;
@@ -74,7 +74,7 @@ class SyncPortalPages extends Command
             $moduleKey = isset($parts[1]) && $parts[1] !== 'index' ? $parts[1] : $parts[0];
 
             // Format to a friendly "Courses Page", "Events Page" string
-            $title = ucwords(str_replace(['_', '-'], ' ', $moduleKey)) . ' Page';
+            $title = ucwords(str_replace(['_', '-'], ' ', $moduleKey)).' Page';
 
             // Special fallback for literal top level overrides like dashboard if we add them later
             if ($moduleKey === 'settings') {
@@ -93,7 +93,7 @@ class SyncPortalPages extends Command
                 $page->save();
                 $added++;
 
-                // Set default permissions. 
+                // Set default permissions.
                 // e.g., if it starts with 'admin.', default give access only to super_admin and admin.
                 $routePrefix = $parts[0]; // e.g., 'admin', 'student'
 

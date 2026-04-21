@@ -1,11 +1,12 @@
 <?php
+
 // app/Http/Controllers/ResultController.php
 
 namespace App\Http\Controllers;
 
 use App\Models\Result;
-use App\Models\Student;
 use App\Models\Semester;
+use App\Models\Student;
 use App\Services\ResultService;
 use Illuminate\Http\Request;
 
@@ -44,7 +45,7 @@ class ResultController extends Controller
 
         return response()->json([
             'students' => $students,
-            'subjects' => $semester->semesterSubjects
+            'subjects' => $semester->semesterSubjects,
         ]);
     }
 
@@ -56,7 +57,7 @@ class ResultController extends Controller
         $validated = $request->validate([
             'student_id' => 'required|exists:students,id',
             'semester_id' => 'required|exists:semesters,id',
-            'marks' => 'required|array'
+            'marks' => 'required|array',
         ]);
 
         $student = Student::findOrFail($validated['student_id']);
@@ -100,7 +101,7 @@ class ResultController extends Controller
         $result->load([
             'student',
             'semester',
-            'resultSubjects.semesterSubject.subject'
+            'resultSubjects.semesterSubject.subject',
         ]);
 
         return view('results.show', compact('result'));
@@ -113,7 +114,7 @@ class ResultController extends Controller
     {
         $student = auth()->user()->student;
 
-        if (!$student) {
+        if (! $student) {
             abort(403, 'Student profile not found.');
         }
 

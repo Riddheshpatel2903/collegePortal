@@ -10,6 +10,7 @@ class OverduesController extends Controller
     public function index()
     {
         $overdues = LibraryIssue::query()->where('status', 'overdue')->latest()->paginate(15);
+
         return view('librarian.overdues.index', compact('overdues'));
     }
 }

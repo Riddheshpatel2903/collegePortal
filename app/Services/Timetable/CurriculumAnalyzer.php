@@ -2,7 +2,6 @@
 
 namespace App\Services\Timetable;
 
-use App\Models\Subject;
 use Illuminate\Support\Collection;
 
 class CurriculumAnalyzer
@@ -42,13 +41,13 @@ class CurriculumAnalyzer
                 for ($i = 0; $i < $numSessions; $i++) {
                     $labBlocks[] = [
                         'subject_id' => $subject->id,
-                        'duration' => $duration
+                        'duration' => $duration,
                     ];
                 }
             }
         }
 
-        $maxRequiredSlotsPerWeek = !empty($loadsBySem) ? max($loadsBySem) : 0;
+        $maxRequiredSlotsPerWeek = ! empty($loadsBySem) ? max($loadsBySem) : 0;
 
         return [
             'total_lecture_slots' => $totalLectureSlots,
@@ -56,7 +55,7 @@ class CurriculumAnalyzer
             'total_required_slots' => $maxRequiredSlotsPerWeek, // This is now per-year max
             'total_institutional_slots' => $totalLectureSlots + $totalLabSlots,
             'lab_blocks' => $labBlocks,
-            'subjects' => $subjects
+            'subjects' => $subjects,
         ];
     }
 }
